@@ -564,11 +564,7 @@ export default function Page() {
         {/* Yellow Container (center) */}
         <div className="yellow-container relative">
           {/* Main Animations with Controlled Visibility */}
-          <div
-            className={`w-full h-full transition-opacity duration-500 ${
-              address ? 'opacity-100' : 'opacity-0 pointer-events-none'
-            }`}
-          >
+          <div className="w-full h-full">
             {currentAnimation && (
               <Lottie
                 animationData={currentAnimation}
@@ -586,12 +582,6 @@ export default function Page() {
             )}
           </div>
 
-          {/* "Please connect your wallet" message */}
-          {!address && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-white text-xl font-semibold">Please connect your wallet</p>
-            </div>
-          )}
 
           {/* Error and Loading Indicators */}
           {error && (
@@ -716,11 +706,7 @@ export default function Page() {
         {/* Yellow Container */}
         <div className="yellow-container relative">
           {/* Main Animations with Controlled Visibility */}
-          <div
-            className={`w-full h-full transition-opacity duration-500 ${
-              address ? 'opacity-100' : 'opacity-0 pointer-events-none'
-            }`}
-          >
+          <div className="w-full h-full">
             {currentAnimation && (
               <Lottie
                 animationData={currentAnimation}
@@ -738,12 +724,6 @@ export default function Page() {
             )}
           </div>
 
-          {/* "Please connect your wallet" message */}
-          {!address && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-white text-xl font-semibold">Please connect your wallet</p>
-            </div>
-          )}
 
           {/* Error and Loading Indicators */}
           {error && (
