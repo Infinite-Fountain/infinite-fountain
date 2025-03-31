@@ -218,27 +218,6 @@ export default function Page() {
           <SignupButton />
           {!address && <LoginButton />}
         </div>
-        {/* Prev and Next Buttons */}
-        {showButtons && address && (
-          <div className="flex justify-center mt-4">
-            {(currentAnimationIndex !== 0 || hasSeenLastAnimation) && (
-              <button
-                className="prev-button px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg"
-                onClick={handlePrev}
-                aria-label="Previous Animation"
-              >
-                Prev
-              </button>
-            )}
-            <button
-              className="next-button px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg ml-4"
-              onClick={handleNext}
-              aria-label="Next Animation"
-            >
-              Next
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Mobile View */}
