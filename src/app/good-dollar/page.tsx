@@ -32,7 +32,7 @@ export default function Page() {
   const { address } = useAccount();
 
   // Array of animations in order
-  const animations = [DashboardAnimation, Animation2, Animation3, Animation4, Animation5, Animation6];
+  const animations = [Animation1, Animation2, Animation3, Animation4, Animation5, Animation6];
 
   // Array indicating whether each animation should loop
   const animationLoopSettings = [true, true, true, true, true, true];
