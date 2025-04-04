@@ -33,10 +33,10 @@ export default function Page() {
   const { address } = useAccount();
 
   // Array of animations in order
-  const animations = [Animation1, Animation2, Animation3, Animation4, Animation5, Animation6];
+  const animations = [Animation1];
 
   // Array indicating whether each animation should loop
-  const animationLoopSettings = [false, false, false, false, false, false];
+  const animationLoopSettings = [true];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(0);
@@ -311,20 +311,6 @@ export default function Page() {
             className="absolute top-0 right-0 w-[20%] h-full cursor-pointer md:hover:bg-white/20 bg-transparent border-0"
             style={{ zIndex: 15 }}
           ></button>
-          {/* NEW: Bottom Menu Animation rendered on top with a higher z-index and pointerEvents disabled */}
-          <Lottie
-            animationData={BottomMenu}
-            loop={true}
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              zIndex: 20,
-              pointerEvents: 'none'
-            }}
-          />
 
           {/* Vote Button */}
           {address && voteButtonVisible && (
