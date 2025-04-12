@@ -38,7 +38,7 @@ const PoolsManager: React.FC = () => {
   // Global fill values.
   const [globalTag, setGlobalTag] = useState<string>("");
   const [globalConcept, setGlobalConcept] = useState<string>("");
-  // Status message for batch actions.
+  // Status message for batch assign.
   const [status, setStatus] = useState<string>("");
 
   // Handler: add a new row.
@@ -78,18 +78,28 @@ const PoolsManager: React.FC = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-
+      
+      // Create contract instance.
       const contract = new ethers.Contract(poolAddress, abi, signer);
-
+      
+      // Check if current wallet is the owner.
+      const currentAddress = (await signer.getAddress()).toLowerCase();
+      const contractOwner = (await contract.owner()).toLowerCase();
+      if (currentAddress !== contractOwner) {
+        alert("your wallet is not the owner");
+        setDashboardStatus("Dashboard load aborted: wallet is not the owner.");
+        return;
+      }
+      
       const poolBal = await contract.totalPoolBalance();
       const assigned = await contract.totalAssigned();
       const unassigned = await contract.getUnassignedPoolBalance();
       const holders = await contract.getHolderListWithBalance();
-
+      
       setTotalPoolBalance(ethers.utils.formatUnits(poolBal, 6));
       setTotalAssigned(ethers.utils.formatUnits(assigned, 6));
       setTotalUnassigned(ethers.utils.formatUnits(unassigned, 6));
-
+      
       const holderListWithBalance: Holder[] = holders.map((h: any) => ({
         holder: h.holder,
         balance: ethers.utils.formatUnits(h.balance, 6),
@@ -119,14 +129,24 @@ const PoolsManager: React.FC = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-
+      
       const contract = new ethers.Contract(poolAddress, abi, signer);
+
+      // Check if current wallet is the owner.
+      const currentAddress = (await signer.getAddress()).toLowerCase();
+      const contractOwner = (await contract.owner()).toLowerCase();
+      if (currentAddress !== contractOwner) {
+        alert("your wallet is not the owner");
+        setStatus("Batch assignment aborted: wallet is not the owner.");
+        return;
+      }
+      
       const recipients: string[] = [];
       const amounts: ethers.BigNumber[] = [];
       const tags: string[] = [];
       const concepts: string[] = [];
-
-      rows.forEach((row) => {
+      
+      rows.forEach(row => {
         if (row.recipient && row.amount && ethers.utils.isAddress(row.recipient)) {
           recipients.push(row.recipient);
           amounts.push(ethers.utils.parseUnits(row.amount, 6));
@@ -134,12 +154,12 @@ const PoolsManager: React.FC = () => {
           concepts.push(row.concept);
         }
       });
-
+      
       if (recipients.length === 0) {
         setStatus("No valid rows to assign.");
         return;
       }
-
+      
       setStatus("Sending transaction...");
       const tx = await contract.assignCommunityUSDC(
         recipients,
@@ -171,14 +191,24 @@ const PoolsManager: React.FC = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-
+      
       const contract = new ethers.Contract(poolAddress, abi, signer);
+
+      // Check if current wallet is the owner.
+      const currentAddress = (await signer.getAddress()).toLowerCase();
+      const contractOwner = (await contract.owner()).toLowerCase();
+      if (currentAddress !== contractOwner) {
+        alert("your wallet is not the owner");
+        setStatus("Batch unassignment aborted: wallet is not the owner.");
+        return;
+      }
+      
       const recipients: string[] = [];
       const amounts: ethers.BigNumber[] = [];
       const tags: string[] = [];
       const concepts: string[] = [];
-
-      rows.forEach((row) => {
+      
+      rows.forEach(row => {
         if (row.recipient && row.amount && ethers.utils.isAddress(row.recipient)) {
           recipients.push(row.recipient);
           amounts.push(ethers.utils.parseUnits(row.amount, 6));
@@ -186,12 +216,12 @@ const PoolsManager: React.FC = () => {
           concepts.push(row.concept);
         }
       });
-
+      
       if (recipients.length === 0) {
         setStatus("No valid rows to unassign.");
         return;
       }
-
+      
       setStatus("Sending unassignment transaction...");
       const tx = await contract.unAssignCommunityUSDC(
         recipients,
@@ -246,12 +276,7 @@ const PoolsManager: React.FC = () => {
             </label>
             <button
               onClick={handleSeeDashboard}
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: "#007ACC",
-                color: "white",
-                fontSize: "16px"
-              }}
+              style={{ padding: "0.5rem 1rem", backgroundColor: "#007ACC", color: "white", fontSize: "16px" }}
             >
               See Dashboard
             </button>
