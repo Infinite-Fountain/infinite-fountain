@@ -7,40 +7,49 @@ import abi from "./abi.json";
 
 const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
 
-const BatchAssign = () => {
-  // Pool contract address input.
-  const [poolAddress, setPoolAddress] = useState("");
-  // Array of rows for assignments: each row includes recipient, amount, tag, and concept.
-  const [rows, setRows] = useState([
+type Row = {
+  recipient: string;
+  amount: string;
+  tag: string;
+  concept: string;
+};
+
+const PoolsManager: React.FC = () => {
+  // Global Pool Contract Address input (separated as the first section)
+  const [poolAddress, setPoolAddress] = useState<string>("");
+  
+  // Batch assignment rows: each row includes recipient, amount, tag, and concept.
+  const [rows, setRows] = useState<Row[]>([
     { recipient: "", amount: "", tag: "", concept: "" }
   ]);
-  // Inputs for "fill all tags and concepts"
-  const [globalTag, setGlobalTag] = useState("");
-  const [globalConcept, setGlobalConcept] = useState("");
+  
+  // Inputs for "Fill All Tags and Concepts" section.
+  const [globalTag, setGlobalTag] = useState<string>("");
+  const [globalConcept, setGlobalConcept] = useState<string>("");
   
   // Status message for UI feedback.
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState<string>("");
 
-  // Add a new row.
+  // Handler to add a new row.
   const addRow = () => {
     setRows([...rows, { recipient: "", amount: "", tag: "", concept: "" }]);
   };
 
-  // Update a specific row field.
-  const updateRow = (index: number, key: keyof typeof rows[0], value: string) => {
+  // Handler to update a specific row field.
+  const updateRow = (index: number, key: keyof Row, value: string) => {
     const newRows = [...rows];
     newRows[index][key] = value;
     setRows(newRows);
   };
 
-  // "Fill All Rows" handler: populate each row's tag and concept with globalTag and globalConcept.
+  // Handler to fill all rows' tag and concept with the global values.
   const fillAllRows = () => {
-    const newRows = rows.map(row => ({
+    const updatedRows = rows.map(row => ({
       ...row,
       tag: globalTag,
-      concept: globalConcept
+      concept: globalConcept,
     }));
-    setRows(newRows);
+    setRows(updatedRows);
   };
 
   // Batch assign function to call the smart contract.
@@ -52,7 +61,6 @@ const BatchAssign = () => {
         return;
       }
 
-      // Request accounts through MetaMask
       if (!window.ethereum) {
         setStatus("MetaMask is required");
         return;
@@ -61,16 +69,15 @@ const BatchAssign = () => {
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
 
-      // Create contract instance
+      // Create contract instance.
       const contract = new ethers.Contract(poolAddress, abi, signer);
 
-      // Prepare parallel arrays: recipients, amounts, tags, concepts.
+      // Build parallel arrays: recipients, amounts, tags, concepts.
       const recipients: string[] = [];
       const amounts: ethers.BigNumber[] = [];
       const tags: string[] = [];
       const concepts: string[] = [];
 
-      // Iterate over rows and include only valid rows.
       rows.forEach(row => {
         if (row.recipient && row.amount && ethers.utils.isAddress(row.recipient)) {
           recipients.push(row.recipient);
@@ -96,7 +103,7 @@ const BatchAssign = () => {
       setStatus("Transaction sent. Awaiting confirmation...");
       await tx.wait();
       setStatus("Batch assignment successful!");
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       setStatus(`Error: ${error instanceof Error ? error.message : 'An unknown error occurred'}`);
     }
@@ -104,23 +111,26 @@ const BatchAssign = () => {
 
   return (
     <div style={{ padding: "2rem", backgroundColor: "white", color: "black" }}>
-      <h2>Batch Assign Community USDC (CT)</h2>
-      
-      <div>
-        <label>
-          Pool Contract Address:{" "}
-          <input
-            type="text"
-            value={poolAddress}
-            onChange={(e) => setPoolAddress(e.target.value)}
-            placeholder="Enter pool contract address"
-            style={{ width: "400px" }}
-          />
-        </label>
-      </div>
+      {/* Section: Global Pool Contract Address */}
+      <section style={{ marginBottom: "2rem", borderBottom: "3px solid #333", paddingBottom: "1.5rem" }}>
+        <h1>Pools Manager</h1>
+        <div>
+          <label>
+            <strong>Pool Contract Address:</strong>{" "}
+            <input
+              type="text"
+              value={poolAddress}
+              onChange={(e) => setPoolAddress(e.target.value)}
+              placeholder="Enter pool contract address"
+              style={{ width: "400px", marginLeft: "1rem" }}
+            />
+          </label>
+        </div>
+      </section>
 
-      <div style={{ marginTop: "1rem" }}>
-        <h3>Assignments</h3>
+      {/* Section: Batch Assignment */}
+      <section style={{ marginBottom: "2rem" }}>
+        <h2>Batch Assign Community USDC (CT)</h2>
         <table border={1} cellPadding={8}>
           <thead>
             <tr>
@@ -176,9 +186,10 @@ const BatchAssign = () => {
         <button onClick={addRow} style={{ marginTop: "1rem" }}>
           Add New Row
         </button>
-      </div>
-      
-      <div style={{ marginTop: "2rem", padding: "1rem", border: "1px solid #ccc" }}>
+      </section>
+
+      {/* Section: Global Tag & Concept Fill */}
+      <section style={{ marginBottom: "2rem", padding: "1rem", border: "1px solid #ccc" }}>
         <h3>Fill All Tags and Concepts</h3>
         <div>
           <label>
@@ -207,19 +218,26 @@ const BatchAssign = () => {
         <button onClick={fillAllRows} style={{ marginTop: "1rem" }}>
           Fill All Rows
         </button>
-      </div>
+      </section>
       
-      <div style={{ marginTop: "2rem" }}>
-        <button onClick={handleBatchAssign} style={{ padding: "0.5rem 1rem", fontSize: "16px" }}>
+      {/* Section: Batch Assign Button */}
+      <section style={{ marginBottom: "2rem" }}>
+        <button 
+          onClick={handleBatchAssign} 
+          style={{ padding: "0.5rem 1rem", fontSize: "16px", backgroundColor: "#006400", color: "white" }}
+        >
           Batch Assign
         </button>
-      </div>
+      </section>
       
-      <div style={{ marginTop: "1rem", color: "blue" }}>
-        <strong>Status:</strong> {status}
-      </div>
+      {/* Section: Status */}
+      <section>
+        <div style={{ marginTop: "1rem", color: "blue" }}>
+          <strong>Status:</strong> {status}
+        </div>
+      </section>
     </div>
   );
 };
 
-export default BatchAssign;
+export default PoolsManager;
