@@ -22,14 +22,12 @@ type Holder = {
 const PoolsManager: React.FC = () => {
   // Global pool contract address state.
   const [poolAddress, setPoolAddress] = useState<string>("");
-  
   // Dashboard state.
   const [totalPoolBalance, setTotalPoolBalance] = useState<string>("");
   const [totalAssigned, setTotalAssigned] = useState<string>("");
   const [totalUnassigned, setTotalUnassigned] = useState<string>("");
   const [dashboardHolders, setDashboardHolders] = useState<Holder[]>([]);
   const [dashboardStatus, setDashboardStatus] = useState<string>("");
-  
   // Control whether the dashboard (with all subsequent sections) is expanded.
   const [showDashboard, setShowDashboard] = useState<boolean>(false);
 
@@ -37,12 +35,10 @@ const PoolsManager: React.FC = () => {
   const [rows, setRows] = useState<Row[]>([
     { recipient: "", amount: "", tag: "", concept: "" }
   ]);
-  
   // Global fill values.
   const [globalTag, setGlobalTag] = useState<string>("");
   const [globalConcept, setGlobalConcept] = useState<string>("");
-  
-  // Status message for batch assign.
+  // Status message for batch actions.
   const [status, setStatus] = useState<string>("");
 
   // Handler: add a new row.
@@ -82,26 +78,24 @@ const PoolsManager: React.FC = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-      
+
       const contract = new ethers.Contract(poolAddress, abi, signer);
-      
+
       const poolBal = await contract.totalPoolBalance();
       const assigned = await contract.totalAssigned();
       const unassigned = await contract.getUnassignedPoolBalance();
       const holders = await contract.getHolderListWithBalance();
-      
+
       setTotalPoolBalance(ethers.utils.formatUnits(poolBal, 6));
       setTotalAssigned(ethers.utils.formatUnits(assigned, 6));
       setTotalUnassigned(ethers.utils.formatUnits(unassigned, 6));
-      
+
       const holderListWithBalance: Holder[] = holders.map((h: any) => ({
         holder: h.holder,
         balance: ethers.utils.formatUnits(h.balance, 6),
       }));
       setDashboardHolders(holderListWithBalance);
       setDashboardStatus("Dashboard loaded.");
-      
-      // Expand the collapsible section.
       setShowDashboard(true);
     } catch (error: any) {
       console.error(error);
@@ -125,14 +119,14 @@ const PoolsManager: React.FC = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-      
+
       const contract = new ethers.Contract(poolAddress, abi, signer);
       const recipients: string[] = [];
       const amounts: ethers.BigNumber[] = [];
       const tags: string[] = [];
       const concepts: string[] = [];
-      
-      rows.forEach(row => {
+
+      rows.forEach((row) => {
         if (row.recipient && row.amount && ethers.utils.isAddress(row.recipient)) {
           recipients.push(row.recipient);
           amounts.push(ethers.utils.parseUnits(row.amount, 6));
@@ -140,12 +134,12 @@ const PoolsManager: React.FC = () => {
           concepts.push(row.concept);
         }
       });
-      
+
       if (recipients.length === 0) {
         setStatus("No valid rows to assign.");
         return;
       }
-      
+
       setStatus("Sending transaction...");
       const tx = await contract.assignCommunityUSDC(
         recipients,
@@ -162,11 +156,63 @@ const PoolsManager: React.FC = () => {
     }
   };
 
+  // Batch unassign function.
+  const handleBatchUnassign = async () => {
+    setStatus("Preparing unassignment transaction...");
+    try {
+      if (!poolAddress || !ethers.utils.isAddress(poolAddress)) {
+        setStatus("Invalid pool contract address");
+        return;
+      }
+      if (!window.ethereum) {
+        setStatus("MetaMask is required");
+        return;
+      }
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+
+      const contract = new ethers.Contract(poolAddress, abi, signer);
+      const recipients: string[] = [];
+      const amounts: ethers.BigNumber[] = [];
+      const tags: string[] = [];
+      const concepts: string[] = [];
+
+      rows.forEach((row) => {
+        if (row.recipient && row.amount && ethers.utils.isAddress(row.recipient)) {
+          recipients.push(row.recipient);
+          amounts.push(ethers.utils.parseUnits(row.amount, 6));
+          tags.push(row.tag);
+          concepts.push(row.concept);
+        }
+      });
+
+      if (recipients.length === 0) {
+        setStatus("No valid rows to unassign.");
+        return;
+      }
+
+      setStatus("Sending unassignment transaction...");
+      const tx = await contract.unAssignCommunityUSDC(
+        recipients,
+        amounts,
+        tags,
+        concepts
+      );
+      setStatus("Transaction sent. Awaiting confirmation...");
+      await tx.wait();
+      setStatus("Batch unassignment successful!");
+    } catch (error: any) {
+      console.error(error);
+      setStatus(`Error: ${error.message}`);
+    }
+  };
+
   return (
-    <div style={{ 
-      padding: "2rem", 
-      backgroundColor: "white", 
-      color: "black", 
+    <div style={{
+      padding: "2rem",
+      backgroundColor: "white",
+      color: "black",
       minHeight: "100vh",
       display: "flex",
       flexDirection: "column",
@@ -176,7 +222,13 @@ const PoolsManager: React.FC = () => {
     }}>
       {/* Global Section: Pool Contract Address & Dashboard Trigger */}
       <details open style={{ width: "100%", marginBottom: "2rem" }}>
-        <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem", borderBottom: "3px solid #333", paddingBottom: "1.5rem" }}>
+        <summary style={{
+          cursor: "default",
+          fontSize: "1.2rem",
+          marginBottom: "1rem",
+          borderBottom: "3px solid #333",
+          paddingBottom: "1.5rem"
+        }}>
           Pool Contract Address
         </summary>
         <section style={{ width: "100%" }}>
@@ -194,7 +246,12 @@ const PoolsManager: React.FC = () => {
             </label>
             <button
               onClick={handleSeeDashboard}
-              style={{ padding: "0.5rem 1rem", backgroundColor: "#007ACC", color: "white", fontSize: "16px" }}
+              style={{
+                padding: "0.5rem 1rem",
+                backgroundColor: "#007ACC",
+                color: "white",
+                fontSize: "16px"
+              }}
             >
               See Dashboard
             </button>
@@ -204,43 +261,43 @@ const PoolsManager: React.FC = () => {
               {dashboardStatus}
             </div>
           )}
+          {showDashboard && (
+            <div style={{ marginTop: "1rem" }}>
+              <div style={{ marginBottom: "1rem" }}>
+                <div><strong>Total Pool Balance:</strong> {totalPoolBalance} USDC</div>
+                <div><strong>Total Unassigned:</strong> {totalUnassigned} USDC</div>
+                <div><strong>Total Assigned:</strong> {totalAssigned} USDC</div>
+              </div>
+              <div>
+                <h3>Pool Members</h3>
+                <table border={1} cellPadding={8}>
+                  <thead>
+                    <tr>
+                      <th>Address</th>
+                      <th>Balance (USDC)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dashboardHolders.map((holder, index) => (
+                      <tr key={index}>
+                        <td>{holder.holder}</td>
+                        <td>{holder.balance}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </section>
       </details>
 
-      {/* Collapsible Section: Dashboard and Other Sections */}
       {showDashboard && (
         <details open style={{ width: "100%" }}>
           <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem" }}>
             Dashboard & Management Panels
           </summary>
-          <div style={{ marginBottom: "2rem" }}>
-            <div style={{ marginBottom: "1rem" }}>
-              <div><strong>Total Pool Balance:</strong> {totalPoolBalance} USDC</div>
-              <div><strong>Total Unassigned:</strong> {totalUnassigned} USDC</div>
-              <div><strong>Total Assigned:</strong> {totalAssigned} USDC</div>
-            </div>
-            <div>
-              <h3>Pool Members</h3>
-              <table border={1} cellPadding={8}>
-                <thead>
-                  <tr>
-                    <th>Address</th>
-                    <th>Balance (USDC)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dashboardHolders.map((holder, index) => (
-                    <tr key={index}>
-                      <td>{holder.holder}</td>
-                      <td>{holder.balance}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Section: Batch Assignment */}
+          {/* Section: Batch Assign Community USDC (CT) */}
           <details open style={{ width: "100%", marginBottom: "2rem" }}>
             <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem" }}>
               Batch Assign Community USDC (CT)
@@ -302,8 +359,6 @@ const PoolsManager: React.FC = () => {
                 Add New Row
               </button>
             </section>
-
-            {/* Section: Global Tag & Concept Fill */}
             <section style={{ marginBottom: "2rem", width: "100%", padding: "1rem", border: "1px solid #ccc" }}>
               <h3>Fill All Tags and Concepts</h3>
               <div style={{ marginBottom: "0.5rem" }}>
@@ -332,8 +387,6 @@ const PoolsManager: React.FC = () => {
               </div>
               <button onClick={fillAllRows}>Fill All Rows</button>
             </section>
-
-            {/* Section: Batch Assign Button */}
             <section style={{ marginBottom: "2rem", width: "100%" }}>
               <button
                 onClick={handleBatchAssign}
@@ -347,8 +400,6 @@ const PoolsManager: React.FC = () => {
                 Batch Assign
               </button>
             </section>
-
-            {/* Section: Status */}
             <section style={{ width: "100%" }}>
               <div style={{ marginTop: "1rem", color: "blue" }}>
                 <strong>Status:</strong> {status}
@@ -356,36 +407,99 @@ const PoolsManager: React.FC = () => {
             </section>
           </details>
 
-          {/* Section: UnAssign Community USDC */}
+          {/* New Section: UnAssign Community USDC (CT) */}
           <details open style={{ width: "100%", marginBottom: "2rem" }}>
             <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem" }}>
-              UnAssign Community USDC
+              UnAssign Community USDC (CT)
             </summary>
             <section style={{ width: "100%" }}>
-              <div style={{ marginBottom: "1rem" }}>
-                <p>Select holders to unassign USDC from:</p>
-                <table border={1} cellPadding={8}>
-                  <thead>
-                    <tr>
-                      <th>Select</th>
-                      <th>Address</th>
-                      <th>Balance (USDC)</th>
+              <table border={1} cellPadding={8}>
+                <thead>
+                  <tr>
+                    <th>Recipient</th>
+                    <th>Amount (USDC)</th>
+                    <th>Tag</th>
+                    <th>Concept</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, index) => (
+                    <tr key={index}>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.recipient}
+                          onChange={(e) => updateRow(index, "recipient", e.target.value)}
+                          placeholder="Recipient Address"
+                          style={{ width: "300px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={row.amount}
+                          onChange={(e) => updateRow(index, "amount", e.target.value)}
+                          placeholder="Amount"
+                          style={{ width: "120px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.tag}
+                          onChange={(e) => updateRow(index, "tag", e.target.value)}
+                          placeholder="Tag"
+                          style={{ width: "150px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.concept}
+                          onChange={(e) => updateRow(index, "concept", e.target.value)}
+                          placeholder="Concept"
+                          style={{ width: "150px" }}
+                        />
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {dashboardHolders.map((holder, index) => (
-                      <tr key={index}>
-                        <td>
-                          <input type="checkbox" />
-                        </td>
-                        <td>{holder.holder}</td>
-                        <td>{holder.balance}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  ))}
+                </tbody>
+              </table>
+              <button onClick={addRow} style={{ marginTop: "1rem" }}>
+                Add New Row
+              </button>
+            </section>
+            <section style={{ marginBottom: "2rem", width: "100%", padding: "1rem", border: "1px solid #ccc" }}>
+              <h3>Fill All Tags and Concepts</h3>
+              <div style={{ marginBottom: "0.5rem" }}>
+                <label>
+                  Global Tag:{" "}
+                  <input
+                    type="text"
+                    value={globalTag}
+                    onChange={(e) => setGlobalTag(e.target.value)}
+                    placeholder="Global Tag"
+                    style={{ width: "200px" }}
+                  />
+                </label>
               </div>
+              <div style={{ marginBottom: "0.5rem" }}>
+                <label>
+                  Global Concept:{" "}
+                  <input
+                    type="text"
+                    value={globalConcept}
+                    onChange={(e) => setGlobalConcept(e.target.value)}
+                    placeholder="Global Concept"
+                    style={{ width: "200px" }}
+                  />
+                </label>
+              </div>
+              <button onClick={fillAllRows}>Fill All Rows</button>
+            </section>
+            <section style={{ marginBottom: "2rem", width: "100%" }}>
               <button
+                onClick={handleBatchUnassign}
                 style={{
                   padding: "0.5rem 1rem",
                   fontSize: "16px",
@@ -393,8 +507,13 @@ const PoolsManager: React.FC = () => {
                   color: "white",
                 }}
               >
-                UnAssign Selected
+                UnAssign
               </button>
+            </section>
+            <section style={{ width: "100%" }}>
+              <div style={{ marginTop: "1rem", color: "blue" }}>
+                <strong>Status:</strong> {status}
+              </div>
             </section>
           </details>
         </details>
