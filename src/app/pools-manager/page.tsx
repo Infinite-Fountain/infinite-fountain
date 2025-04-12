@@ -14,37 +14,52 @@ type Row = {
   concept: string;
 };
 
+type Holder = {
+  holder: string;
+  balance: string;
+};
+
 const PoolsManager: React.FC = () => {
-  // Global Pool Contract Address input (separated as the first section)
+  // Global pool contract address state.
   const [poolAddress, setPoolAddress] = useState<string>("");
   
-  // Batch assignment rows: each row includes recipient, amount, tag, and concept.
+  // Dashboard state.
+  const [totalPoolBalance, setTotalPoolBalance] = useState<string>("");
+  const [totalAssigned, setTotalAssigned] = useState<string>("");
+  const [totalUnassigned, setTotalUnassigned] = useState<string>("");
+  const [dashboardHolders, setDashboardHolders] = useState<Holder[]>([]);
+  const [dashboardStatus, setDashboardStatus] = useState<string>("");
+  
+  // Control whether the dashboard (with all subsequent sections) is expanded.
+  const [showDashboard, setShowDashboard] = useState<boolean>(false);
+
+  // Batch assignment rows.
   const [rows, setRows] = useState<Row[]>([
     { recipient: "", amount: "", tag: "", concept: "" }
   ]);
   
-  // Inputs for "Fill All Tags and Concepts" section.
+  // Global fill values.
   const [globalTag, setGlobalTag] = useState<string>("");
   const [globalConcept, setGlobalConcept] = useState<string>("");
   
-  // Status message for UI feedback.
+  // Status message for batch assign.
   const [status, setStatus] = useState<string>("");
 
-  // Handler to add a new row.
+  // Handler: add a new row.
   const addRow = () => {
     setRows([...rows, { recipient: "", amount: "", tag: "", concept: "" }]);
   };
 
-  // Handler to update a specific row field.
+  // Handler: update a given row field.
   const updateRow = (index: number, key: keyof Row, value: string) => {
     const newRows = [...rows];
     newRows[index][key] = value;
     setRows(newRows);
   };
 
-  // Handler to fill all rows' tag and concept with the global values.
+  // Handler: fill all rows' tag and concept with global values.
   const fillAllRows = () => {
-    const updatedRows = rows.map(row => ({
+    const updatedRows = rows.map((row) => ({
       ...row,
       tag: globalTag,
       concept: globalConcept,
@@ -52,15 +67,57 @@ const PoolsManager: React.FC = () => {
     setRows(updatedRows);
   };
 
-  // Batch assign function to call the smart contract.
+  // Dashboard: fetch data from contract.
+  const handleSeeDashboard = async () => {
+    setDashboardStatus("Loading dashboard...");
+    try {
+      if (!poolAddress || !ethers.utils.isAddress(poolAddress)) {
+        setDashboardStatus("Invalid pool contract address");
+        return;
+      }
+      if (!window.ethereum) {
+        setDashboardStatus("MetaMask is required");
+        return;
+      }
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      
+      const contract = new ethers.Contract(poolAddress, abi, signer);
+      
+      const poolBal = await contract.totalPoolBalance();
+      const assigned = await contract.totalAssigned();
+      const unassigned = await contract.getUnassignedPoolBalance();
+      const holders = await contract.getHolderListWithBalance();
+      
+      setTotalPoolBalance(ethers.utils.formatUnits(poolBal, 6));
+      setTotalAssigned(ethers.utils.formatUnits(assigned, 6));
+      setTotalUnassigned(ethers.utils.formatUnits(unassigned, 6));
+      
+      const holderListWithBalance: Holder[] = holders.map((h: any) => ({
+        holder: h.holder,
+        balance: ethers.utils.formatUnits(h.balance, 6),
+      }));
+      setDashboardHolders(holderListWithBalance);
+      setDashboardStatus("Dashboard loaded.");
+      
+      // Expand the collapsible section.
+      setShowDashboard(true);
+    } catch (error: any) {
+      console.error(error);
+      setDashboardStatus(`Error: ${error.message}`);
+      setShowDashboard(false);
+    }
+  };
+
+  // Batch assign function.
   const handleBatchAssign = async () => {
     setStatus("Preparing transaction...");
     try {
-      if (!ethers.utils.isAddress(poolAddress)) {
+      if (!poolAddress || !ethers.utils.isAddress(poolAddress)) {
         setStatus("Invalid pool contract address");
         return;
       }
-
       if (!window.ethereum) {
         setStatus("MetaMask is required");
         return;
@@ -68,31 +125,27 @@ const PoolsManager: React.FC = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-
-      // Create contract instance.
+      
       const contract = new ethers.Contract(poolAddress, abi, signer);
-
-      // Build parallel arrays: recipients, amounts, tags, concepts.
       const recipients: string[] = [];
       const amounts: ethers.BigNumber[] = [];
       const tags: string[] = [];
       const concepts: string[] = [];
-
+      
       rows.forEach(row => {
         if (row.recipient && row.amount && ethers.utils.isAddress(row.recipient)) {
           recipients.push(row.recipient);
-          // Assume the amount is provided in USDC units (6 decimals).
           amounts.push(ethers.utils.parseUnits(row.amount, 6));
           tags.push(row.tag);
           concepts.push(row.concept);
         }
       });
-
+      
       if (recipients.length === 0) {
         setStatus("No valid rows to assign.");
         return;
       }
-
+      
       setStatus("Sending transaction...");
       const tx = await contract.assignCommunityUSDC(
         recipients,
@@ -105,137 +158,191 @@ const PoolsManager: React.FC = () => {
       setStatus("Batch assignment successful!");
     } catch (error: any) {
       console.error(error);
-      setStatus(`Error: ${error instanceof Error ? error.message : 'An unknown error occurred'}`);
+      setStatus(`Error: ${error.message}`);
     }
   };
 
   return (
-    <div style={{ padding: "2rem", backgroundColor: "white", color: "black" }}>
-      {/* Section: Global Pool Contract Address */}
-      <section style={{ marginBottom: "2rem", borderBottom: "3px solid #333", paddingBottom: "1.5rem" }}>
-        <h1>Pools Manager</h1>
-        <div>
-          <label>
-            <strong>Pool Contract Address:</strong>{" "}
-            <input
-              type="text"
-              value={poolAddress}
-              onChange={(e) => setPoolAddress(e.target.value)}
-              placeholder="Enter pool contract address"
-              style={{ width: "400px", marginLeft: "1rem" }}
-            />
-          </label>
-        </div>
-      </section>
+    <div style={{ padding: "2rem", backgroundColor: "white", color: "black", minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+      {/* Global Section: Pool Contract Address & Dashboard Trigger */}
+      <details open style={{ width: "100%", marginBottom: "2rem" }}>
+        <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem", borderBottom: "3px solid #333", paddingBottom: "1.5rem" }}>
+          Pool Contract Address
+        </summary>
+        <section style={{ width: "100%" }}>
+          <h1>Pools Manager</h1>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem" }}>
+            <label>
+              <strong>Pool Contract Address:</strong>{" "}
+              <input
+                type="text"
+                value={poolAddress}
+                onChange={(e) => setPoolAddress(e.target.value)}
+                placeholder="Enter pool contract address"
+                style={{ width: "400px" }}
+              />
+            </label>
+            <button
+              onClick={handleSeeDashboard}
+              style={{ padding: "0.5rem 1rem", backgroundColor: "#007ACC", color: "white", fontSize: "16px" }}
+            >
+              See Dashboard
+            </button>
+          </div>
+          {dashboardStatus && (
+            <div style={{ marginTop: "1rem", fontStyle: "italic" }}>
+              {dashboardStatus}
+            </div>
+          )}
+        </section>
+      </details>
 
-      {/* Section: Batch Assignment */}
-      <section style={{ marginBottom: "2rem" }}>
-        <h2>Batch Assign Community USDC (CT)</h2>
-        <table border={1} cellPadding={8}>
-          <thead>
-            <tr>
-              <th>Recipient</th>
-              <th>Amount (USDC)</th>
-              <th>Tag</th>
-              <th>Concept</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, index) => (
-              <tr key={index}>
-                <td>
-                  <input
-                    type="text"
-                    value={row.recipient}
-                    onChange={(e) => updateRow(index, "recipient", e.target.value)}
-                    placeholder="Recipient Address"
-                    style={{ width: "300px" }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={row.amount}
-                    onChange={(e) => updateRow(index, "amount", e.target.value)}
-                    placeholder="Amount"
-                    style={{ width: "120px" }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={row.tag}
-                    onChange={(e) => updateRow(index, "tag", e.target.value)}
-                    placeholder="Tag"
-                    style={{ width: "150px" }}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={row.concept}
-                    onChange={(e) => updateRow(index, "concept", e.target.value)}
-                    placeholder="Concept"
-                    style={{ width: "150px" }}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button onClick={addRow} style={{ marginTop: "1rem" }}>
-          Add New Row
-        </button>
-      </section>
+      {/* Collapsible Section: Dashboard and Other Sections */}
+      {showDashboard && (
+        <details open style={{ width: "100%" }}>
+          <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem" }}>
+            Dashboard & Management Panels
+          </summary>
+          <div style={{ marginBottom: "2rem" }}>
+            <div style={{ marginBottom: "1rem" }}>
+              <div><strong>Total Pool Balance:</strong> {totalPoolBalance} USDC</div>
+              <div><strong>Total Unassigned:</strong> {totalUnassigned} USDC</div>
+              <div><strong>Total Assigned:</strong> {totalAssigned} USDC</div>
+            </div>
+            <div>
+              <h3>Pool Members</h3>
+              <table border={1} cellPadding={8}>
+                <thead>
+                  <tr>
+                    <th>Address</th>
+                    <th>Balance (USDC)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dashboardHolders.map((holder, index) => (
+                    <tr key={index}>
+                      <td>{holder.holder}</td>
+                      <td>{holder.balance}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-      {/* Section: Global Tag & Concept Fill */}
-      <section style={{ marginBottom: "2rem", padding: "1rem", border: "1px solid #ccc" }}>
-        <h3>Fill All Tags and Concepts</h3>
-        <div>
-          <label>
-            Global Tag:{" "}
-            <input
-              type="text"
-              value={globalTag}
-              onChange={(e) => setGlobalTag(e.target.value)}
-              placeholder="Global Tag"
-              style={{ width: "200px" }}
-            />
-          </label>
-        </div>
-        <div style={{ marginTop: "0.5rem" }}>
-          <label>
-            Global Concept:{" "}
-            <input
-              type="text"
-              value={globalConcept}
-              onChange={(e) => setGlobalConcept(e.target.value)}
-              placeholder="Global Concept"
-              style={{ width: "200px" }}
-            />
-          </label>
-        </div>
-        <button onClick={fillAllRows} style={{ marginTop: "1rem" }}>
-          Fill All Rows
-        </button>
-      </section>
-      
-      {/* Section: Batch Assign Button */}
-      <section style={{ marginBottom: "2rem" }}>
-        <button 
-          onClick={handleBatchAssign} 
-          style={{ padding: "0.5rem 1rem", fontSize: "16px", backgroundColor: "#006400", color: "white" }}
-        >
-          Batch Assign
-        </button>
-      </section>
-      
-      {/* Section: Status */}
-      <section>
-        <div style={{ marginTop: "1rem", color: "blue" }}>
-          <strong>Status:</strong> {status}
-        </div>
-      </section>
+          {/* Section: Batch Assignment */}
+          <section style={{ marginBottom: "2rem", width: "100%" }}>
+            <h2>Batch Assign Community USDC (CT)</h2>
+            <table border={1} cellPadding={8}>
+              <thead>
+                <tr>
+                  <th>Recipient</th>
+                  <th>Amount (USDC)</th>
+                  <th>Tag</th>
+                  <th>Concept</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, index) => (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="text"
+                        value={row.recipient}
+                        onChange={(e) => updateRow(index, "recipient", e.target.value)}
+                        placeholder="Recipient Address"
+                        style={{ width: "300px" }}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={row.amount}
+                        onChange={(e) => updateRow(index, "amount", e.target.value)}
+                        placeholder="Amount"
+                        style={{ width: "120px" }}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={row.tag}
+                        onChange={(e) => updateRow(index, "tag", e.target.value)}
+                        placeholder="Tag"
+                        style={{ width: "150px" }}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={row.concept}
+                        onChange={(e) => updateRow(index, "concept", e.target.value)}
+                        placeholder="Concept"
+                        style={{ width: "150px" }}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button onClick={addRow} style={{ marginTop: "1rem" }}>
+              Add New Row
+            </button>
+          </section>
+
+          {/* Section: Global Tag & Concept Fill */}
+          <section style={{ marginBottom: "2rem", width: "100%", padding: "1rem", border: "1px solid #ccc" }}>
+            <h3>Fill All Tags and Concepts</h3>
+            <div style={{ marginBottom: "0.5rem" }}>
+              <label>
+                Global Tag:{" "}
+                <input
+                  type="text"
+                  value={globalTag}
+                  onChange={(e) => setGlobalTag(e.target.value)}
+                  placeholder="Global Tag"
+                  style={{ width: "200px" }}
+                />
+              </label>
+            </div>
+            <div style={{ marginBottom: "0.5rem" }}>
+              <label>
+                Global Concept:{" "}
+                <input
+                  type="text"
+                  value={globalConcept}
+                  onChange={(e) => setGlobalConcept(e.target.value)}
+                  placeholder="Global Concept"
+                  style={{ width: "200px" }}
+                />
+              </label>
+            </div>
+            <button onClick={fillAllRows}>Fill All Rows</button>
+          </section>
+
+          {/* Section: Batch Assign Button */}
+          <section style={{ marginBottom: "2rem", width: "100%" }}>
+            <button
+              onClick={handleBatchAssign}
+              style={{
+                padding: "0.5rem 1rem",
+                fontSize: "16px",
+                backgroundColor: "#006400",
+                color: "white",
+              }}
+            >
+              Batch Assign
+            </button>
+          </section>
+
+          {/* Section: Status */}
+          <section style={{ width: "100%" }}>
+            <div style={{ marginTop: "1rem", color: "blue" }}>
+              <strong>Status:</strong> {status}
+            </div>
+          </section>
+        </details>
+      )}
     </div>
   );
 };
