@@ -27,7 +27,7 @@ import LeaderboardAnimation from './animations/leaderboard.json';
 
 // Define constants
 const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
-const CONTRACT_ADDRESS = '0xfe3Fc6cb04bA5958b0577a0c6528269964e7C8bF'; // Your contract address
+const CONTRACT_ADDRESS = '0x6b9cC2AB8AfF2C2B868cF44c567991195346F37a'; // Your contract address
 
 export default function Page() {
   const { address } = useAccount();
