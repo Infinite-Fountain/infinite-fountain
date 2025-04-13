@@ -249,6 +249,68 @@ const PoolsManager: React.FC = () => {
     }
   };
 
+  // New Batch cashout function.
+  const handleBatchCashOut = async () => {
+    setStatus("Preparing cashout transaction...");
+    try {
+      if (!poolAddress || !ethers.utils.isAddress(poolAddress)) {
+        setStatus("Invalid pool contract address");
+        return;
+      }
+      if (!window.ethereum) {
+        setStatus("MetaMask is required");
+        return;
+      }
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      
+      const contract = new ethers.Contract(poolAddress, abi, signer);
+
+      // Check if current wallet is the owner.
+      const currentAddress = (await signer.getAddress()).toLowerCase();
+      const contractOwner = (await contract.owner()).toLowerCase();
+      if (currentAddress !== contractOwner) {
+        alert("your wallet is not the owner");
+        setStatus("Batch cashout aborted: wallet is not the owner.");
+        return;
+      }
+      
+      const recipients: string[] = [];
+      const amounts: ethers.BigNumber[] = [];
+      const tags: string[] = [];
+      const concepts: string[] = [];
+      
+      rows.forEach(row => {
+        if (row.recipient && row.amount && ethers.utils.isAddress(row.recipient)) {
+          recipients.push(row.recipient);
+          amounts.push(ethers.utils.parseUnits(row.amount, 6));
+          tags.push(row.tag);
+          concepts.push(row.concept);
+        }
+      });
+      
+      if (recipients.length === 0) {
+        setStatus("No valid rows to cash out.");
+        return;
+      }
+      
+      setStatus("Sending cashout transaction...");
+      const tx = await contract.cashOutCommunityUSDC(
+        recipients,
+        amounts,
+        tags,
+        concepts
+      );
+      setStatus("Transaction sent. Awaiting confirmation...");
+      await tx.wait();
+      setStatus("Batch cashout successful!");
+    } catch (error: any) {
+      console.error(error);
+      setStatus(`Error: ${error.message}`);
+    }
+  };
+
   // External Transfer function.
   const handleExternalTransfer = async () => {
     setStatus("Preparing external transfer...");
@@ -286,14 +348,14 @@ const PoolsManager: React.FC = () => {
         return;
       }
 
-      setStatus("Sending external transfer transaction...");
+      setStatus("Sending transaction...");
       const tx = await contract.externalTransfer(
         extTransferRecipient,
         ethers.utils.parseUnits(extTransferAmount, 6),
         extTransferTag,
         extTransferConcept
       );
-      setStatus("External transfer transaction sent. Awaiting confirmation...");
+      setStatus("Transaction sent. Awaiting confirmation...");
       await tx.wait();
       setStatus("External transfer successful!");
     } catch (error: any) {
@@ -635,6 +697,116 @@ const PoolsManager: React.FC = () => {
                 }}
               >
                 UnAssign
+              </button>
+            </section>
+            <section style={{ width: "100%" }}>
+              <div style={{ marginTop: "1rem", color: "blue" }}>
+                <strong>Status:</strong> {status}
+              </div>
+            </section>
+          </details>
+
+          {/* New Section: Batch CashOut Community USDC (CT) */}
+          <details style={{ width: "100%", marginBottom: "2rem" }}>
+            <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem" }}>
+              CashOut Community USDC (CT)
+            </summary>
+            <section style={{ width: "100%" }}>
+              <table border={1} cellPadding={8}>
+                <thead>
+                  <tr>
+                    <th>Recipient</th>
+                    <th>Amount (USDC)</th>
+                    <th>Tag</th>
+                    <th>Concept</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, index) => (
+                    <tr key={index}>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.recipient}
+                          onChange={(e) => updateRow(index, "recipient", e.target.value)}
+                          placeholder="Recipient Address"
+                          style={{ width: "300px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={row.amount}
+                          onChange={(e) => updateRow(index, "amount", e.target.value)}
+                          placeholder="Amount"
+                          style={{ width: "120px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.tag}
+                          onChange={(e) => updateRow(index, "tag", e.target.value)}
+                          placeholder="Tag"
+                          style={{ width: "150px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.concept}
+                          onChange={(e) => updateRow(index, "concept", e.target.value)}
+                          placeholder="Concept"
+                          style={{ width: "150px" }}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button onClick={addRow} style={{ marginTop: "1rem" }}>
+                Add New Row
+              </button>
+            </section>
+            <section style={{ marginBottom: "2rem", width: "100%", padding: "1rem", border: "1px solid #ccc" }}>
+              <h3>Fill All Tags and Concepts</h3>
+              <div style={{ marginBottom: "0.5rem" }}>
+                <label>
+                  Global Tag:{" "}
+                  <input
+                    type="text"
+                    value={globalTag}
+                    onChange={(e) => setGlobalTag(e.target.value)}
+                    placeholder="Global Tag"
+                    style={{ width: "200px" }}
+                  />
+                </label>
+              </div>
+              <div style={{ marginBottom: "0.5rem" }}>
+                <label>
+                  Global Concept:{" "}
+                  <input
+                    type="text"
+                    value={globalConcept}
+                    onChange={(e) => setGlobalConcept(e.target.value)}
+                    placeholder="Global Concept"
+                    style={{ width: "200px" }}
+                  />
+                </label>
+              </div>
+              <button onClick={fillAllRows}>Fill All Rows</button>
+            </section>
+            <section style={{ marginBottom: "2rem", width: "100%" }}>
+              <button
+                onClick={handleBatchCashOut}
+                style={{
+                  padding: "0.5rem 1rem",
+                  fontSize: "16px",
+                  backgroundColor: "#00008B",
+                  color: "white",
+                }}
+              >
+                CashOut
               </button>
             </section>
             <section style={{ width: "100%" }}>
