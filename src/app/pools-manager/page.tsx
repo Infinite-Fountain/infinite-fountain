@@ -38,8 +38,19 @@ const PoolsManager: React.FC = () => {
   // Global fill values.
   const [globalTag, setGlobalTag] = useState<string>("");
   const [globalConcept, setGlobalConcept] = useState<string>("");
-  // Status message for batch assign.
+  // Status message for on-chain actions.
   const [status, setStatus] = useState<string>("");
+
+  // Additional state for external transfer inputs.
+  const [extTransferRecipient, setExtTransferRecipient] = useState<string>("");
+  const [extTransferAmount, setExtTransferAmount] = useState<string>("");
+  const [extTransferTag, setExtTransferTag] = useState<string>("");
+  const [extTransferConcept, setExtTransferConcept] = useState<string>("");
+
+  // Additional state for deposit inputs.
+  const [depositAmount, setDepositAmount] = useState<string>("");
+  const [depositTag, setDepositTag] = useState<string>("");
+  const [depositConcept, setDepositConcept] = useState<string>("");
 
   // Handler: add a new row.
   const addRow = () => {
@@ -238,6 +249,97 @@ const PoolsManager: React.FC = () => {
     }
   };
 
+  // External Transfer function.
+  const handleExternalTransfer = async () => {
+    setStatus("Preparing external transfer...");
+    try {
+      if (!poolAddress || !ethers.utils.isAddress(poolAddress)) {
+        setStatus("Invalid pool contract address");
+        return;
+      }
+      if (!window.ethereum) {
+        setStatus("MetaMask is required");
+        return;
+      }
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      
+      const contract = new ethers.Contract(poolAddress, abi, signer);
+
+      // Check if current wallet is the owner.
+      const currentAddress = (await signer.getAddress()).toLowerCase();
+      const contractOwner = (await contract.owner()).toLowerCase();
+      if (currentAddress !== contractOwner) {
+        alert("your wallet is not the owner");
+        setStatus("External transfer aborted: wallet is not the owner.");
+        return;
+      }
+
+      // Validate the external transfer input.
+      if (!ethers.utils.isAddress(extTransferRecipient)) {
+        setStatus("Invalid recipient address for external transfer.");
+        return;
+      }
+      if (!extTransferAmount) {
+        setStatus("Please enter an amount for external transfer.");
+        return;
+      }
+
+      setStatus("Sending external transfer transaction...");
+      const tx = await contract.externalTransfer(
+        extTransferRecipient,
+        ethers.utils.parseUnits(extTransferAmount, 6),
+        extTransferTag,
+        extTransferConcept
+      );
+      setStatus("External transfer transaction sent. Awaiting confirmation...");
+      await tx.wait();
+      setStatus("External transfer successful!");
+    } catch (error: any) {
+      console.error(error);
+      setStatus(`Error: ${error.message}`);
+    }
+  };
+
+  // Deposit function.
+  const handleDeposit = async () => {
+    setStatus("Preparing deposit...");
+    try {
+      if (!poolAddress || !ethers.utils.isAddress(poolAddress)) {
+        setStatus("Invalid pool contract address");
+        return;
+      }
+      if (!window.ethereum) {
+        setStatus("MetaMask is required");
+        return;
+      }
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      
+      const contract = new ethers.Contract(poolAddress, abi, signer);
+      
+      if (!depositAmount) {
+        setStatus("Please enter an amount for deposit.");
+        return;
+      }
+      
+      setStatus("Sending deposit transaction...");
+      const tx = await contract.depositUSDC(
+        ethers.utils.parseUnits(depositAmount, 6),
+        depositTag,
+        depositConcept
+      );
+      setStatus("Deposit transaction sent. Awaiting confirmation...");
+      await tx.wait();
+      setStatus("Deposit successful!");
+    } catch (error: any) {
+      console.error(error);
+      setStatus(`Error: ${error.message}`);
+    }
+  };
+
   return (
     <div style={{
       padding: "2rem",
@@ -251,7 +353,7 @@ const PoolsManager: React.FC = () => {
       maxHeight: "100vh"
     }}>
       {/* Global Section: Pool Contract Address & Dashboard Trigger */}
-      <details open style={{ width: "100%", marginBottom: "2rem" }}>
+      <details style={{ width: "100%", marginBottom: "2rem" }}>
         <summary style={{
           cursor: "default",
           fontSize: "1.2rem",
@@ -318,12 +420,12 @@ const PoolsManager: React.FC = () => {
       </details>
 
       {showDashboard && (
-        <details open style={{ width: "100%" }}>
+        <details style={{ width: "100%" }}>
           <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem" }}>
             Dashboard & Management Panels
           </summary>
           {/* Section: Batch Assign Community USDC (CT) */}
-          <details open style={{ width: "100%", marginBottom: "2rem" }}>
+          <details style={{ width: "100%", marginBottom: "2rem" }}>
             <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem" }}>
               Batch Assign Community USDC (CT)
             </summary>
@@ -432,8 +534,8 @@ const PoolsManager: React.FC = () => {
             </section>
           </details>
 
-          {/* New Section: UnAssign Community USDC (CT) */}
-          <details open style={{ width: "100%", marginBottom: "2rem" }}>
+          {/* Section: UnAssign Community USDC (CT) */}
+          <details style={{ width: "100%", marginBottom: "2rem" }}>
             <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem" }}>
               UnAssign Community USDC (CT)
             </summary>
@@ -539,6 +641,144 @@ const PoolsManager: React.FC = () => {
               <div style={{ marginTop: "1rem", color: "blue" }}>
                 <strong>Status:</strong> {status}
               </div>
+            </section>
+          </details>
+
+          {/* New Section: External Transfer */}
+          <details style={{ width: "100%", marginBottom: "2rem" }}>
+            <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem" }}>
+              External Transfer
+            </summary>
+            <section style={{ width: "100%" }}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label>
+                  <strong>Recipient Address:</strong>{" "}
+                  <input
+                    type="text"
+                    value={extTransferRecipient}
+                    onChange={(e) => setExtTransferRecipient(e.target.value)}
+                    placeholder="Enter recipient address"
+                    style={{ width: "400px" }}
+                  />
+                </label>
+              </div>
+              <div style={{ marginBottom: "1rem" }}>
+                <label>
+                  <strong>Amount (USDC):</strong>{" "}
+                  <input
+                    type="number"
+                    value={extTransferAmount}
+                    onChange={(e) => setExtTransferAmount(e.target.value)}
+                    placeholder="Enter amount"
+                    style={{ width: "200px" }}
+                  />
+                </label>
+              </div>
+              <div style={{ marginBottom: "1rem" }}>
+                <label>
+                  <strong>Tag:</strong>{" "}
+                  <input
+                    type="text"
+                    value={extTransferTag}
+                    onChange={(e) => setExtTransferTag(e.target.value)}
+                    placeholder="Enter tag"
+                    style={{ width: "200px" }}
+                  />
+                </label>
+              </div>
+              <div style={{ marginBottom: "1rem" }}>
+                <label>
+                  <strong>Concept:</strong>{" "}
+                  <input
+                    type="text"
+                    value={extTransferConcept}
+                    onChange={(e) => setExtTransferConcept(e.target.value)}
+                    placeholder="Enter concept"
+                    style={{ width: "200px" }}
+                  />
+                </label>
+              </div>
+              <section style={{ marginBottom: "2rem", width: "100%" }}>
+                <button
+                  onClick={handleExternalTransfer}
+                  style={{
+                    padding: "0.5rem 1rem",
+                    fontSize: "16px",
+                    backgroundColor: "#FFA500",
+                    color: "white",
+                  }}
+                >
+                  External Transfer
+                </button>
+              </section>
+              <section style={{ width: "100%" }}>
+                <div style={{ marginTop: "1rem", color: "blue" }}>
+                  <strong>Status:</strong> {status}
+                </div>
+              </section>
+            </section>
+          </details>
+
+          {/* New Section: Deposit */}
+          <details style={{ width: "100%", marginBottom: "2rem" }}>
+            <summary style={{ cursor: "default", fontSize: "1.2rem", marginBottom: "1rem" }}>
+              Deposit USDC
+            </summary>
+            <section style={{ width: "100%" }}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label>
+                  <strong>Amount (USDC):</strong>{" "}
+                  <input
+                    type="number"
+                    value={depositAmount}
+                    onChange={(e) => setDepositAmount(e.target.value)}
+                    placeholder="Enter amount to deposit"
+                    style={{ width: "200px" }}
+                  />
+                </label>
+              </div>
+              <div style={{ marginBottom: "1rem" }}>
+                <label>
+                  <strong>Tag:</strong>{" "}
+                  <input
+                    type="text"
+                    value={depositTag}
+                    onChange={(e) => setDepositTag(e.target.value)}
+                    placeholder="Enter tag"
+                    style={{ width: "200px" }}
+                  />
+                </label>
+              </div>
+              <div style={{ marginBottom: "1rem" }}>
+                <label>
+                  <strong>Concept:</strong>{" "}
+                  <input
+                    type="text"
+                    value={depositConcept}
+                    onChange={(e) => setDepositConcept(e.target.value)}
+                    placeholder="Enter concept"
+                    style={{ width: "200px" }}
+                  />
+                </label>
+              </div>
+              <section style={{ marginBottom: "2rem", width: "100%" }}>
+                <button
+                  onClick={handleDeposit}
+                  style={{
+                    padding: "0.5rem 1rem",
+                    fontSize: "16px",
+                    backgroundColor: "#008000",
+                    color: "white",
+                  }}
+                >
+                  Deposit
+                </button>
+              </section>
+              <section style={{ width: "100%" }}>
+                <div style={{ marginTop: "1rem", color: "blue" }}>
+                  <strong>Status:</strong> {status}
+                </div>
+              </section>
             </section>
           </details>
         </details>
