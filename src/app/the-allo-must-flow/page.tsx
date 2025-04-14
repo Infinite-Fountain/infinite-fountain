@@ -21,6 +21,8 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Import your animations
+import Gate1 from './animations/gate1.json';
+import Gate2 from './animations/gate2.json';
 import Animation1 from './animations/animation1.json';
 import Animation2 from './animations/animation2.json';
 import Animation3 from './animations/animation3.json';
@@ -46,10 +48,10 @@ export default function Page() {
   const { address } = useAccount();
 
   // Array of animations in order
-  const animations = [Animation1];
+  const animations = [Gate1, Gate2, Animation1, Animation2, Animation3];
 
   // Array indicating whether each animation should loop
-  const animationLoopSettings = [true];
+  const animationLoopSettings = [true, false, true, false, true];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(0);
@@ -98,6 +100,9 @@ export default function Page() {
 
   // NEW: State variable to track if the user has seen the last animation (resets on refresh)
   const [hasSeenLastAnimation, setHasSeenLastAnimation] = useState(false);
+
+  // NEW: State variable to track if NFT is verified (i.e. user has the NFT)
+  const [nftVerified, setNftVerified] = useState(false);
 
   // Initialize ethers provider and contract (for base network)
   const provider = new ethers.providers.JsonRpcProvider(ALCHEMY_API_URL);
@@ -178,15 +183,14 @@ export default function Page() {
     if (!address) return;
     try {
       // 1. Query Supabase for the connected wallet
-      let { data, error } = await supabase
+      let { data } = await supabase
         .from('pools_members')
         .select('allominati')
         .eq('wallet_address', address.toLowerCase())
         .maybeSingle();
       
-      // If data found and allominati is true, alert and exit.
       if (data && data.allominati === true) {
-        alert("allominati nft found");
+        setNftVerified(true);
         return;
       }
 
@@ -194,10 +198,7 @@ export default function Page() {
       const onChainHolders = await fetchMembersNFTHolders();
 
       // 3. Insert missing addresses into Supabase with allominati true.
-      // (This loop attempts to insert every holder from on-chain.
-      //  In a production app you might batch these operations or add conflict resolution.)
       for (const holder of onChainHolders) {
-        // Using .insert will not delete existing entries.
         await supabase
           .from('pools_members')
           .insert([{ wallet_address: holder, allominati: true }])
@@ -207,22 +208,44 @@ export default function Page() {
       }
 
       // 4. Re-check the connected wallet in Supabase.
-      const { data: refreshedData, error: refreshError } = await supabase
+      const { data: refreshedData } = await supabase
         .from('pools_members')
         .select('allominati')
         .eq('wallet_address', address.toLowerCase())
         .maybeSingle();
 
       if (refreshedData && refreshedData.allominati === true) {
-        alert("allominati nft found");
-      } else {
-        alert("allominati nft NOT found");
+        setNftVerified(true);
       }
     } catch (err) {
       console.error("Error in checkNFTStatus:", err);
-      alert("An error occurred while checking NFT status.");
     }
   };
+
+  // --- New useEffect: Auto-switch animations based on wallet connection & NFT status ---
+  useEffect(() => {
+    if (address) {
+      if (nftVerified) {
+        // If wallet connected and NFT is verified, ensure we are in Gate2 initially.
+        if (currentAnimationIndex < 2) {
+          setCurrentAnimationIndex(1);
+          setAnimationData(animations[1]);
+        }
+      } else {
+        // If wallet connected but NFT not verified, force Gate1.
+        if (currentAnimationIndex !== 0) {
+          setCurrentAnimationIndex(0);
+          setAnimationData(animations[0]);
+        }
+      }
+    } else {
+      // If no wallet, remain on Gate1.
+      if (currentAnimationIndex !== 0) {
+        setCurrentAnimationIndex(0);
+        setAnimationData(animations[0]);
+      }
+    }
+  }, [address, nftVerified]);
 
   // --- New useEffect: Trigger checkNFTStatus when address is available ---
   useEffect(() => {
@@ -238,8 +261,6 @@ export default function Page() {
       setAnimationPlayed(true);
       setShowButtons(true);
       setLoading(true);
-      // No need to set isAnimating
-
       // Fetch data from smart contract
       const fetchData = async () => {
         try {
@@ -292,7 +313,6 @@ export default function Page() {
             const balanceInfo =
               typeof top10Results[i]?.balance === 'number' ? top10Results[i].balance.toString() : 'N/A';
 
-            // Populate the top10UserInfosArray
             top10UserInfosArray.push({ place, userInfo, balanceInfo });
           }
 
@@ -325,26 +345,36 @@ export default function Page() {
     return 'th';
   };
 
-  // --- Existing handler for Next button ---
-  const handleNext = () => {
-    const nextIndex = currentAnimationIndex === animations.length - 1 ? 0 : currentAnimationIndex + 1;
-    if (currentAnimationIndex === animations.length - 1) {
-      setHasSeenLastAnimation(true);
+  // --- New autoNext function for automatic transitions ---
+  const autoNext = () => {
+    if (currentAnimationIndex === 1 && nftVerified) {
+      // Gate2 finished, advance to Animation1 (index 2)
+      setCurrentAnimationIndex(2);
+      setAnimationData(animations[2]);
+    } else if (currentAnimationIndex >= 2) {
+      // For normal animations: if at last, jump to Animation1 (index 2); otherwise, next animation.
+      const nextIndex = currentAnimationIndex === animations.length - 1 ? 2 : currentAnimationIndex + 1;
+      setCurrentAnimationIndex(nextIndex);
+      setAnimationData(animations[nextIndex]);
     }
+  };
+
+  // --- Modified handler for Next button (manual input) ---
+  const handleNext = () => {
+    // Ignore manual next if in gating section (indexes 0 and 1)
+    if (currentAnimationIndex < 2) return;
+    const nextIndex = currentAnimationIndex === animations.length - 1 ? 2 : currentAnimationIndex + 1;
     setCurrentAnimationIndex(nextIndex);
     setAnimationData(animations[nextIndex]);
   };
 
-  // --- Existing handler for Prev button (with processing guard) ---
+  // --- Modified handler for Prev button ---
   const handlePrev = () => {
-    if (isPrevProcessing) return;
-    setIsPrevProcessing(true);
-    setCurrentAnimationIndex((prevIndex) => {
-      const newIndex = prevIndex === 0 && hasSeenLastAnimation ? animations.length - 1 : prevIndex - 1;
-      setAnimationData(animations[newIndex]);
-      return newIndex;
-    });
-    setTimeout(() => setIsPrevProcessing(false), 100);
+    // Only allow prev navigation if current animation index is 3 or above
+    if (currentAnimationIndex < 3) return;
+    const newIndex = currentAnimationIndex - 1;
+    setCurrentAnimationIndex(newIndex);
+    setAnimationData(animations[newIndex]);
   };
 
   // --- Existing handlers for opening and closing drawers ---
@@ -379,7 +409,7 @@ export default function Page() {
               key={currentAnimationIndex} // Force re-mount on animation change
               animationData={animationData}
               loop={animationLoopSettings[currentAnimationIndex]} // true or false
-              onComplete={handleNext} // Automatically calls handleNext when animation completes
+              onComplete={autoNext} // Automatically calls autoNext when animation completes
               style={{
                 width: '100%',
                 height: '100%',
@@ -507,7 +537,7 @@ export default function Page() {
               key={currentAnimationIndex} // Force re-mount on animation change
               animationData={animationData}
               loop={animationLoopSettings[currentAnimationIndex]} // true or false
-              onComplete={handleNext} // Automatically calls handleNext when animation completes
+              onComplete={autoNext} // Automatically calls autoNext when animation completes
               style={{
                 width: '100%',
                 height: '100%',
