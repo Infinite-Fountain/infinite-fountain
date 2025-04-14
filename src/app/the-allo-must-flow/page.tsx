@@ -7,10 +7,18 @@ import Image from 'next/image';
 import LoginButton from '../../components/LoginButton';
 import SignupButton from '../../components/SignupButton';
 import abi from './abi.json'; // Import ABI from the JSON file
+// New import for the members NFT contract ABI
+import allominatiAbi from './abi-allominati.json';
 import '.././global.css';
 import { getBasename, type Basename } from '../../basenames';
 import { getEnsName } from '../../ensnames';
 import { truncateWalletAddress } from '../../utils'; // Assuming you have this utility function
+
+// **Import and initialize Supabase Client**
+import { createClient } from '@supabase/supabase-js';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Import your animations
 import Animation1 from './animations/animation1.json';
@@ -25,9 +33,14 @@ import BottomMenu from './animations/bottom-menu.json'; // NEW: Import bottom-me
 import DashboardAnimation from './animations/dashboard.json';
 import LeaderboardAnimation from './animations/leaderboard.json';
 
+
 // Define constants
 const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
 const CONTRACT_ADDRESS = '0x6b9cC2AB8AfF2C2B868cF44c567991195346F37a'; // Your contract address
+
+// New constants for mainnet and the members NFT contract:
+const ALCHEMY_MAINNET_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_MAINNET_API_URL;
+const MEMBERS_NFT_CONTRACT = '0xcCf223a3Bb40173E1AB9262ad0d04C5bf3Ea32f5';
 
 export default function Page() {
   const { address } = useAccount();
@@ -86,11 +99,15 @@ export default function Page() {
   // NEW: State variable to track if the user has seen the last animation (resets on refresh)
   const [hasSeenLastAnimation, setHasSeenLastAnimation] = useState(false);
 
-  // Initialize ethers provider and contract
+  // Initialize ethers provider and contract (for base network)
   const provider = new ethers.providers.JsonRpcProvider(ALCHEMY_API_URL);
   const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
 
-  // Fetch all Assigned events to get unique user addresses
+  // New: Initialize mainnet provider and members NFT contract (for NFT onchain checking)
+  const mainnetProvider = new ethers.providers.JsonRpcProvider(ALCHEMY_MAINNET_API_URL);
+  const membersNFTContract = new ethers.Contract(MEMBERS_NFT_CONTRACT, allominatiAbi, mainnetProvider);
+
+  // --- Existing function: Fetch all Assigned events to get unique user addresses ---
   const fetchAllAddresses = async () => {
     try {
       const filter = contract.filters.Assigned();
@@ -101,7 +118,7 @@ export default function Page() {
         if (event.args) {
           const userAddress = event.args.user;
           if (userAddress.toLowerCase() !== CONTRACT_ADDRESS.toLowerCase()) {
-            addressesSet.add(userAddress);
+            addressesSet.add(userAddress.toLowerCase());
           }
         }
       });
@@ -113,7 +130,26 @@ export default function Page() {
     }
   };
 
-  // Fetch balance for a single address
+  // --- New function: Fetch NFT holders from the MEMBERS_NFT_CONTRACT using mainnet ---
+  const fetchMembersNFTHolders = async () => {
+    try {
+      // Using the standard ERC721 Transfer event as an example.
+      const filter = membersNFTContract.filters.Transfer();
+      const events = await membersNFTContract.queryFilter(filter, 0, 'latest');
+      const holdersSet = new Set<string>();
+      events.forEach((event) => {
+        if (event.args && event.args.to) {
+          holdersSet.add(event.args.to.toLowerCase());
+        }
+      });
+      return Array.from(holdersSet);
+    } catch (err) {
+      console.error('Error fetching NFT holders:', err);
+      return [];
+    }
+  };
+
+  // --- Existing function: Fetch balance for a single address ---
   const fetchBalance = async (userAddress: string) => {
     try {
       const balance = await contract.getCommunityUSDC(userAddress);
@@ -125,7 +161,7 @@ export default function Page() {
     }
   };
 
-  // Fetch Community Pool Balance
+  // --- Existing function: Fetch Community Pool Balance ---
   const fetchCommunityPoolBalance = async () => {
     try {
       const poolBalance = await contract.unassignedPoolBalance();
@@ -137,8 +173,67 @@ export default function Page() {
     }
   };
 
+  // --- New Function: Check NFT status using Supabase and on-chain events ---
+  const checkNFTStatus = async () => {
+    if (!address) return;
+    try {
+      // 1. Query Supabase for the connected wallet
+      let { data, error } = await supabase
+        .from('pools_members')
+        .select('allominati')
+        .eq('wallet_address', address.toLowerCase())
+        .maybeSingle();
+      
+      // If data found and allominati is true, alert and exit.
+      if (data && data.allominati === true) {
+        alert("allominati nft found");
+        return;
+      }
+
+      // 2. If not found or false, fetch on-chain NFT holders using the mainnet contract
+      const onChainHolders = await fetchMembersNFTHolders();
+
+      // 3. Insert missing addresses into Supabase with allominati true.
+      // (This loop attempts to insert every holder from on-chain.
+      //  In a production app you might batch these operations or add conflict resolution.)
+      for (const holder of onChainHolders) {
+        // Using .insert will not delete existing entries.
+        await supabase
+          .from('pools_members')
+          .insert([{ wallet_address: holder, allominati: true }])
+          .then(({ error }) => {
+            if (error) console.error(`Insert error for ${holder}:`, error);
+          });
+      }
+
+      // 4. Re-check the connected wallet in Supabase.
+      const { data: refreshedData, error: refreshError } = await supabase
+        .from('pools_members')
+        .select('allominati')
+        .eq('wallet_address', address.toLowerCase())
+        .maybeSingle();
+
+      if (refreshedData && refreshedData.allominati === true) {
+        alert("allominati nft found");
+      } else {
+        alert("allominati nft NOT found");
+      }
+    } catch (err) {
+      console.error("Error in checkNFTStatus:", err);
+      alert("An error occurred while checking NFT status.");
+    }
+  };
+
+  // --- New useEffect: Trigger checkNFTStatus when address is available ---
   useEffect(() => {
-    if (address && !animationPlayed) {
+    if (address) {
+      checkNFTStatus();
+    }
+  }, [address]);
+
+  // --- Existing useEffect: Animation and smart contract data fetch ---
+  useEffect(() => {
+    if (!animationPlayed) {
       setAnimationData(animations[currentAnimationIndex]);
       setAnimationPlayed(true);
       setShowButtons(true);
@@ -214,7 +309,7 @@ export default function Page() {
     }
   }, [address, animationPlayed, currentAnimationIndex, animations, animationLoopSettings]);
 
-  // Function to get ordinal suffix
+  // --- Existing helper function to get ordinal suffix ---
   const getOrdinalSuffix = (i: number) => {
     const j = i % 10,
       k = i % 100;
@@ -230,8 +325,7 @@ export default function Page() {
     return 'th';
   };
 
-  // Handler for Next button - now plays the first animation again when at the end.
-  // Also, if the user reaches the last animation, mark hasSeenLastAnimation true.
+  // --- Existing handler for Next button ---
   const handleNext = () => {
     const nextIndex = currentAnimationIndex === animations.length - 1 ? 0 : currentAnimationIndex + 1;
     if (currentAnimationIndex === animations.length - 1) {
@@ -241,7 +335,7 @@ export default function Page() {
     setAnimationData(animations[nextIndex]);
   };
 
-  // Handler for Prev button (with processing guard)
+  // --- Existing handler for Prev button (with processing guard) ---
   const handlePrev = () => {
     if (isPrevProcessing) return;
     setIsPrevProcessing(true);
@@ -253,22 +347,19 @@ export default function Page() {
     setTimeout(() => setIsPrevProcessing(false), 100);
   };
 
-  // Handler to open the primary drawer
+  // --- Existing handlers for opening and closing drawers ---
   const handleVoteButtonClick = () => {
     setDrawerState('primary-open');
   };
 
-  // Handler to close the primary drawer
   const handleClosePrimaryDrawer = () => {
     setDrawerState('closed');
   };
 
-  // Handler to open the secondary drawer
   const handleOpenSecondaryDrawer = () => {
     setDrawerState('secondary-open');
   };
 
-  // Handler to close the secondary drawer and reopen the primary drawer
   const handleCloseSecondaryDrawer = () => {
     setDrawerState('primary-open');
   };
