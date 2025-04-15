@@ -490,7 +490,7 @@ export default function Page() {
         <div className="red-container">
           {/* Login Buttons */}
           <div className="flex justify-center" style={{ paddingTop: '10px' }}>
-            {!address && <LoginButton />}
+            {<LoginButton />}
           </div>
           {/* Prev and Next Buttons moved here */}
           {showButtons && address && (
@@ -525,7 +525,7 @@ export default function Page() {
             className="absolute top-0 right-0 flex items-center"
             style={{ paddingTop: '5px', paddingRight: '5px' }}
           >
-            {!address && <LoginButton />}
+            {<LoginButton />}
           </div>
         </div>
 
