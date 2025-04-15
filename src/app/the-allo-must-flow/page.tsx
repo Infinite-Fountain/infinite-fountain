@@ -216,6 +216,8 @@ export default function Page() {
 
       if (refreshedData && refreshedData.allominati === true) {
         setNftVerified(true);
+      } else {
+        alert("your wallet does not hold the Allominati NFT");
       }
     } catch (err) {
       console.error("Error in checkNFTStatus:", err);
