@@ -22,16 +22,12 @@ export function useWagmiConfig() {
     const connectors = connectorsForWallets(
       [
         {
-          groupName: 'Recommended Wallet',
-          wallets: [coinbaseWallet],
-        },
-        {
-          groupName: 'Other Wallets',
-          wallets: [rainbowWallet, metaMaskWallet],
+          groupName: 'Recommended Wallets',
+          wallets: [metaMaskWallet, coinbaseWallet],
         },
       ],
       {
-        appName: 'onchainkit',
+        appName: 'InfiniteFountain',
         projectId,
       },
     );
