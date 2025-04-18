@@ -45,13 +45,11 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
         
         if (allError) {
           console.error('Error checking table:', allError);
-          alert(`Error checking table: ${allError.message}`);
           return;
         }
         
         console.log('All data in table:', allData);
         if (!allData || allData.length === 0) {
-          alert('No data found in the tables_of_content table at all');
           return;
         }
         
@@ -65,21 +63,13 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
         
         if (error) {
           console.error('Error fetching specific content:', error);
-          alert(`Error fetching specific content: ${error.message}`);
           return;
         }
         
         console.log('Specific content data:', data);
-        if (!data || data.length === 0) {
-          alert(`No data found for 'clinamenic_detroit'. Available content_names: ${allData.map(d => d.content_name).join(', ')}`);
-        } else {
-          alert(`Found ${data.length} items for clinamenic_detroit`);
-        }
-        
         setItems(data as TOCItem[] || []);
       } catch (error) {
         console.error('Error in fetchTableOfContents:', error);
-        alert(`Error in fetchTableOfContents: ${error}`);
       } finally {
         setLoading(false);
       }
@@ -106,7 +96,7 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 z-60 flex items-start justify-center transition-transform duration-300 ease-in-out transform ${
+      className={`fixed inset-0 z-[100] flex items-start justify-center transition-transform duration-300 ease-in-out transform ${
         drawerState === 'table-of-contents-open' ? 'translate-y-0' : 'translate-y-[100vh]'
       }`}
     >

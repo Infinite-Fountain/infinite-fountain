@@ -521,30 +521,30 @@ export default function Page() {
           <div className="flex justify-center" style={{ paddingTop: '10px' }}>
             {<LoginButton />}
           </div>
-          {/* Prev and Next Buttons */}
-          {showButtons && address && (
-            <div className="flex justify-center mt-4">
-              {(currentAnimationIndex !== 0 || hasSeenLastAnimation) && (
-                <button
-                  className="prev-button px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg"
-                  onClick={handlePrev}
-                  aria-label="Previous Animation"
-                >
-                  Prev
-                </button>
-              )}
-              <button
-                className="next-button px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg ml-4"
-                onClick={handleNext}
-                aria-label="Next Animation"
-              >
-                Next
-              </button>
-            </div>
-          )}
+          
           {/* Table of Contents Button */}
           {showButtons && address && (
-            <div className="flex justify-center mt-4">
+            <div className="flex flex-col items-center mt-4">
+              {/* Prev and Next Buttons */}
+              <div className="flex justify-center mb-4">
+                {(currentAnimationIndex !== 0 || hasSeenLastAnimation) && (
+                  <button
+                    className="prev-button px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg"
+                    onClick={handlePrev}
+                    aria-label="Previous Animation"
+                  >
+                    Prev
+                  </button>
+                )}
+                <button
+                  className="next-button px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg ml-4"
+                  onClick={handleNext}
+                  aria-label="Next Animation"
+                >
+                  Next
+                </button>
+              </div>
+
               <button
                 className="table-of-contents-button px-8 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg"
                 onClick={handleTableOfContentsClick}
@@ -703,7 +703,7 @@ export default function Page() {
           {/* Table of Contents Button */}
           {showButtons && address && (
             <div
-              className="absolute top-12 right-0 z-20"
+              className="absolute top-16 right-0 z-20"
               style={{ paddingRight: '5px' }}
             >
               <button
