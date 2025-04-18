@@ -422,18 +422,32 @@ export default function Page() {
               }}
             />
           )}
-          {/* NEW: Full-screen overlay for left 20% */}
+          {/* Full-screen overlay for left 20% */}
           <button
             onClick={handlePrev}
             className="absolute top-0 left-0 w-[20%] h-full cursor-pointer md:hover:bg-white/20 bg-transparent border-0"
             style={{ zIndex: 15 }}
           ></button>
-          {/* NEW: Full-screen overlay for right 20% */}
+          {/* Full-screen overlay for right 20% */}
           <button
             onClick={handleNext}
             className="absolute top-0 right-0 w-[20%] h-full cursor-pointer md:hover:bg-white/20 bg-transparent border-0"
             style={{ zIndex: 15 }}
           ></button>
+          {/* Bottom Menu Animation rendered on top with a higher z-index and pointerEvents disabled */}
+          <Lottie
+            animationData={BottomMenu}
+            loop={true}
+            style={{
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              zIndex: 20,
+              pointerEvents: 'none'
+            }}
+          />
 
           {/* Vote Button */}
           {address && voteButtonVisible && (
@@ -548,19 +562,19 @@ export default function Page() {
               }}
             />
           )}
-          {/* NEW: Full-screen overlay for left 20% */}
+          {/* Full-screen overlay for left 20% */}
           <button
             onClick={handlePrev}
             className="absolute top-0 left-0 w-[20%] h-full cursor-pointer bg-transparent border-0"
             style={{ zIndex: 15 }}
           ></button>
-          {/* NEW: Full-screen overlay for right 20% */}
+          {/* Full-screen overlay for right 20% */}
           <button
             onClick={handleNext}
             className="absolute top-0 right-0 w-[20%] h-full cursor-pointer bg-transparent border-0"
             style={{ zIndex: 15 }}
           ></button>
-          {/* NEW: Bottom Menu Animation rendered on top with a higher z-index and pointerEvents disabled */}
+          {/* Bottom Menu Animation rendered on top with a higher z-index and pointerEvents disabled */}
           <Lottie
             animationData={BottomMenu}
             loop={true}
@@ -574,6 +588,56 @@ export default function Page() {
               pointerEvents: 'none'
             }}
           />
+
+          {/* Vote Button */}
+          {address && voteButtonVisible && (
+            <button
+              onClick={handleVoteButtonClick}
+              className="vote-button z-20" // Use the class defined in global.css
+              aria-label="Vote Button"
+            >
+              <Image
+                src="/buttons/dashboardbutton.png"
+                alt="Vote Button"
+                width={100}
+                height={100}
+                className="object-contain"
+              />
+            </button>
+          )}
+
+          {/* Error and Loading Indicators */}
+          {error && (
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded">
+              {error}
+            </div>
+          )}
+
+          {loading && (
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-gray-700 text-white px-4 py-2 rounded flex items-center">
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
+              </svg>
+              Loading...
+            </div>
+          )}
         </div>
 
         {/* Blue Container */}
