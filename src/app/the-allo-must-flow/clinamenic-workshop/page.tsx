@@ -35,6 +35,7 @@ import BottomMenu from './animations/bottom-menu.json'; // NEW: Import bottom-me
 import DashboardAnimation from './animations/dashboard.json';
 import LeaderboardAnimation from './animations/leaderboard.json';
 
+import TableOfContentDrawer from './components/drawers/TableOfContentDrawer';
 
 // Define constants
 const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
@@ -69,7 +70,7 @@ export default function Page() {
   const [voteButtonVisible, setVoteButtonVisible] = useState<boolean>(true);
 
   // State to manage drawer states
-  const [drawerState, setDrawerState] = useState<'closed' | 'primary-open' | 'secondary-open'>('closed');
+  const [drawerState, setDrawerState] = useState<'closed' | 'primary-open' | 'secondary-open' | 'table-of-contents-open'>('closed');
 
   // State to store balances
   const [balances, setBalances] = useState<{ address: string; balance: number }[]>([]);
@@ -396,6 +397,15 @@ export default function Page() {
     setDrawerState('primary-open');
   };
 
+  // Add new handler for table of contents drawer
+  const handleTableOfContentsClick = () => {
+    setDrawerState('table-of-contents-open');
+  };
+
+  const handleCloseTableOfContentsDrawer = () => {
+    setDrawerState('closed');
+  };
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Desktop View */}
@@ -511,7 +521,7 @@ export default function Page() {
           <div className="flex justify-center" style={{ paddingTop: '10px' }}>
             {<LoginButton />}
           </div>
-          {/* Prev and Next Buttons moved here */}
+          {/* Prev and Next Buttons */}
           {showButtons && address && (
             <div className="flex justify-center mt-4">
               {(currentAnimationIndex !== 0 || hasSeenLastAnimation) && (
@@ -529,6 +539,18 @@ export default function Page() {
                 aria-label="Next Animation"
               >
                 Next
+              </button>
+            </div>
+          )}
+          {/* Table of Contents Button */}
+          {showButtons && address && (
+            <div className="flex justify-center mt-4">
+              <button
+                className="table-of-contents-button px-8 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg"
+                onClick={handleTableOfContentsClick}
+                aria-label="Table of Contents"
+              >
+                Table of Contents
               </button>
             </div>
           )}
@@ -658,21 +680,38 @@ export default function Page() {
               className="absolute top-0 right-0 z-20"
               style={{ paddingTop: '5px', paddingRight: '5px' }}
             >
-              {(currentAnimationIndex !== 0 || hasSeenLastAnimation) && (
+              <div className="flex space-x-2">
+                {(currentAnimationIndex !== 0 || hasSeenLastAnimation) && (
+                  <button
+                    className="prev-button px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
+                    onClick={handlePrev}
+                    aria-label="Previous Animation"
+                  >
+                    Prev
+                  </button>
+                )}
                 <button
-                  className="prev-button px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
-                  onClick={handlePrev}
-                  aria-label="Previous Animation"
+                  className="next-button px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
+                  onClick={handleNext}
+                  aria-label="Next Animation"
                 >
-                  Prev
+                  Next
                 </button>
-              )}
+              </div>
+            </div>
+          )}
+          {/* Table of Contents Button */}
+          {showButtons && address && (
+            <div
+              className="absolute top-12 right-0 z-20"
+              style={{ paddingRight: '5px' }}
+            >
               <button
-                className="next-button px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition ml-2"
-                onClick={handleNext}
-                aria-label="Next Animation"
+                className="table-of-contents-button px-4 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
+                onClick={handleTableOfContentsClick}
+                aria-label="Table of Contents"
               >
-                Next
+                Table of Contents
               </button>
             </div>
           )}
@@ -1022,6 +1061,12 @@ export default function Page() {
           </div>
         </div>
       </div>
+
+      {/* Table of Contents Drawer */}
+      <TableOfContentDrawer
+        drawerState={drawerState === 'table-of-contents-open' ? 'table-of-contents-open' : 'closed'}
+        handleCloseTableOfContentsDrawer={handleCloseTableOfContentsDrawer}
+      />
     </div>
   );
 }
