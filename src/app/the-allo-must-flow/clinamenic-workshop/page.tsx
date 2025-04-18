@@ -48,10 +48,10 @@ export default function Page() {
   const { address } = useAccount();
 
   // Array of animations in order
-  const animations = [Gate1, Gate2, Animation1, Animation2, Animation3];
+  const animations = [Gate1, Gate2, Animation1, Animation2, Animation3, Animation4];
 
   // Array indicating whether each animation should loop
-  const animationLoopSettings = [true, false, false, true, false];
+  const animationLoopSettings = [true, false, false, true, false, true];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(0);
@@ -372,9 +372,9 @@ export default function Page() {
 
   // --- Modified handler for Prev button ---
   const handlePrev = () => {
-    // Only allow prev navigation if current animation index is 3 or above
-    if (currentAnimationIndex < 3) return;
-    const newIndex = currentAnimationIndex - 1;
+    // Only allow prev navigation if current animation index is xxx or above
+    if (currentAnimationIndex < 4) return;
+    const newIndex = currentAnimationIndex - 2;
     setCurrentAnimationIndex(newIndex);
     setAnimationData(animations[newIndex]);
   };
@@ -425,29 +425,31 @@ export default function Page() {
           {/* Full-screen overlay for left 20% */}
           <button
             onClick={handlePrev}
-            className="absolute top-0 left-0 w-[20%] h-full cursor-pointer md:hover:bg-white/20 bg-transparent border-0"
+            className="absolute top-0 left-0 w-[20%] h-full cursor-pointer bg-transparent border-0"
             style={{ zIndex: 15 }}
           ></button>
           {/* Full-screen overlay for right 20% */}
           <button
             onClick={handleNext}
-            className="absolute top-0 right-0 w-[20%] h-full cursor-pointer md:hover:bg-white/20 bg-transparent border-0"
+            className="absolute top-0 right-0 w-[20%] h-full cursor-pointer bg-transparent border-0"
             style={{ zIndex: 15 }}
           ></button>
           {/* Bottom Menu Animation rendered on top with a higher z-index and pointerEvents disabled */}
-          <Lottie
-            animationData={BottomMenu}
-            loop={true}
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              zIndex: 20,
-              pointerEvents: 'none'
-            }}
-          />
+          {currentAnimationIndex >= 2 && (
+            <Lottie
+              animationData={BottomMenu}
+              loop={true}
+              style={{
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                zIndex: 20,
+                pointerEvents: 'none'
+              }}
+            />
+          )}
 
           {/* Error and Loading Indicators */}
           {error && (
@@ -574,19 +576,21 @@ export default function Page() {
             style={{ zIndex: 15 }}
           ></button>
           {/* Bottom Menu Animation rendered on top with a higher z-index and pointerEvents disabled */}
-          <Lottie
-            animationData={BottomMenu}
-            loop={true}
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              zIndex: 20,
-              pointerEvents: 'none'
-            }}
-          />
+          {currentAnimationIndex >= 2 && (
+            <Lottie
+              animationData={BottomMenu}
+              loop={true}
+              style={{
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                zIndex: 20,
+                pointerEvents: 'none'
+              }}
+            />
+          )}
 
           {/* Error and Loading Indicators */}
           {error && (
