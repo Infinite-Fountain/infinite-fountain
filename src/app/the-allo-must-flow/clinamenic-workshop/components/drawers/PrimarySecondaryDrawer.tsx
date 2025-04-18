@@ -147,8 +147,7 @@ const PrimarySecondaryDrawer: React.FC<PrimarySecondaryDrawerProps> = ({
               </div>
             ) : null}
 
-            {/*
-            // Uncomment these blocks to restore the rendering of values:
+            {/* Uncomment these blocks to restore the rendering of values: */}
 
             {loading && (
               <div className="absolute bg-yellow-300 text-black px-6 py-4 rounded flex flex-col items-center">
@@ -238,7 +237,6 @@ const PrimarySecondaryDrawer: React.FC<PrimarySecondaryDrawerProps> = ({
                 ${top10[2].balance}
               </div>
             )}
-            */}
           </div>
         </div>
       </div>
@@ -280,8 +278,7 @@ const PrimarySecondaryDrawer: React.FC<PrimarySecondaryDrawerProps> = ({
               className="w-full h-full"
             />
 
-            {/*
-            // Uncomment these blocks to restore the rendering of values:
+            {/* Uncomment these blocks to restore the rendering of values: */}
 
             {userBalance !== null && !loading && (
               <div
@@ -330,7 +327,6 @@ const PrimarySecondaryDrawer: React.FC<PrimarySecondaryDrawerProps> = ({
                 {`${top10UserInfos[1].balanceInfo}`}
               </div>
             )}
-            */}
           </div>
         </div>
       </div>

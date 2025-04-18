@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers'; // Import ethers
 import Lottie from 'lottie-react';
@@ -39,7 +39,7 @@ import TableOfContentDrawer from './components/drawers/TableOfContentDrawer';
 
 // Define constants
 const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
-const CONTRACT_ADDRESS = '0x6b9cC2AB8AfF2C2B868cF44c567991195346F37a'; // Your contract address
+const CONTRACT_ADDRESS = '0x654dff96c6759f1e3218c384767528eec937a55c'; // Your contract address
 
 // New constants for mainnet and the members NFT contract:
 const ALCHEMY_MAINNET_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_MAINNET_API_URL;
@@ -104,6 +104,12 @@ export default function Page() {
 
   // NEW: State variable to track if NFT is verified (i.e. user has the NFT)
   const [nftVerified, setNftVerified] = useState(false);
+
+  // State to track if user balance has been found
+  const [userBalanceFound, setUserBalanceFound] = useState<boolean>(false);
+
+  // Add a ref to track if fetchData has been executed
+  const fetchDataExecuted = useRef(false);
 
   // Initialize ethers provider and contract (for base network)
   const provider = new ethers.providers.JsonRpcProvider(ALCHEMY_API_URL);
@@ -170,9 +176,10 @@ export default function Page() {
   // --- Existing function: Fetch Community Pool Balance ---
   const fetchCommunityPoolBalance = async () => {
     try {
-      const poolBalance = await contract.unassignedPoolBalance();
+      const poolBalance = await contract.totalPoolBalance();
       const formattedBalance = (poolBalance.toNumber() / 1000000).toFixed(0);
-      return `$${formattedBalance}`;
+      const balanceString = `$${formattedBalance}`;
+      return balanceString;
     } catch (err) {
       console.error('Error fetching community pool balance:', err);
       return '--';
@@ -264,57 +271,69 @@ export default function Page() {
       setAnimationPlayed(true);
       setShowButtons(true);
       setLoading(true);
-      // Fetch data from smart contract
+      
+      // IMPORTANT SECTION, PLACING HERE TO EASIY FIND
+      // Fetch data from smart contract to get top 10 members
       const fetchData = async () => {
-        try {
-          const addresses = await fetchAllAddresses();
+        if (userBalanceFound || fetchDataExecuted.current) {
+          console.log('User balance already found or fetchData already executed, skipping fetchData');
+          return;
+        }
+        fetchDataExecuted.current = true;
 
-          if (addresses.length === 0) {
-            setError('No Assigned events found.');
+        try {
+          // Get all holders with their balances in one call
+          const holders = await contract.getHolderListWithBalance();
+
+          if (holders.length === 0) {
+            setError('No holders found.');
             setLoading(false);
             return;
           }
 
-          const balancePromises = addresses.map(async (addr: string) => {
-            const balance = await fetchBalance(addr);
-            return { address: addr, balance };
+          // Convert holders to the expected format
+          const results = holders.map((holder: { holder: string; balance: ethers.BigNumber }) => {
+            const normalizedAddress = holder.holder.toLowerCase();
+            console.log('Processing holder:', normalizedAddress);
+            return {
+              address: normalizedAddress,
+              balance: parseFloat(ethers.utils.formatUnits(holder.balance, 6)) // Assuming USDC has 6 decimals
+            };
           });
 
-          const results = await Promise.all(balancePromises);
-
           setBalances(results);
-          console.log('Fetched Balances:', results);
+          console.log('All fetched balances:', results);
+          console.log('Current connected address:', address?.toLowerCase());
+          console.log('All addresses in results:', results.map((r: { address: string }) => r.address));
 
           const poolBalance = await fetchCommunityPoolBalance();
           setCommunityPoolBalance(poolBalance);
           console.log('Community Pool Balance:', poolBalance);
 
           const top10Results = results
-            .filter((item) => typeof item.balance === 'number')
-            .sort((a, b) => (b.balance as number) - (a.balance as number))
+            .filter((item: { balance: number | string }) => typeof item.balance === 'number')
+            .sort((a: { balance: number }, b: { balance: number }) => b.balance - a.balance)
             .slice(0, 10);
 
           setTop10(top10Results);
           console.log('Top 10 Balances:', top10Results);
 
-          const userBalanceObj = results.find(
-            (item) => item.address.toLowerCase() === address?.toLowerCase()
-          );
-          const fetchedUserBalance = userBalanceObj ? userBalanceObj.balance : null;
-          setUserBalance(fetchedUserBalance);
-          console.log('User Balance:', fetchedUserBalance);
-
-          // Compute and set the top 10 users' information
+          // Compute and set the top 10 users' information directly from holders
           let top10UserInfosArray: { place: string; userInfo: string; balanceInfo: string }[] = [];
 
-          for (let i = 0; i < top10Results.length; i++) {
+          const sortedHolders = results
+            .filter((item: { balance: number | string }) => typeof item.balance === 'number')
+            .sort((a: { balance: number }, b: { balance: number }) => b.balance - a.balance)
+            .slice(0, 10);
+
+          for (let i = 0; i < sortedHolders.length; i++) {
             const place = `${i + 1}${getOrdinalSuffix(i + 1)} place`;
-            const ensName = await getEnsName(top10Results[i].address as `0x${string}`);
-            const baseName = await getBasename(top10Results[i].address as `0x${string}`);
-            const truncatedAddress = truncateWalletAddress(top10Results[i]?.address);
+            const ensName = await getEnsName(sortedHolders[i].address as `0x${string}`);
+            const baseName = await getBasename(sortedHolders[i].address as `0x${string}`);
+            const truncatedAddress = truncateWalletAddress(sortedHolders[i]?.address);
             const userInfo = ensName || baseName || truncatedAddress;
             const balanceInfo =
-              typeof top10Results[i]?.balance === 'number' ? top10Results[i].balance.toString() : 'N/A';
+              typeof sortedHolders[i]?.balance === 'number' ? sortedHolders[i].balance.toString() : 'N/A';
 
             top10UserInfosArray.push({ place, userInfo, balanceInfo });
           }
@@ -407,6 +426,51 @@ export default function Page() {
   const handleCloseTableOfContentsDrawer = () => {
     setDrawerState('closed');
   };
+
+  // --- New function to fetch the user's balance independently ---
+  const fetchUserBalance = async () => {
+    if (!address || userBalanceFound) {
+      console.log('Address not available or user balance already found, skipping fetch');
+      return;
+    }
+
+    try {
+      const holders = await contract.getHolderListWithBalance();
+
+      const results = holders.map((holder: { holder: string; balance: ethers.BigNumber }) => {
+        const normalizedAddress = holder.holder.toLowerCase();
+        return {
+          address: normalizedAddress,
+          balance: parseFloat(ethers.utils.formatUnits(holder.balance, 6)) // Assuming USDC has 6 decimals
+        };
+      });
+
+      const normalizedConnectedAddress = address.toLowerCase();
+      console.log('Normalized connected address:', normalizedConnectedAddress);
+
+      const userBalanceObj = results.find(
+        (item: { address: string }) => item.address === normalizedConnectedAddress
+      );
+      console.log('Found user balance object:', userBalanceObj);
+      const fetchedUserBalance = userBalanceObj ? userBalanceObj.balance : null;
+      setUserBalance(fetchedUserBalance);
+      console.log('User Balance:', fetchedUserBalance);
+
+      if (fetchedUserBalance !== null) {
+        setUserBalanceFound(true);
+      }
+    } catch (err) {
+      console.error('Error fetching user balance:', err);
+      setError('An error occurred while fetching user balance.');
+    }
+  };
+
+  // Ensure address is available before fetching data
+  useEffect(() => {
+    if (address && !userBalanceFound) {
+      fetchUserBalance();
+    }
+  }, [address, userBalanceFound]);
 
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
