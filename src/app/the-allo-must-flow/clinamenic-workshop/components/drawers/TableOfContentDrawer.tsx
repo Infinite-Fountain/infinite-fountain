@@ -13,6 +13,7 @@ type TOCItem = {
   parent_id: number | null;
   order: number;
   animation_index: number | null;
+  color: string;
 };
 
 // Define the props interface
@@ -31,6 +32,15 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
   const [expandedIds, setExpandedIds] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Simple color system for headers
+  const headerColors = [
+    'MediumSeaGreen',
+    'MediumTurquoise',
+    'MediumSlateBlue',
+    'MediumPurple',
+    'MediumOrchid'
+  ];
+
   useEffect(() => {
     if (drawerState !== 'table-of-contents-open') return;
     setLoading(true);
@@ -38,35 +48,19 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
     const fetchTableOfContents = async () => {
       try {
         console.log('Fetching table of contents...');
-        // First, let's check if there's any data in the table
-        const { data: allData, error: allError } = await supabase
-          .from('tables_of_content')
-          .select('*');
-        
-        if (allError) {
-          console.error('Error checking table:', allError);
-          return;
-        }
-        
-        console.log('All data in table:', allData);
-        if (!allData || allData.length === 0) {
-          return;
-        }
-        
-        // Now try with our specific content_name
         const { data, error } = await supabase
           .from('tables_of_content')
-          .select('id, menu_title, parent_id, order, animation_index')
+          .select('id, menu_title, parent_id, order, animation_index, color')
           .eq('content_name', 'clinamenic_detroit')
           .order('parent_id', { ascending: true })
           .order('order', { ascending: true });
         
         if (error) {
-          console.error('Error fetching specific content:', error);
+          console.error('Error fetching table of contents:', error);
           return;
         }
         
-        console.log('Specific content data:', data);
+        console.log('Fetched data:', data);
         setItems(data as TOCItem[] || []);
       } catch (error) {
         console.error('Error in fetchTableOfContents:', error);
@@ -136,7 +130,8 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
                 {topLevel.map((section) => (
                   <div key={section.id} className="border-b border-gray-700 pb-4">
                     <button
-                      className="flex justify-between w-full text-left font-semibold text-lg hover:text-gray-300 transition-colors"
+                      className="flex justify-between w-full text-left font-semibold text-lg hover:text-gray-300 transition-colors p-2 rounded"
+                      style={{ backgroundColor: section.color || 'MediumSeaGreen' }}
                       onClick={() => toggleExpand(section.id)}
                     >
                       {section.menu_title}

@@ -703,7 +703,7 @@ export default function Page() {
           {/* Table of Contents Button */}
           {showButtons && address && (
             <div
-              className="absolute top-16 right-0 z-20"
+              className="absolute top-12 right-0 z-20"
               style={{ paddingRight: '5px' }}
             >
               <button
