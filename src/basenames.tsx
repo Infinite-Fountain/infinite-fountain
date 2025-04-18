@@ -50,6 +50,9 @@ const baseClient = createPublicClient({
 	transport: http("https://mainnet.base.org"),
 });
 
+// Cache to store basenames by address
+const basenameCache: { [address: string]: Basename } = {};
+
 export async function getBasenameAvatar(basename: Basename) {
 	const avatar = await baseClient.getEnsAvatar({
 		name: basename,
@@ -131,6 +134,11 @@ export const convertReverseNodeToBytes = (
 };
 
 export async function getBasename(address: Address) {
+	// Check if the basename is already in the cache
+	if (basenameCache[address]) {
+		return basenameCache[address];
+	}
+
 	try {
 		const addressReverseNode = convertReverseNodeToBytes(address, base.id);
 		const basename = await baseClient.readContract({
@@ -140,6 +148,8 @@ export async function getBasename(address: Address) {
 			args: [addressReverseNode],
 		});
 		if (basename) {
+			// Store the fetched basename in the cache
+			basenameCache[address] = basename as Basename;
 			return basename as Basename;
 		}
 	} catch (error) {}

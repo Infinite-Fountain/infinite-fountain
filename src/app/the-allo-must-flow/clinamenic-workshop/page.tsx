@@ -45,6 +45,9 @@ const CONTRACT_ADDRESS = '0x654dff96c6759f1e3218c384767528eec937a55c'; // Your c
 const ALCHEMY_MAINNET_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_MAINNET_API_URL;
 const MEMBERS_NFT_CONTRACT = '0xcCf223a3Bb40173E1AB9262ad0d04C5bf3Ea32f5';
 
+// Utility function to add a delay
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export default function Page() {
   const { address } = useAccount();
 
@@ -119,6 +122,22 @@ export default function Page() {
   const mainnetProvider = new ethers.providers.JsonRpcProvider(ALCHEMY_MAINNET_API_URL);
   const membersNFTContract = new ethers.Contract(MEMBERS_NFT_CONTRACT, allominatiAbi, mainnetProvider);
 
+  // State to store fetched basenames
+  const [basenamesCache, setBasenamesCache] = useState<{ [address: string]: string }>({});
+
+  // Modify the logic to check basenamesCache before fetching
+  const fetchUserInfo = async (address: string): Promise<string> => {
+    if (basenamesCache[address]) {
+      return basenamesCache[address];
+    }
+    const ensName = await getEnsName(address as `0x${string}`);
+    const baseName = await getBasename(address as `0x${string}`);
+    const truncatedAddress = truncateWalletAddress(address);
+    const userInfo = ensName || baseName || truncatedAddress;
+    setBasenamesCache(prev => ({ ...prev, [address]: userInfo }));
+    return userInfo;
+  };
+
   // --- Existing function: Fetch all Assigned events to get unique user addresses ---
   const fetchAllAddresses = async () => {
     try {
@@ -176,6 +195,7 @@ export default function Page() {
   // --- Existing function: Fetch Community Pool Balance ---
   const fetchCommunityPoolBalance = async () => {
     try {
+      await delay(500); // 500ms delay before fetching community pool balance
       const poolBalance = await contract.totalPoolBalance();
       const formattedBalance = (poolBalance.toNumber() / 1000000).toFixed(0);
       const balanceString = `$${formattedBalance}`;
@@ -282,7 +302,8 @@ export default function Page() {
         fetchDataExecuted.current = true;
 
         try {
-          // Get all holders with their balances in one call
+          // Add a delay before making network requests
+          await delay(500); // 500ms delay before fetching holders
           const holders = await contract.getHolderListWithBalance();
 
           if (holders.length === 0) {
@@ -294,7 +315,6 @@ export default function Page() {
           // Convert holders to the expected format
           const results = holders.map((holder: { holder: string; balance: ethers.BigNumber }) => {
             const normalizedAddress = holder.holder.toLowerCase();
-            console.log('Processing holder:', normalizedAddress);
             return {
               address: normalizedAddress,
               balance: parseFloat(ethers.utils.formatUnits(holder.balance, 6)) // Assuming USDC has 6 decimals
@@ -302,10 +322,8 @@ export default function Page() {
           });
 
           setBalances(results);
-          console.log('All fetched balances:', results);
-          console.log('Current connected address:', address?.toLowerCase());
-          console.log('All addresses in results:', results.map((r: { address: string }) => r.address));
 
+          await delay(500); // 500ms delay before fetching community pool balance
           const poolBalance = await fetchCommunityPoolBalance();
           setCommunityPoolBalance(poolBalance);
           console.log('Community Pool Balance:', poolBalance);
@@ -316,7 +334,6 @@ export default function Page() {
             .slice(0, 10);
 
           setTop10(top10Results);
-          console.log('Top 10 Balances:', top10Results);
 
           // Compute and set the top 10 users' information directly from holders
           let top10UserInfosArray: { place: string; userInfo: string; balanceInfo: string }[] = [];
@@ -328,10 +345,7 @@ export default function Page() {
 
           for (let i = 0; i < sortedHolders.length; i++) {
             const place = `${i + 1}${getOrdinalSuffix(i + 1)} place`;
-            const ensName = await getEnsName(sortedHolders[i].address as `0x${string}`);
-            const baseName = await getBasename(sortedHolders[i].address as `0x${string}`);
-            const truncatedAddress = truncateWalletAddress(sortedHolders[i]?.address);
-            const userInfo = ensName || baseName || truncatedAddress;
+            const userInfo = await fetchUserInfo(sortedHolders[i].address);
             const balanceInfo =
               typeof sortedHolders[i]?.balance === 'number' ? sortedHolders[i].balance.toString() : 'N/A';
 
@@ -446,15 +460,12 @@ export default function Page() {
       });
 
       const normalizedConnectedAddress = address.toLowerCase();
-      console.log('Normalized connected address:', normalizedConnectedAddress);
 
       const userBalanceObj = results.find(
         (item: { address: string }) => item.address === normalizedConnectedAddress
       );
-      console.log('Found user balance object:', userBalanceObj);
       const fetchedUserBalance = userBalanceObj ? userBalanceObj.balance : null;
       setUserBalance(fetchedUserBalance);
-      console.log('User Balance:', fetchedUserBalance);
 
       if (fetchedUserBalance !== null) {
         setUserBalanceFound(true);
