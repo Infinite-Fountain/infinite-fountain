@@ -15,17 +15,26 @@ import {
   WalletDropdownFundLink,
   WalletDropdownLink,
 } from '@coinbase/onchainkit/wallet';
+import { useAccount } from 'wagmi';
 
 type WalletWrapperParams = {
   text?: string;
   className?: string;
   withWalletAggregator?: boolean;
+  basenamesCache: { [address: string]: string };
+  isHolder: boolean;
 };
+
 export default function WalletWrapper({
   className,
   text,
   withWalletAggregator = false,
+  basenamesCache = {},
+  isHolder,
 }: WalletWrapperParams) {
+  const { address } = useAccount();
+  const cachedBasename = address ? basenamesCache[address.toLowerCase()] : null;
+
   return (
     <>
       <Wallet>
@@ -44,10 +53,7 @@ export default function WalletWrapper({
             <Address />
             <EthBalance />
           </Identity>
-          <WalletDropdownBasename />
-          <WalletDropdownLink icon="wallet" href="https://wallet.coinbase.com">
-            Go to Wallet Dashboard
-          </WalletDropdownLink>
+          {isHolder && cachedBasename && <div className="px-4">{cachedBasename}</div>}
           <WalletDropdownFundLink />
           <WalletDropdownDisconnect />
         </WalletDropdown>
