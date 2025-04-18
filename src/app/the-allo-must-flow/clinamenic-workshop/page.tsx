@@ -380,7 +380,7 @@ export default function Page() {
   };
 
   // --- Existing handlers for opening and closing drawers ---
-  const handleVoteButtonClick = () => {
+  const handleDashboardButtonClick = () => {
     setDrawerState('primary-open');
   };
 
@@ -422,6 +422,26 @@ export default function Page() {
               }}
             />
           )}
+          {/* Dashboard Button desktop */}
+          <button
+            onClick={handleDashboardButtonClick}
+            className="dashboardButton"
+            style={{
+              position: 'absolute',
+              left: '2%',
+              bottom: '1%',
+              width: '18%',
+              height: '20%',
+              backgroundColor: 'transparent',
+              color: 'transparent',
+              zIndex: 30,
+              border: 'none',
+              padding: 0,
+              margin: 0,
+              cursor: 'pointer'
+            }}
+            aria-label="Dashboard Button"
+          />
           {/* Full-screen overlay for left 20% */}
           <button
             onClick={handlePrev}
@@ -491,22 +511,6 @@ export default function Page() {
           <div className="flex justify-center" style={{ paddingTop: '10px' }}>
             {<LoginButton />}
           </div>
-          {/* Vote Button */}
-          {address && voteButtonVisible && (
-            <button
-              onClick={handleVoteButtonClick}
-              className="vote-button z-20" // Use the class defined in global.css
-              aria-label="Vote Button"
-            >
-              <Image
-                src="/buttons/dashboardbutton.png"
-                alt="Vote Button"
-                width={100}
-                height={100}
-                className="object-contain"
-              />
-            </button>
-          )}
           {/* Prev and Next Buttons moved here */}
           {showButtons && address && (
             <div className="flex justify-center mt-4">
@@ -563,6 +567,26 @@ export default function Page() {
               }}
             />
           )}
+          {/* Dashboard Button mobile*/}
+          <button
+            onClick={handleDashboardButtonClick}
+            className="dashboardButton"
+            style={{
+              position: 'absolute',
+              left: '2%',
+              bottom: '1%',
+              width: '18%',
+              height: '20%',
+              backgroundColor: 'transparent',
+              color: 'transparent',
+              zIndex: 30,
+              border: 'none',
+              padding: 0,
+              margin: 0,
+              cursor: 'pointer'
+            }}
+            aria-label="Dashboard Button"
+          />
           {/* Full-screen overlay for left 20% */}
           <button
             onClick={handlePrev}
@@ -651,23 +675,6 @@ export default function Page() {
                 Next
               </button>
             </div>
-          )}
-
-          {/* Vote Button */}
-          {address && voteButtonVisible && (
-            <button
-              onClick={handleVoteButtonClick}
-              className="vote-button z-20" // Use the class defined in global.css
-              aria-label="Vote Button"
-            >
-              <Image
-                src="/buttons/dashboardbutton.png"
-                alt="Vote Button"
-                width={100}
-                height={100}
-                className="object-contain"
-              />
-            </button>
           )}
         </div>
       </div>
