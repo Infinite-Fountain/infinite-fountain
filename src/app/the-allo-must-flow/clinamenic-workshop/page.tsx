@@ -399,6 +399,8 @@ export default function Page() {
 
   // Add new handler for table of contents drawer
   const handleTableOfContentsClick = () => {
+    // Only allow table of contents to open if in main content section (index 2 or above)
+    if (currentAnimationIndex < 2) return;
     setDrawerState('table-of-contents-open');
   };
 
