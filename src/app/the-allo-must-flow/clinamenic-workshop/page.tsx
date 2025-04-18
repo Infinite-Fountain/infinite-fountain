@@ -49,10 +49,10 @@ export default function Page() {
   const { address } = useAccount();
 
   // Array of animations in order
-  const animations = [Gate1, Gate2, Animation1, Animation2, Animation3, Animation4];
+  const animations = [Gate1, Gate2, Animation1, Animation2, Animation3, Animation4, Animation5, Animation6];
 
   // Array indicating whether each animation should loop
-  const animationLoopSettings = [true, false, false, true, false, true];
+  const animationLoopSettings = [true, false, false, true, false, true, false, true];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(0);
@@ -1066,6 +1066,11 @@ export default function Page() {
       <TableOfContentDrawer
         drawerState={drawerState === 'table-of-contents-open' ? 'table-of-contents-open' : 'closed'}
         handleCloseTableOfContentsDrawer={handleCloseTableOfContentsDrawer}
+        onSelectSection={(index) => {
+          console.log('Setting animation index to:', index);
+          setCurrentAnimationIndex(index);
+          setAnimationData(animations[index]);
+        }}
       />
     </div>
   );

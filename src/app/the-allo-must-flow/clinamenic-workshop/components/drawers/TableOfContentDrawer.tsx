@@ -47,7 +47,6 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
     
     const fetchTableOfContents = async () => {
       try {
-        console.log('Fetching table of contents...');
         const { data, error } = await supabase
           .from('tables_of_content')
           .select('id, menu_title, parent_id, order, animation_index, color')
@@ -60,7 +59,6 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
           return;
         }
         
-        console.log('Fetched data:', data);
         setItems(data as TOCItem[] || []);
       } catch (error) {
         console.error('Error in fetchTableOfContents:', error);
@@ -107,14 +105,7 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
         className="relative bg-black rounded-t-lg overflow-hidden transform transition-transform duration-300 ease-in-out w-11/12 md:w-auto md:h-4/5 aspect-square md:aspect-square"
         onClick={(e) => e.stopPropagation()} // Prevent click from closing drawer
       >
-        {/* Close Button */}
-        <button
-          className="absolute top-2 right-2 text-white text-xl focus:outline-none focus:ring-2 focus:ring-white rounded"
-          onClick={handleCloseTableOfContentsDrawer}
-          aria-label="Close Table of Contents Drawer"
-        >
-          <X size={24} />
-        </button>
+        
 
         {/* Drawer Container */}
         <div className="drawer-container w-full h-full relative">
@@ -148,6 +139,7 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
                               className="text-base hover:text-gray-300 transition-colors"
                               onClick={() => {
                                 if (sub.animation_index !== null && onSelectSection) {
+                                  console.log('Selecting animation index:', sub.animation_index);
                                   onSelectSection(sub.animation_index);
                                   handleCloseTableOfContentsDrawer();
                                 }
