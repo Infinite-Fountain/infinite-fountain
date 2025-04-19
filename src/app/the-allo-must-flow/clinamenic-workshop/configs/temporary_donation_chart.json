@@ -48,6 +48,13 @@
     "donate $15",
     "donate $25",
     "donate $50"
+  ],
+  "donation_pairs": [
+    { "amount": "$5", "buttonText": "donate $5", "default": false },
+    { "amount": "$10", "buttonText": "donate $10", "default": false },
+    { "amount": "$15", "buttonText": "donate $15", "default": true },
+    { "amount": "$25", "buttonText": "donate $25", "default": false },
+    { "amount": "$50", "buttonText": "donate $50", "default": false }
   ]
 }
   

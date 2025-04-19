@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface DonationChartDrawerProps {
   isOpen: boolean;
@@ -6,6 +6,12 @@ interface DonationChartDrawerProps {
 }
 
 const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClose }) => {
+  const [selectedAmount, setSelectedAmount] = useState('$15');
+
+  const handleButtonClick = (amount: string) => {
+    setSelectedAmount(amount);
+  };
+
   return (
     <div
       className={`fixed inset-0 z-50 flex items-start justify-center transition-transform duration-300 ease-in-out transform ${
@@ -44,11 +50,20 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
               <p>You can also add a "tip" to the project</p>
               <p>to increase its matching funds even further.</p>
             </div>
+
+            {/* Donation Amount Buttons */}
+            <div className="flex justify-center space-x-2 mt-4">
+              <button className="bg-gray-200 text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$5')}>$5</button>
+              <button className="bg-gray-200 text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$10')}>$10</button>
+              <button className="bg-gray-200 text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$15')}>$15</button>
+              <button className="bg-gray-200 text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$25')}>$25</button>
+              <button className="bg-gray-200 text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$50')}>$50</button>
+            </div>
           </div>
 
           {/* Green Button */}
           <button className="bg-green-500 text-white font-bold py-2 px-4 rounded mt-4 mb-8">
-            Donate xxx
+            Donate {selectedAmount}
           </button>
         </div>
       </div>
