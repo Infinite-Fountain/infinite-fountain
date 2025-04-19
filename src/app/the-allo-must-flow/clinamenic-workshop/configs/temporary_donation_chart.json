@@ -19,39 +19,7 @@
     "average":    { "pct": "55%", "usdc": "$1650" },
     "leader": { "pct": "83%", "usdc": "$2490" }
   },
-  "maxMatching": 3000,
-  "tipOptions": [
-    {
-      "donation": 5,
-      "afterPct": 57,
-      "afterUsdc": 1750,
-      "matchDelta": { "usdc": 100, "pct": 2 }
-    },
-    {
-      "donation": 10,
-      "afterPct": 59,
-      "afterUsdc": 1800,
-      "matchDelta": { "usdc": 150, "pct": 4 }
-    },
-    {
-      "donation": 15,
-      "afterPct": 61,
-      "afterUsdc": 1900,
-      "matchDelta": { "usdc": 250, "pct": 6 }
-    },
-    {
-      "donation": 25,
-      "afterPct": 64,
-      "afterUsdc": 2050,
-      "matchDelta": { "usdc": 400, "pct": 9 }
-    },
-    {
-      "donation": 50,
-      "afterPct": 70,
-      "afterUsdc": 2250,
-      "matchDelta": { "usdc": 600, "pct": 15 }
-    }
-  ],
+ 
   "donate_button_text": [
     "donate $5",
     "donate $10",
@@ -60,11 +28,11 @@
     "donate $50"
   ],
   "donation_pairs": [
-    { "amount": "$5", "buttonText": "donate $5", "default": false },
-    { "amount": "$10", "buttonText": "donate $10", "default": false },
-    { "amount": "$15", "buttonText": "donate $15", "default": true },
-    { "amount": "$25", "buttonText": "donate $25", "default": false },
-    { "amount": "$50", "buttonText": "donate $50", "default": false }
+    { "amount": "$5", "buttonText": "donate $5", "pct": "63%", "usdc": "$1884", "default": false },
+    { "amount": "$10", "buttonText": "donate $10", "pct": "66%", "usdc": "$1985", "default": false },
+    { "amount": "$15", "buttonText": "donate $15", "pct": "68%", "usdc": "$2063", "default": true },
+    { "amount": "$25", "buttonText": "donate $25", "pct": "72%", "usdc": "$2186", "default": false },
+    { "amount": "$50", "buttonText": "donate $50", "pct": "80%", "usdc": "$2413", "default": false }
   ],
   
   "amount_button_colors": {

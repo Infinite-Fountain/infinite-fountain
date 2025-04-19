@@ -46,6 +46,10 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
 
   const thirdLabelColor = config.amount_button_colors.active;
 
+  const activeDonationPair = config.donation_pairs.find((pair: any) => pair.amount === selectedAmount) || config.donation_pairs.find((pair: any) => pair.default);
+  const activeThirdBarChartPct = activeDonationPair ? activeDonationPair.pct : '0%';
+  const thirdBarChartUsdc = activeDonationPair ? activeDonationPair.usdc : 'na';
+
   return (
     <div
       className={`fixed inset-0 z-50 flex items-start justify-center transition-transform duration-300 ease-in-out transform ${
@@ -133,7 +137,7 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
               <div className="absolute bottom-0 left-[9rem] w-[10%]" style={{ height: secondBarChartPct, backgroundColor: secondBarChartColor }}></div>
 
               {/* Bar Chart 3 */}
-              <div className="absolute bottom-0 left-[13rem] w-[10%]" style={{ height: thirdBarChartPct, backgroundColor: thirdBarChartColor }}></div>
+              <div className="absolute bottom-0 left-[13rem] w-[10%]" style={{ height: activeThirdBarChartPct, backgroundColor: thirdBarChartColor }}></div>
 
               {/* First Bar Chart Label */}
               <div className="absolute text-black text-sm" style={{ left: '5rem', bottom: '-4rem' }}>
@@ -167,8 +171,8 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
               </div>
 
               {/* Third Bar Chart Amount */}
-              <div className="absolute text-sm" style={{ left: '13rem', bottom: `calc(${thirdBarChartPct} + 1%)`, color: thirdLabelColor, fontWeight: 'bold', backgroundColor: 'white', zIndex: 20 }}>
-                {thirdBarChart ? thirdBarChart.usdc : 'na'}
+              <div className="absolute text-sm" style={{ left: '13rem', bottom: `calc(${activeThirdBarChartPct} + 1%)`, color: thirdLabelColor, fontWeight: 'bold', backgroundColor: 'white', zIndex: 20 }}>
+                {thirdBarChartUsdc}
               </div>
 
               {/* Leader Box */}
