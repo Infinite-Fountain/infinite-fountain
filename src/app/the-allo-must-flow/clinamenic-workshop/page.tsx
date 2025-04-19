@@ -604,7 +604,7 @@ export default function Page() {
             style={{
               position: 'absolute',
               left: '80%',
-              bottom: '10%',
+              bottom: '2%',
               width: '18%',
               height: '20%',
               backgroundColor: 'transparent',
