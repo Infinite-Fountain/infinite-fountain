@@ -7,6 +7,8 @@ export default function LoginButton() {
       className="min-w-[90px]"
       text="Log in"
       withWalletAggregator={true}
+      basenamesCache={{}}
+      isHolder={false}
     />
   );
 }
