@@ -1,45 +1,46 @@
 {
-    "rounds": [
-      { "label": "2 Weeks Ago", "pct": 35, "usdc": 1050 },
-      { "label": "Today",       "pct": 55, "usdc": 1650 },
-      { "label": "+$15 Tip",    "pct": 61, "usdc": 1900 }
-    ],
-    "benchmarks": {
-      "avg":    { "pct": 67, "usdc": 2050 },
-      "leader": { "pct": 87, "usdc": 2610 }
+  "header_text": "Your 3pts vote has been registered onchain. You can also add a \"tip\" to the project to increase its matching funds even further.",
+  "rounds": [
+    { "label": "2 Weeks Ago", "pct": 35, "usdc": 1050 },
+    { "label": "Today",       "pct": 55, "usdc": 1650 },
+    { "label": "+$15 Tip",    "pct": 61, "usdc": 1900 }
+  ],
+  "benchmarks": {
+    "avg":    { "pct": 67, "usdc": 2050 },
+    "leader": { "pct": 87, "usdc": 2610 }
+  },
+  "maxMatching": 3000,
+  "tipOptions": [
+    {
+      "donation": 5,
+      "afterPct": 57,
+      "afterUsdc": 1750,
+      "matchDelta": { "usdc": 100, "pct": 2 }
     },
-    "maxMatching": 3000,
-    "tipOptions": [
-      {
-        "donation": 5,
-        "afterPct": 57,
-        "afterUsdc": 1750,
-        "matchDelta": { "usdc": 100, "pct": 2 }
-      },
-      {
-        "donation": 10,
-        "afterPct": 59,
-        "afterUsdc": 1800,
-        "matchDelta": { "usdc": 150, "pct": 4 }
-      },
-      {
-        "donation": 15,
-        "afterPct": 61,
-        "afterUsdc": 1900,
-        "matchDelta": { "usdc": 250, "pct": 6 }
-      },
-      {
-        "donation": 25,
-        "afterPct": 64,
-        "afterUsdc": 2050,
-        "matchDelta": { "usdc": 400, "pct": 9 }
-      },
-      {
-        "donation": 50,
-        "afterPct": 70,
-        "afterUsdc": 2250,
-        "matchDelta": { "usdc": 600, "pct": 15 }
-      }
-    ]
-  }
+    {
+      "donation": 10,
+      "afterPct": 59,
+      "afterUsdc": 1800,
+      "matchDelta": { "usdc": 150, "pct": 4 }
+    },
+    {
+      "donation": 15,
+      "afterPct": 61,
+      "afterUsdc": 1900,
+      "matchDelta": { "usdc": 250, "pct": 6 }
+    },
+    {
+      "donation": 25,
+      "afterPct": 64,
+      "afterUsdc": 2050,
+      "matchDelta": { "usdc": 400, "pct": 9 }
+    },
+    {
+      "donation": 50,
+      "afterPct": 70,
+      "afterUsdc": 2250,
+      "matchDelta": { "usdc": 600, "pct": 15 }
+    }
+  ]
+}
   
