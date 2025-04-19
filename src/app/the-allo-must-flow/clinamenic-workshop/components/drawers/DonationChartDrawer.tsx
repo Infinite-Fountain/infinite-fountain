@@ -59,12 +59,38 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
             </div>
 
             {/* Chart Frame */}
-            <div className="w-5/6 h-3/6 border-4 border-black mt-4 flex items-center justify-center rounded-lg">
+            <div className="relative w-5/6 h-3/6 border-4 border-black mt-4 flex items-center justify-center rounded-lg">
               {/* Y-Axis Name */}
-              <span className="absolute left-[3%] top-1/2 transform -translate-y-1/2 -rotate-90 origin-center text-black text-sm">{yAxis.name}</span>
+              <div
+                className="
+                  absolute
+                  left-9
+                  top-0
+                  bottom-0
+                  flex
+                  text-black
+                  text-sm
+                  h-full
+                "
+              >
+                <span className="transform -rotate-90 origin-center">{yAxis.name}</span>
+              </div>
 
               {/* Y-Axis Values */}
-              <div className="absolute left-[21%] top-1/2 transform -translate-y-1/2 flex flex-col justify-between text-black text-sm">
+              <div
+                className="
+                  absolute
+                  left-4
+                  top-0
+                  bottom-0
+                  flex
+                  flex-col
+                  justify-between
+                  text-black
+                  text-sm
+                  h-full
+                "
+              >
                 <span className="text-right">{yAxis['value 100']}</span>
                 <span className="text-right">{yAxis['value 75']}</span>
                 <span className="text-right">{yAxis['value 50']}</span>
