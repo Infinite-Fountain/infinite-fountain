@@ -16,6 +16,8 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
     setSelectedAmount(amount);
   };
 
+  const yAxis = config['y-axis'][0];
+
   return (
     <div
       className={`fixed inset-0 z-50 flex items-start justify-center transition-transform duration-300 ease-in-out transform ${
@@ -54,6 +56,21 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
               <button style={{ backgroundColor: selectedAmount === '$15' ? activeColor : unactiveColor }} className="text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$15')}>$15</button>
               <button style={{ backgroundColor: selectedAmount === '$25' ? activeColor : unactiveColor }} className="text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$25')}>$25</button>
               <button style={{ backgroundColor: selectedAmount === '$50' ? activeColor : unactiveColor }} className="text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$50')}>$50</button>
+            </div>
+
+            {/* Chart Frame */}
+            <div className="w-5/6 h-3/6 border-4 border-black mt-4 flex items-center justify-center rounded-lg">
+              {/* Y-Axis Name */}
+              <span className="absolute left-[3%] top-1/2 transform -translate-y-1/2 -rotate-90 origin-center text-black text-sm">{yAxis.name}</span>
+
+              {/* Y-Axis Values */}
+              <div className="absolute left-[21%] top-1/2 transform -translate-y-1/2 flex flex-col justify-between text-black text-sm">
+                <span className="text-right">{yAxis['value 100']}</span>
+                <span className="text-right">{yAxis['value 75']}</span>
+                <span className="text-right">{yAxis['value 50']}</span>
+                <span className="text-right">{yAxis['value 25']}</span>
+                <span className="text-right">{yAxis['value 0']}</span>
+              </div>
             </div>
 
             {/* Green Button */}

@@ -1,5 +1,15 @@
 {
   "header_text": "Your 3pts vote has been registered onchain. You can also add a \"tip\" to the project to increase its matching funds even further.",
+  "y-axis": [
+    {
+        "name": "% of Maximum matching", 
+        "value 0": "0%",
+        "value 25": "25%",
+        "value 50": "50%",
+        "value 75": "75%",
+        "value 100": "100%"
+    }
+  ],
   "rounds": [
     { "label": "2 Weeks Ago", "pct": 35, "usdc": 1050 },
     { "label": "Today",       "pct": 55, "usdc": 1650 },
