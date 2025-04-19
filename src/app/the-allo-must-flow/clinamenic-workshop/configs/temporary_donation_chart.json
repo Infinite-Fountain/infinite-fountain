@@ -55,6 +55,10 @@
     { "amount": "$15", "buttonText": "donate $15", "default": true },
     { "amount": "$25", "buttonText": "donate $25", "default": false },
     { "amount": "$50", "buttonText": "donate $50", "default": false }
-  ]
+  ],
+  "amount_button_colors": {
+    "active": "YellowGreen",
+    "unactive": "grey"
+  }
 }
   

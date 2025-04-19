@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import config from '../../configs/temporary_donation_chart.json';
 
 interface DonationChartDrawerProps {
   isOpen: boolean;
@@ -7,6 +8,9 @@ interface DonationChartDrawerProps {
 
 const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClose }) => {
   const [selectedAmount, setSelectedAmount] = useState('$15');
+
+  const activeColor = config.amount_button_colors.active;
+  const unactiveColor = config.amount_button_colors.unactive;
 
   const handleButtonClick = (amount: string) => {
     setSelectedAmount(amount);
@@ -53,11 +57,11 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
 
             {/* Donation Amount Buttons */}
             <div className="flex justify-center space-x-2 mt-4">
-              <button className="bg-gray-200 text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$5')}>$5</button>
-              <button className="bg-gray-200 text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$10')}>$10</button>
-              <button className="bg-gray-200 text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$15')}>$15</button>
-              <button className="bg-gray-200 text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$25')}>$25</button>
-              <button className="bg-gray-200 text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$50')}>$50</button>
+              <button style={{ backgroundColor: selectedAmount === '$5' ? activeColor : unactiveColor }} className="text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$5')}>$5</button>
+              <button style={{ backgroundColor: selectedAmount === '$10' ? activeColor : unactiveColor }} className="text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$10')}>$10</button>
+              <button style={{ backgroundColor: selectedAmount === '$15' ? activeColor : unactiveColor }} className="text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$15')}>$15</button>
+              <button style={{ backgroundColor: selectedAmount === '$25' ? activeColor : unactiveColor }} className="text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$25')}>$25</button>
+              <button style={{ backgroundColor: selectedAmount === '$50' ? activeColor : unactiveColor }} className="text-black font-bold py-1 px-3 rounded" onClick={() => handleButtonClick('$50')}>$50</button>
             </div>
           </div>
 
