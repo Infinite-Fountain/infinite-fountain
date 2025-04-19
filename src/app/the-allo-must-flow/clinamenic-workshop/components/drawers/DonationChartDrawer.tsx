@@ -17,6 +17,20 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
   };
 
   const yAxis = config['y-axis'][0];
+  const firstBarChart = config.bar_charts.find((chart: any) => chart.name === 1);
+  const firstBarChartPct = firstBarChart ? firstBarChart.pct : '0%';
+
+  const secondBarChart = config.bar_charts.find((chart: any) => chart.name === 2);
+  const secondBarChartPct = secondBarChart ? secondBarChart.pct : '0%';
+
+  const thirdBarChart = config.bar_charts.find((chart: any) => chart.name === 3);
+  const thirdBarChartPct = thirdBarChart ? thirdBarChart.pct : '0%';
+
+  const donateButtonColor = config.amount_button_colors.active;
+
+  const firstBarChartColor = firstBarChart ? firstBarChart.color : 'grey';
+  const secondBarChartColor = secondBarChart ? secondBarChart.color : 'grey';
+  const thirdBarChartColor = thirdBarChart ? thirdBarChart.color : donateButtonColor;
 
   return (
     <div
@@ -97,11 +111,20 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
                 <span className="text-right">{yAxis['value 25']}</span>
                 <span className="text-right">{yAxis['value 0']}</span>
               </div>
+
+              {/* Bar Chart 1 */}
+              <div className="absolute bottom-0 left-[5rem] w-[10%]" style={{ height: firstBarChartPct, backgroundColor: firstBarChartColor }}></div>
+
+              {/* Bar Chart 2 */}
+              <div className="absolute bottom-0 left-[9rem] w-[10%]" style={{ height: secondBarChartPct, backgroundColor: secondBarChartColor }}></div>
+
+              {/* Bar Chart 3 */}
+              <div className="absolute bottom-0 left-[13rem] w-[10%]" style={{ height: thirdBarChartPct, backgroundColor: thirdBarChartColor }}></div>
             </div>
 
-            {/* Green Button */}
+            {/* Donate Button */}
             <div className="flex-grow"></div> {/* Spacer to push button to bottom */}
-            <button className="bg-green-500 text-white font-bold py-2 px-4 rounded mb-4">
+            <button style={{ backgroundColor: donateButtonColor }} className="text-black font-bold py-2 px-4 rounded mb-4">
               Donate {selectedAmount}
             </button>
           </div>

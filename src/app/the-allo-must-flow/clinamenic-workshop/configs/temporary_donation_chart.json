@@ -10,10 +10,10 @@
         "value 100": "100%"
     }
   ],
-  "rounds": [
-    { "label": "2 Weeks Ago", "pct": 35, "usdc": 1050 },
-    { "label": "Today",       "pct": 55, "usdc": 1650 },
-    { "label": "+$15 Tip",    "pct": 61, "usdc": 1900 }
+  "bar_charts": [
+    { "name":1, "color": "grey", "label": "2 Weeks Ago", "pct": "35%", "usdc": 1050 },
+    { "name":2, "color": "grey", "label": "Today",       "pct": "45%", "usdc": 1350 },
+    { "name":3, "color": "YellowGreen", "label": "+$15 Tip",    "pct": "72%", "usdc": 2160 }
   ],
   "benchmarks": {
     "avg":    { "pct": 67, "usdc": 2050 },
@@ -66,6 +66,7 @@
     { "amount": "$25", "buttonText": "donate $25", "default": false },
     { "amount": "$50", "buttonText": "donate $50", "default": false }
   ],
+  
   "amount_button_colors": {
     "active": "YellowGreen",
     "unactive": "grey"
