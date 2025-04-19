@@ -41,6 +41,13 @@
       "afterUsdc": 2250,
       "matchDelta": { "usdc": 600, "pct": 15 }
     }
+  ],
+  "donate_button_text": [
+    "donate $5",
+    "donate $10",
+    "donate $15",
+    "donate $25",
+    "donate $50"
   ]
 }
   

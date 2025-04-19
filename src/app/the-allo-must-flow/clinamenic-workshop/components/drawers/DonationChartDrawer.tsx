@@ -35,18 +35,21 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
         </button>
 
         {/* Drawer Container */}
-        <div className="drawer-container w-full h-full relative">
-          {/* Header Text */}
-          <div className="absolute top-4 left-4 right-4 text-white text-center text-lg leading-tight">
-            <p>Your 3pts vote has been registered onchain.</p>
-            <p>You can also add a "tip" to the project</p>
-            <p>to increase its matching funds even further.</p>
+        <div className="drawer-container w-full h-full relative flex flex-col items-center justify-center">
+          {/* White Card */}
+          <div className="bg-white w-10/12 h-3/4 rounded-lg shadow-md mx-auto mt-4 flex flex-col items-center justify-start">
+            {/* Header Text */}
+            <div className="text-black text-center text-lg leading-tight mt-4">
+              <p>Your 3pts vote has been registered onchain.</p>
+              <p>You can also add a "tip" to the project</p>
+              <p>to increase its matching funds even further.</p>
+            </div>
           </div>
 
-          {/* Placeholder for chart content */}
-          <div className="flex items-center justify-center h-full">
-            {/* Content will be added here */}
-          </div>
+          {/* Green Button */}
+          <button className="bg-green-500 text-white font-bold py-2 px-4 rounded mt-4 mb-8">
+            Donate xxx
+          </button>
         </div>
       </div>
     </div>
