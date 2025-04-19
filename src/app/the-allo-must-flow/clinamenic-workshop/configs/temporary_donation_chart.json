@@ -16,8 +16,8 @@
     { "name":3, "color": "YellowGreen", "label": "+$15 Tip",    "pct": "72%", "usdc": 2160 }
   ],
   "benchmarks": {
-    "avg":    { "pct": 67, "usdc": 2050 },
-    "leader": { "pct": 87, "usdc": 2610 }
+    "average":    { "pct": "55%", "usdc": "$1650" },
+    "leader": { "pct": "83%", "usdc": "$2490" }
   },
   "maxMatching": 3000,
   "tipOptions": [

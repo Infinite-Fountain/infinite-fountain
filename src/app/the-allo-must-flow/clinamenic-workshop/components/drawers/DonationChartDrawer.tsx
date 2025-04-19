@@ -32,6 +32,14 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
   const secondBarChartColor = secondBarChart ? secondBarChart.color : 'grey';
   const thirdBarChartColor = thirdBarChart ? thirdBarChart.color : donateButtonColor;
 
+  const leaderBenchmark = config.benchmarks.leader;
+  const leaderPct = leaderBenchmark ? leaderBenchmark.pct : '0%';
+  const leaderUsdc = leaderBenchmark ? leaderBenchmark.usdc : '$0';
+
+  const averageBenchmark = config.benchmarks.average;
+  const averagePct = averageBenchmark ? averageBenchmark.pct : '0%';
+  const averageUsdc = averageBenchmark ? averageBenchmark.usdc : '$0';
+
   return (
     <div
       className={`fixed inset-0 z-50 flex items-start justify-center transition-transform duration-300 ease-in-out transform ${
@@ -120,6 +128,22 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
 
               {/* Bar Chart 3 */}
               <div className="absolute bottom-0 left-[13rem] w-[10%]" style={{ height: thirdBarChartPct, backgroundColor: thirdBarChartColor }}></div>
+
+              {/* Leader Box */}
+              <div className="absolute right-2 text-black text-sm" style={{ bottom: leaderPct, backgroundColor: 'transparent' }}>
+                <div>leader {leaderUsdc}</div>
+              </div>
+
+              {/* Leader Line */}
+              <div className="absolute z-10" style={{ bottom: leaderPct, left: '5rem', right: '7rem', borderBottom: '5px dotted black' }}></div>
+
+              {/* Average Box */}
+              <div className="absolute right-2 text-black text-sm" style={{ bottom: averagePct, backgroundColor: 'transparent' }}>
+                <div>average {averageUsdc}</div>
+              </div>
+
+              {/* Average Line */}
+              <div className="absolute z-10" style={{ bottom: averagePct, left: '5rem', right: '7rem', borderBottom: '5px dotted black' }}></div>
             </div>
 
             {/* Donate Button */}
