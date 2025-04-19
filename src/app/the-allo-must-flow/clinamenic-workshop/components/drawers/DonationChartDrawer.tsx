@@ -156,6 +156,21 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
                 ))}
               </div>
 
+              {/* First Bar Chart Amount */}
+              <div className="absolute text-sm" style={{ left: '5rem', bottom: `calc(${firstBarChartPct} + 1%)`, color: unactiveColor, fontWeight: 'bold', backgroundColor: 'white', zIndex: 20 }}>
+                {firstBarChart ? firstBarChart.usdc : 'na'}
+              </div>
+
+              {/* Second Bar Chart Amount */}
+              <div className="absolute text-sm" style={{ left: '8.5rem', bottom: `calc(${secondBarChartPct} + 1%)`, color: unactiveColor, fontWeight: 'bold', backgroundColor: 'white', zIndex: 20 }}>
+                {secondBarChart ? secondBarChart.usdc : 'na'}
+              </div>
+
+              {/* Third Bar Chart Amount */}
+              <div className="absolute text-sm" style={{ left: '13rem', bottom: `calc(${thirdBarChartPct} + 1%)`, color: thirdLabelColor, fontWeight: 'bold', backgroundColor: 'white', zIndex: 20 }}>
+                {thirdBarChart ? thirdBarChart.usdc : 'na'}
+              </div>
+
               {/* Leader Box */}
               <div className="absolute right-2 text-black text-sm" style={{ bottom: leaderPct, backgroundColor: 'transparent' }}>
                 <div>leader {leaderUsdc}</div>
