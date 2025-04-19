@@ -11,9 +11,9 @@
     }
   ],
   "bar_charts": [
-    { "name":1, "color": "grey", "label": "2 Weeks Ago", "pct": "35%", "usdc": 1050 },
-    { "name":2, "color": "grey", "label": "Today",       "pct": "45%", "usdc": 1350 },
-    { "name":3, "color": "YellowGreen", "label": "+$15 Tip",    "pct": "72%", "usdc": 2160 }
+    { "name":1, "color": "grey", "label": "Two Weeks Ago", "pct": "35%", "usdc": 1050 },
+    { "name":2, "color": "grey", "label": "Current Matching",       "pct": "45%", "usdc": 1350 },
+    { "name":3, "color": "YellowGreen", "label": "With Your Tip",    "pct": "72%", "usdc": 2160 }
   ],
   "benchmarks": {
     "average":    { "pct": "55%", "usdc": "$1650" },

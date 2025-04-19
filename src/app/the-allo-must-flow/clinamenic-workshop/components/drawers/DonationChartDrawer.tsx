@@ -40,6 +40,12 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
   const averagePct = averageBenchmark ? averageBenchmark.pct : '0%';
   const averageUsdc = averageBenchmark ? averageBenchmark.usdc : '$0';
 
+  const firstBarChartLabel = firstBarChart ? firstBarChart.label : '';
+  const secondBarChartLabel = secondBarChart ? secondBarChart.label : '';
+  const thirdBarChartLabel = thirdBarChart ? thirdBarChart.label : '';
+
+  const thirdLabelColor = config.amount_button_colors.active;
+
   return (
     <div
       className={`fixed inset-0 z-50 flex items-start justify-center transition-transform duration-300 ease-in-out transform ${
@@ -129,6 +135,27 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
               {/* Bar Chart 3 */}
               <div className="absolute bottom-0 left-[13rem] w-[10%]" style={{ height: thirdBarChartPct, backgroundColor: thirdBarChartColor }}></div>
 
+              {/* First Bar Chart Label */}
+              <div className="absolute text-black text-sm" style={{ left: '5rem', bottom: '-4rem' }}>
+                {firstBarChartLabel.split(' ').map((word, index) => (
+                  <div key={index} style={{ lineHeight: '1rem', textAlign: 'center' }}>{word}</div>
+                ))}
+              </div>
+
+              {/* Second Bar Chart Label */}
+              <div className="absolute text-black text-sm" style={{ left: '8.5rem', bottom: '-4rem' }}>
+                {secondBarChartLabel.split(' ').map((word, index) => (
+                  <div key={index} style={{ lineHeight: '1rem', textAlign: 'center' }}>{word}</div>
+                ))}
+              </div>
+
+              {/* Third Bar Chart Label */}
+              <div className="absolute text-sm" style={{ left: '13rem', bottom: '-4rem', color: thirdLabelColor, fontWeight: 'bold' }}>
+                {thirdBarChartLabel.split(' ').map((word, index) => (
+                  <div key={index} style={{ lineHeight: '1rem', textAlign: 'center' }}>{word}</div>
+                ))}
+              </div>
+
               {/* Leader Box */}
               <div className="absolute right-2 text-black text-sm" style={{ bottom: leaderPct, backgroundColor: 'transparent' }}>
                 <div>leader {leaderUsdc}</div>
@@ -144,11 +171,12 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
 
               {/* Average Line */}
               <div className="absolute z-10" style={{ bottom: averagePct, left: '5rem', right: '7rem', borderBottom: '5px dotted black' }}></div>
+
             </div>
 
             {/* Donate Button */}
             <div className="flex-grow"></div> {/* Spacer to push button to bottom */}
-            <button style={{ backgroundColor: donateButtonColor }} className="text-black font-bold py-2 px-4 rounded mb-4">
+            <button style={{ backgroundColor: donateButtonColor, position: 'absolute', right: '4rem', bottom: '2rem' }} className="text-black font-bold py-2 px-4 rounded">
               Donate {selectedAmount}
             </button>
           </div>
