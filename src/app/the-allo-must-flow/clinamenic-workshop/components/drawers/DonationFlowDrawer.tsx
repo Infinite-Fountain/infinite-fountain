@@ -8,10 +8,26 @@ interface DonationFlowDrawerProps {
   donationAmount: string;
 }
 
+interface Network {
+  name: string;
+  order: number;
+  contractAddress?: string;
+  chainId?: number;
+  tokens: Token[];
+}
+
+interface Token {
+  name: string;
+  token_contract: string;
+  order: number;
+  conversionFactor?: string | number;
+  eip2612?: boolean;
+}
+
 const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose, donationAmount }) => {
   const [donationStep, setDonationStep] = useState<number>(0);
-  const [selectedNetwork, setSelectedNetwork] = useState<any>(null);
-  const [selectedToken, setSelectedToken] = useState<any>(null);
+  const [selectedNetwork, setSelectedNetwork] = useState<Network | null>(null);
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [currentContractAddress, setCurrentContractAddress] = useState<string | null>(null);
@@ -42,7 +58,15 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
     }
   }, [isOpen, donationAmount]);
 
-  const handleNetworkSelect = async (network: any) => {
+  const networkToPlatformId: Record<string, string> = {
+    base: 'base',
+    optimism: 'optimism',
+    arbitrum: 'arbitrum-one',
+    celo: 'celo',
+    polygon: 'polygon-pos',
+  };
+
+  const handleNetworkSelect = async (network: Network) => {
     setSelectedNetwork(network);
     if (network.chainId && network.chainId !== 0 && window.ethereum) {
       try {
@@ -62,21 +86,40 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
     setDonationStep(2);
   };
 
-  const handleTokenSelect = async (token: any) => {
+  const handleTokenSelect = async (token: Token) => {
     setSelectedToken(token);
     setDonationStep(3);
 
-    // Fetch Ether price using a public API
+    // Fetch token price using CoinGecko API by contract address
     try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+      const contractAddress = token.token_contract.toLowerCase();
+      const platformId = networkToPlatformId[selectedNetwork?.name.toLowerCase() || ''];
+      const url = contractAddress
+        ? `https://api.coingecko.com/api/v3/simple/token_price/${platformId}?contract_addresses=${contractAddress}&vs_currencies=usd`
+        : `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error fetching token price:", errorText);
+        return;
+      }
       const data = await response.json();
-      const price = data.ethereum.usd;
-      console.log(`Current Ether price: ${price} USD`); // Log the Ether price
-      const amountInETH = (parseFloat(donationAmount) / price).toFixed(6);
-      setEthAmount(amountInETH);
+      console.log("API Response:", data); // Log the entire API response
+      const price = contractAddress ? data[contractAddress]?.usd : data['ethereum']?.usd;
+      if (price) {
+        console.log(`Current ${token.name} price: ${price} USD`); // Log the token price
+        const amountInToken = (parseFloat(donationAmount) / price).toFixed(6);
+        setEthAmount(amountInToken);
+      } else {
+        console.error(`Price for ${token.name} not found.`);
+      }
     } catch (error) {
-      console.error("Error fetching Ether price:", error);
+      console.error("Error fetching token price:", error);
     }
+  };
+
+  const handleGoBack = () => {
+    setDonationStep((prevStep) => Math.max(prevStep - 1, 0));
   };
 
   const renderDonationFlow = () => {
@@ -91,7 +134,7 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
               gap: "10px",
             }}
           >
-            {sortedNetworks.map((network: any) => (
+            {sortedNetworks.map((network: Network) => (
               network.order !== 0 && (
                 <button
                   key={network.name}
@@ -104,11 +147,18 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
               )
             ))}
           </div>
+          <button
+            className="go-back-btn bg-gray-500 text-white rounded mt-4"
+            style={{ position: "absolute", bottom: "10px", right: "10px" }}
+            onClick={handleGoBack}
+          >
+            Go Back
+          </button>
         </div>
       );
     }
     if (donationStep === 2 && selectedNetwork) {
-      const sortedTokens = selectedNetwork.tokens.sort((a: any, b: any) => a.order - b.order);
+      const sortedTokens = selectedNetwork.tokens.sort((a: Token, b: Token) => a.order - b.order);
       return (
         <div className="donation-flow flex flex-col items-center justify-center bg-opacity-80" style={{ width: "100%", height: "100%" }}>
           <h2 className="text-black mb-4">Please select the Token you want to donate:</h2>
@@ -119,7 +169,7 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
               gap: "10px",
             }}
           >
-            {sortedTokens.map((token: any) => (
+            {sortedTokens.map((token: Token) => (
               token.order !== 0 && (
                 <button
                   key={token.name}
@@ -132,13 +182,28 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
               )
             ))}
           </div>
+          <button
+            className="go-back-btn bg-gray-500 text-white rounded mt-4"
+            style={{ position: "absolute", bottom: "10px", right: "10px" }}
+            onClick={handleGoBack}
+          >
+            Go Back
+          </button>
         </div>
       );
     }
     if (donationStep === 3 && selectedToken) {
+      const formattedAmount = parseFloat(ethAmount).toFixed(selectedToken.name === 'BTC' || selectedToken.name === 'ETH' ? 7 : 1);
       return (
         <div className="donation-flow flex flex-col items-center justify-center bg-opacity-80" style={{ width: "100%", height: "100%" }}>
-          <h2 className="text-black mb-4">Donating {ethAmount} {selectedToken.name} = {donationAmount} USD</h2>
+          <h2 className="text-black mb-4">Donating {formattedAmount} {selectedToken.name} = {donationAmount} USD</h2>
+          <button
+            className="go-back-btn bg-gray-500 text-white rounded mt-4"
+            style={{ position: "absolute", bottom: "10px", right: "10px" }}
+            onClick={handleGoBack}
+          >
+            Go Back
+          </button>
         </div>
       );
     }
