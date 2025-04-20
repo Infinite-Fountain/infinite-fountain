@@ -54,6 +54,9 @@ const MEMBERS_NFT_CONTRACT = '0xcCf223a3Bb40173E1AB9262ad0d04C5bf3Ea32f5';
 // Utility function to add a delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Import JSON configuration dynamically
+import config from './configs/MainVoteConfig.json';
+
 export default function Page() {
   const { address } = useAccount();
 
@@ -508,6 +511,57 @@ export default function Page() {
     setDonationChartDrawerState('open');
   };
 
+  // Add a new state variable for the vote4button
+  const [vote4ButtonState, setVote4ButtonState] = useState<'closed' | 'open'>('closed');
+
+  // Define a state and function to manage status messages
+  const [status, setStatus] = useState<string>("");
+
+  // Update the handleVote4ButtonClick function with type annotations
+  const handleVote4ButtonClick = async () => {
+    setStatus("Preparing transaction...");
+    try {
+      if (!window.ethereum) {
+        setStatus("MetaMask is required");
+        return;
+      }
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
+
+      const communityUSDCPerVote = config.community_usdc_per_vote;
+      const multiplier = config.vote_button_4.multiplier;
+      const recipients = config.vote_recipients_share.map((item: { address: string; share: number }) => item.address);
+      const shares = config.vote_recipients_share.map((item: { address: string; share: number }) => item.share);
+
+      const amounts = shares.map((share: number) =>
+        ethers.BigNumber.from(communityUSDCPerVote)
+          .mul(1000000)
+          .mul(multiplier)
+          .mul(share)
+          .div(100)
+      );
+
+      const tags = Array(recipients.length).fill(config.tag);
+      const concepts = Array(recipients.length).fill(config.concept);
+
+      setStatus("Sending transaction...");
+      const tx = await contract.assignCommunityUSDC(
+        recipients,
+        amounts,
+        tags,
+        concepts
+      );
+      setStatus("Transaction sent. Awaiting confirmation...");
+      await tx.wait();
+      setStatus("Vote assignment successful!");
+    } catch (error: any) {
+      console.error(error);
+      setStatus(`Error: ${error.message}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Desktop View */}
@@ -635,6 +689,27 @@ export default function Page() {
               cursor: 'pointer'
             }}
             aria-label="Donation Chart Button"
+          />
+
+          {/* Add a button to vote option 4 */}
+          <button
+            onClick={handleVote4ButtonClick}
+            className="vote4button"
+            style={{
+              position: 'absolute',
+              left: '65%',
+              bottom: '2%',
+              width: '14%',
+              height: '17%',
+              backgroundColor: 'white',
+              color: 'black',
+              zIndex: 30,
+              border: 'none',
+              padding: 0,
+              margin: 0,
+              cursor: 'pointer'
+            }}
+            aria-label="Vote 4 Button"
           />
         </div>
 

@@ -1,0 +1,27 @@
+{
+  "community_usdc_per_vote": 2,
+  "tag": "vote",
+  "concept": "vote",
+  "vote_recipients_share": [
+    {
+      "address": "0xa53E8E2EeE3E8c7CD71388526fFc5B3E6768DF2d",
+      "share": 66
+    },
+    {
+      "address": "0xDB87FA75652342aaC07414d249d723C1B93f7670",
+      "share": 34
+    }
+  ],
+  "vote_button_1": {
+    "multiplier": -0.1
+  },
+  "vote_button_2": {
+    "multiplier": 1
+  },
+  "vote_button_3": {
+    "multiplier": 2
+  },
+  "vote_button_4": {
+    "multiplier": 3
+  }
+}

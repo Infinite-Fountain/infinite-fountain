@@ -119,7 +119,14 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
   };
 
   const handleGoBack = () => {
-    setDonationStep((prevStep) => Math.max(prevStep - 1, 0));
+    if (donationStep === 0) {
+      onClose(); // Close the current drawer
+      // Logic to open the DonationChartDrawer
+      // This might involve setting a state or calling a function to open the DonationChartDrawer
+    } else {
+      setDonationStep((prevStep) => Math.max(prevStep - 1, 0));
+      setEthAmount(""); // Reset the token price query
+    }
   };
 
   const renderDonationFlow = () => {
@@ -193,7 +200,7 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
       );
     }
     if (donationStep === 3 && selectedToken) {
-      const formattedAmount = parseFloat(ethAmount).toFixed(selectedToken.name === 'BTC' || selectedToken.name === 'ETH' ? 7 : 1);
+      const formattedAmount = parseFloat(ethAmount).toFixed(selectedToken.name === 'BTC' || selectedToken.name === 'ETH' || selectedToken.name === 'wBTC' ? 7 : 1);
       return (
         <div className="donation-flow flex flex-col items-center justify-center bg-opacity-80" style={{ width: "100%", height: "100%" }}>
           <h2 className="text-black mb-4">Donating {formattedAmount} {selectedToken.name} = {donationAmount} USD</h2>
