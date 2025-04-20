@@ -15,6 +15,16 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [currentContractAddress, setCurrentContractAddress] = useState<string | null>(null);
+  const [ethAmount, setEthAmount] = useState<string>("");
+
+  // Initialize ethers providers and contracts
+  const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
+  const alchemyProvider = useMemo(() => {
+    if (ALCHEMY_API_URL) {
+      return new ethers.providers.JsonRpcProvider(ALCHEMY_API_URL);
+    }
+    return null;
+  }, [ALCHEMY_API_URL]);
 
   const sortedNetworks = useMemo(() => {
     return donationFlow.networkSelection.networks.sort((a: any, b: any) => a.order - b.order);
@@ -52,9 +62,21 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
     setDonationStep(2);
   };
 
-  const handleTokenSelect = (token: any) => {
+  const handleTokenSelect = async (token: any) => {
     setSelectedToken(token);
     setDonationStep(3);
+
+    // Fetch Ether price using a public API
+    try {
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+      const data = await response.json();
+      const price = data.ethereum.usd;
+      console.log(`Current Ether price: ${price} USD`); // Log the Ether price
+      const amountInETH = (parseFloat(donationAmount) / price).toFixed(6);
+      setEthAmount(amountInETH);
+    } catch (error) {
+      console.error("Error fetching Ether price:", error);
+    }
   };
 
   const renderDonationFlow = () => {
@@ -110,6 +132,13 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
               )
             ))}
           </div>
+        </div>
+      );
+    }
+    if (donationStep === 3 && selectedToken) {
+      return (
+        <div className="donation-flow flex flex-col items-center justify-center bg-opacity-80" style={{ width: "100%", height: "100%" }}>
+          <h2 className="text-black mb-4">Donating {ethAmount} {selectedToken.name} = {donationAmount} USD</h2>
         </div>
       );
     }
