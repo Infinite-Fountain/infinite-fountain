@@ -4,9 +4,10 @@ import config from '../../configs/temporary_donation_chart.json';
 interface DonationChartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  openDonationFlowDrawer: () => void;
 }
 
-const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClose }) => {
+const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClose, openDonationFlowDrawer }) => {
   const [selectedAmount, setSelectedAmount] = useState('$15');
 
   const activeColor = config.amount_button_colors.active;
@@ -195,7 +196,14 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
 
             {/* Donate Button */}
             <div className="flex-grow"></div> {/* Spacer to push button to bottom */}
-            <button style={{ backgroundColor: donateButtonColor, position: 'absolute', right: '4rem', bottom: '2rem' }} className="text-black font-bold py-2 px-4 rounded">
+            <button
+              style={{ backgroundColor: donateButtonColor, position: 'absolute', right: '4rem', bottom: '2rem' }}
+              className="text-black font-bold py-2 px-4 rounded"
+              onClick={() => {
+                onClose(); // Close DonationChartDrawer
+                openDonationFlowDrawer(); // Open DonationFlowDrawer
+              }}
+            >
               Donate {selectedAmount}
             </button>
           </div>

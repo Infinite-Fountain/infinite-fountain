@@ -40,6 +40,9 @@ import TableOfContentDrawer from './components/drawers/TableOfContentDrawer';
 // Import the DonationChartDrawer component
 import DonationChartDrawer from './components/drawers/DonationChartDrawer';
 
+// Import the DonationFlowDrawer component
+import DonationFlowDrawer from './components/drawers/DonationFlowDrawer';
+
 // Define constants
 const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
 const CONTRACT_ADDRESS = '0x654dff96c6759f1e3218c384767528eec937a55c'; // Your contract address
@@ -488,6 +491,18 @@ export default function Page() {
 
   // Add a new state variable for the donation chart drawer
   const [donationChartDrawerState, setDonationChartDrawerState] = useState<'closed' | 'open'>('closed');
+
+  const [donationFlowDrawerState, setDonationFlowDrawerState] = useState<'closed' | 'open'>('closed');
+
+  const handleOpenDonationFlowDrawer = () => {
+    setDonationChartDrawerState('open');
+    setDonationFlowDrawerState('closed');
+  };
+
+  const handleCloseDonationFlowDrawer = () => {
+    setDonationFlowDrawerState('closed');
+    setDonationChartDrawerState('open');
+  };
 
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
@@ -1181,6 +1196,12 @@ export default function Page() {
       <DonationChartDrawer
         isOpen={donationChartDrawerState === 'open'}
         onClose={() => setDonationChartDrawerState('closed')}
+        openDonationFlowDrawer={() => setDonationFlowDrawerState('open')}
+      />
+
+      <DonationFlowDrawer
+        isOpen={donationFlowDrawerState === 'open'}
+        onClose={handleCloseDonationFlowDrawer}
       />
     </div>
   );
