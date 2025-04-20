@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import donationFlow from '../../configs/donationFlow.json';
+import { ethers } from 'ethers';
 
 interface DonationFlowDrawerProps {
   isOpen: boolean;
@@ -12,6 +13,8 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
   const [selectedNetwork, setSelectedNetwork] = useState<any>(null);
   const [selectedToken, setSelectedToken] = useState<any>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentContractAddress, setCurrentContractAddress] = useState<string | null>(null);
 
   const sortedNetworks = useMemo(() => {
     return donationFlow.networkSelection.networks.sort((a: any, b: any) => a.order - b.order);
@@ -29,9 +32,88 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
     }
   }, [isOpen, donationAmount]);
 
-  const handleNetworkSelect = (network: any) => {
+  const handleNetworkSelect = async (network: any) => {
     setSelectedNetwork(network);
-    // Additional logic for network selection can be added here
+    if (network.chainId && network.chainId !== 0 && window.ethereum) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: ethers.utils.hexValue(network.chainId) }],
+        });
+      } catch (switchError: any) {
+        console.error("Switch chain error:", switchError);
+        alert("The network was NOT successfully changed. Please do it manually in your wallet.");
+        setError(switchError.message);
+      }
+    }
+    if (network.contractAddress) {
+      setCurrentContractAddress(network.contractAddress);
+    }
+    setDonationStep(2);
+  };
+
+  const handleTokenSelect = (token: any) => {
+    setSelectedToken(token);
+    setDonationStep(3);
+  };
+
+  const renderDonationFlow = () => {
+    if (donationStep === 0 || donationStep === 1) {
+      return (
+        <div className="donation-flow flex flex-col items-center justify-center bg-opacity-80" style={{ width: "100%", height: "100%" }}>
+          <h2 className="text-black mb-4">Select a Network</h2>
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: isMobile ? "repeat(4, 1fr)" : "repeat(2, 1fr)",
+              gap: "10px",
+            }}
+          >
+            {sortedNetworks.map((network: any) => (
+              network.order !== 0 && (
+                <button
+                  key={network.name}
+                  className="network-btn bg-blue-500 text-white rounded"
+                  style={{ width: "100%", height: "100%" }}
+                  onClick={() => handleNetworkSelect(network)}
+                >
+                  {network.name}
+                </button>
+              )
+            ))}
+          </div>
+        </div>
+      );
+    }
+    if (donationStep === 2 && selectedNetwork) {
+      const sortedTokens = selectedNetwork.tokens.sort((a: any, b: any) => a.order - b.order);
+      return (
+        <div className="donation-flow flex flex-col items-center justify-center bg-opacity-80" style={{ width: "100%", height: "100%" }}>
+          <h2 className="text-black mb-4">Please select the Token you want to donate:</h2>
+          <div
+            className="grid"
+            style={{
+              gridTemplateColumns: isMobile ? "repeat(4, 1fr)" : "repeat(2, 1fr)",
+              gap: "10px",
+            }}
+          >
+            {sortedTokens.map((token: any) => (
+              token.order !== 0 && (
+                <button
+                  key={token.name}
+                  className="token-btn bg-purple-500 text-white rounded"
+                  style={{ width: "100%", height: "100%" }}
+                  onClick={() => handleTokenSelect(token)}
+                >
+                  {token.name}
+                </button>
+              )
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -53,32 +135,13 @@ const DonationFlowDrawer: React.FC<DonationFlowDrawerProps> = ({ isOpen, onClose
         className="relative bg-black rounded-t-lg overflow-hidden transform transition-transform duration-300 ease-in-out w-11/12 md:w-auto md:h-4/5 aspect-square md:aspect-square"
         onClick={(e) => e.stopPropagation()} // Prevent click from closing drawer
       >
-        {/* Header for Donation Amount */}
-        <h2 className="text-white text-center text-2xl mt-4">Donating ${donationAmount} USD</h2>
+        {/* White Card */}
+        <div className="bg-white w-10/12 h-5/6 rounded-lg shadow-md mx-auto mt-4 mb-4 flex flex-col items-center justify-start">
+          {/* Header for Donation Amount */}
+          <div className="text-black text-center text-2xl mt-20 mb-2">Donating ${donationAmount} USD</div>
 
-        {/* Display Network Options */}
-        <div className="donation-flow flex flex-col items-center justify-center bg-black bg-opacity-80" style={{ width: "100%", height: "100%" }}>
-          <h2 className="text-white mb-4">Select a Network</h2>
-          <div
-            className="grid"
-            style={{
-              gridTemplateColumns: isMobile ? "repeat(4, 1fr)" : "repeat(2, 1fr)",
-              gap: "10px",
-            }}
-          >
-            {sortedNetworks.map((network: any) => (
-              network.order !== 0 && (
-                <button
-                  key={network.name}
-                  className="network-btn bg-blue-500 text-white rounded"
-                  style={{ width: "100%", height: "100%" }}
-                  onClick={() => handleNetworkSelect(network)}
-                >
-                  {network.name}
-                </button>
-              )
-            ))}
-          </div>
+          {/* Display Network Options */}
+          {renderDonationFlow()}
         </div>
       </div>
     </div>
