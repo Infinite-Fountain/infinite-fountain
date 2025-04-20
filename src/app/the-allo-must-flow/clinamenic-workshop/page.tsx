@@ -494,9 +494,13 @@ export default function Page() {
 
   const [donationFlowDrawerState, setDonationFlowDrawerState] = useState<'closed' | 'open'>('closed');
 
-  const handleOpenDonationFlowDrawer = () => {
-    setDonationChartDrawerState('open');
-    setDonationFlowDrawerState('closed');
+  // Add state to track donation amount
+  const [donationAmount, setDonationAmount] = useState<string>('');
+
+  // Update the openDonationFlowDrawer function
+  const openDonationFlowDrawer = (amount: string) => {
+    setDonationAmount(amount);
+    setDonationFlowDrawerState('open');
   };
 
   const handleCloseDonationFlowDrawer = () => {
@@ -1196,12 +1200,13 @@ export default function Page() {
       <DonationChartDrawer
         isOpen={donationChartDrawerState === 'open'}
         onClose={() => setDonationChartDrawerState('closed')}
-        openDonationFlowDrawer={() => setDonationFlowDrawerState('open')}
+        openDonationFlowDrawer={openDonationFlowDrawer}
       />
 
       <DonationFlowDrawer
         isOpen={donationFlowDrawerState === 'open'}
         onClose={handleCloseDonationFlowDrawer}
+        donationAmount={donationAmount}
       />
     </div>
   );

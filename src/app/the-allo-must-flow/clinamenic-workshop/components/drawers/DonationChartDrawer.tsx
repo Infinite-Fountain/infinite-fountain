@@ -4,7 +4,7 @@ import config from '../../configs/temporary_donation_chart.json';
 interface DonationChartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  openDonationFlowDrawer: () => void;
+  openDonationFlowDrawer: (amount: string) => void;
 }
 
 const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClose, openDonationFlowDrawer }) => {
@@ -201,7 +201,7 @@ const DonationChartDrawer: React.FC<DonationChartDrawerProps> = ({ isOpen, onClo
               className="text-black font-bold py-2 px-4 rounded"
               onClick={() => {
                 onClose(); // Close DonationChartDrawer
-                openDonationFlowDrawer(); // Open DonationFlowDrawer
+                openDonationFlowDrawer(selectedAmount.replace('$', '')); // Pass donation amount without $ sign
               }}
             >
               Donate {selectedAmount}
