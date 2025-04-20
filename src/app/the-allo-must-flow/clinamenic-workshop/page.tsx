@@ -54,7 +54,23 @@ const MEMBERS_NFT_CONTRACT = '0xcCf223a3Bb40173E1AB9262ad0d04C5bf3Ea32f5';
 // Utility function to add a delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Import JSON configuration dynamically
+// Define the type for the config object
+interface VoteButtonConfig {
+  multiplier: number;
+}
+
+interface Config {
+  community_usdc_per_vote: number;
+  tag: string;
+  concept: string;
+  vote_recipients_share: { address: string; share: number }[];
+  vote_button_1: VoteButtonConfig;
+  vote_button_2: VoteButtonConfig;
+  vote_button_3: VoteButtonConfig;
+  vote_button_4: VoteButtonConfig;
+}
+
+// Import JSON configuration with type assertion
 import config from './configs/MainVoteConfig.json';
 
 export default function Page() {
@@ -517,8 +533,25 @@ export default function Page() {
   // Define a state and function to manage status messages
   const [status, setStatus] = useState<string>("");
 
-  // Update the handleVote4ButtonClick function with type annotations
+  // Add handlers for each vote button
+  const handleVote1ButtonClick = async () => {
+    await handleVoteButtonClick('vote_button_1');
+  };
+
+  const handleVote2ButtonClick = async () => {
+    await handleVoteButtonClick('vote_button_2');
+  };
+
+  const handleVote3ButtonClick = async () => {
+    await handleVoteButtonClick('vote_button_3');
+  };
+
   const handleVote4ButtonClick = async () => {
+    await handleVoteButtonClick('vote_button_4');
+  };
+
+  // Generalized vote button handler
+  const handleVoteButtonClick = async (buttonNumber: 'vote_button_1' | 'vote_button_2' | 'vote_button_3' | 'vote_button_4') => {
     setStatus("Preparing transaction...");
     try {
       if (!window.ethereum) {
@@ -531,7 +564,7 @@ export default function Page() {
       const contract = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
 
       const communityUSDCPerVote = config.community_usdc_per_vote;
-      const multiplier = config.vote_button_4.multiplier;
+      const multiplier = config[buttonNumber].multiplier;
       const recipients = config.vote_recipients_share.map((item: { address: string; share: number }) => item.address);
       const shares = config.vote_recipients_share.map((item: { address: string; share: number }) => item.share);
 
@@ -556,6 +589,7 @@ export default function Page() {
       setStatus("Transaction sent. Awaiting confirmation...");
       await tx.wait();
       setStatus("Vote assignment successful!");
+      alert("Your vote has been registered on-chain.");
     } catch (error: any) {
       console.error(error);
       setStatus(`Error: ${error.message}`);
@@ -691,7 +725,67 @@ export default function Page() {
             aria-label="Donation Chart Button"
           />
 
-          {/* Add a button to vote option 4 */}
+          {/* Add buttons for voting */}
+          <button
+            onClick={handleVote1ButtonClick}
+            className="vote1button"
+            style={{
+              position: 'absolute',
+              left: '22%',
+              bottom: '2%',
+              width: '13%',
+              height: '17%',
+              backgroundColor: 'transparent',
+              color: 'black',
+              zIndex: 30,
+              border: 'none',
+              padding: 0,
+              margin: 0,
+              cursor: 'pointer'
+            }}
+            aria-label="Vote 1 Button"
+          />
+
+          <button
+            onClick={handleVote2ButtonClick}
+            className="vote2button"
+            style={{
+              position: 'absolute',
+              left: '36%',
+              bottom: '2%',
+              width: '13%',
+              height: '17%',
+              backgroundColor: 'transparent',
+              color: 'black',
+              zIndex: 30,
+              border: 'none',
+              padding: 0,
+              margin: 0,
+              cursor: 'pointer'
+            }}
+            aria-label="Vote 2 Button"
+          />
+
+          <button
+            onClick={handleVote3ButtonClick}
+            className="vote3button"
+            style={{
+              position: 'absolute',
+              left: '50%',
+              bottom: '2%',
+              width: '13%',
+              height: '17%',
+              backgroundColor: 'transparent',
+              color: 'black',
+              zIndex: 30,
+              border: 'none',
+              padding: 0,
+              margin: 0,
+              cursor: 'pointer'
+            }}
+            aria-label="Vote 3 Button"
+          />
+
           <button
             onClick={handleVote4ButtonClick}
             className="vote4button"
@@ -699,9 +793,9 @@ export default function Page() {
               position: 'absolute',
               left: '65%',
               bottom: '2%',
-              width: '14%',
+              width: '13%',
               height: '17%',
-              backgroundColor: 'white',
+              backgroundColor: 'transparent',
               color: 'black',
               zIndex: 30,
               border: 'none',

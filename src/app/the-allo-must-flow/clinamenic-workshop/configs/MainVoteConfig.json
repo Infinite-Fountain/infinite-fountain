@@ -4,11 +4,11 @@
   "concept": "vote",
   "vote_recipients_share": [
     {
-      "address": "0xa53E8E2EeE3E8c7CD71388526fFc5B3E6768DF2d",
+      "address": "0x98FD9bd0165cAfC5eD0C9A06c7Af23eAf84aA458",
       "share": 66
     },
     {
-      "address": "0xDB87FA75652342aaC07414d249d723C1B93f7670",
+      "address": "0xA7C6a8782632733d48246bF516475341Dac6d65B",
       "share": 34
     }
   ],
