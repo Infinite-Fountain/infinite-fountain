@@ -326,7 +326,7 @@ export default function Page() {
             const normalizedAddress = holder.holder.toLowerCase();
             return {
               address: normalizedAddress,
-              balance: parseFloat(ethers.utils.formatUnits(holder.balance, 6)) // Assuming USDC has 6 decimals
+              balance: Math.ceil(parseFloat(ethers.utils.formatUnits(holder.balance, 6)) * 10) // MULTIPLIED BY 10 AND ROUNDED UP
             };
           });
 
@@ -464,7 +464,7 @@ export default function Page() {
         const normalizedAddress = holder.holder.toLowerCase();
         return {
           address: normalizedAddress,
-          balance: parseFloat(ethers.utils.formatUnits(holder.balance, 6)) // Assuming USDC has 6 decimals
+          balance: Math.ceil(parseFloat(ethers.utils.formatUnits(holder.balance, 6)) * 10) // MULTIPLIED BY 10 AND ROUNDED UP
         };
       });
 
