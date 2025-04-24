@@ -115,7 +115,10 @@ const PoolsManager: React.FC = () => {
         holder: h.holder,
         balance: ethers.utils.formatUnits(h.balance, 6),
       }));
-      setDashboardHolders(holderListWithBalance);
+      
+      // Sort holders by balance in descending order
+      const sortedHolderListWithBalance = holderListWithBalance.sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance));
+      setDashboardHolders(sortedHolderListWithBalance);
       setDashboardStatus("Dashboard loaded.");
       setShowDashboard(true);
     } catch (error: any) {

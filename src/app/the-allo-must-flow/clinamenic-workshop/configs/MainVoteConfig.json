@@ -1,5 +1,5 @@
 {
-  "community_usdc_per_vote": 2,
+  "community_usdc_per_vote": 1,
   "tag": "vote",
   "concept": "vote",
   "vote_recipients_share": [

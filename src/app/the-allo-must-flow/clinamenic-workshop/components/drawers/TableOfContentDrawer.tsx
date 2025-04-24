@@ -70,8 +70,18 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
     fetchTableOfContents();
   }, [drawerState]);
 
+  // After fetching the items, identify the item with no parent and an animation_index
+  const specialItem = items.find((i) => i.parent_id === null && i.animation_index !== null);
+
+  // Filter out the special item from the topLevel array
+  const topLevel = items.filter((i) => i.parent_id === null && i !== specialItem);
+
+  // If a special item exists, place it at the top of the topLevel array
+  if (specialItem) {
+    topLevel.unshift(specialItem);
+  }
+
   // Build nested structure
-  const topLevel = items.filter((i) => i.parent_id === null);
   const childrenMap: Record<number, TOCItem[]> = {};
   items.forEach((i) => {
     if (i.parent_id !== null) {
@@ -85,6 +95,9 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
+
+  // Ensure the special item is not included in the collapsible headers
+  const filteredTopLevel = topLevel.filter((section) => section !== specialItem);
 
   return (
     <div
@@ -118,7 +131,24 @@ const TableOfContentDrawer: React.FC<TableOfContentDrawerProps> = ({
               </div>
             ) : (
               <div className="space-y-4">
-                {topLevel.map((section) => (
+                {specialItem && (
+                  <div className="border-b border-gray-700 pb-4">
+                    <button
+                      className="flex justify-between w-full text-left font-semibold text-lg hover:text-gray-300 transition-colors p-2 rounded"
+                      style={{ backgroundColor: specialItem.color || 'MediumSeaGreen' }}
+                      onClick={() => {
+                        if (specialItem.animation_index !== null && onSelectSection) {
+                          console.log('Selecting animation index:', specialItem.animation_index);
+                          onSelectSection(specialItem.animation_index);
+                          handleCloseTableOfContentsDrawer();
+                        }
+                      }}
+                    >
+                      {specialItem.menu_title}
+                    </button>
+                  </div>
+                )}
+                {filteredTopLevel.map((section) => (
                   <div key={section.id} className="border-b border-gray-700 pb-4">
                     <button
                       className="flex justify-between w-full text-left font-semibold text-lg hover:text-gray-300 transition-colors p-2 rounded"
