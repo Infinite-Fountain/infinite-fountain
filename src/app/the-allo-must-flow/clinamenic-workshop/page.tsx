@@ -90,7 +90,7 @@ import config from './configs/MainVoteConfig.json';
 // Function to dynamically load the voting config based on the current animation index
 const loadVotingConfig = async (index: number) => {
   try {
-    const config = await import(`./configs/VotingConfigAnimation${index}.json`);
+    const config = await import(`./configs/Index${index}voting.json`);
     return config;
   } catch (error) {
     console.error('Error loading voting config:', error);
