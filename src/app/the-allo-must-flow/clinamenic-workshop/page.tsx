@@ -51,6 +51,9 @@ import DonationChartDrawer from './components/drawers/DonationChartDrawer';
 // Import the DonationFlowDrawer component
 import DonationFlowDrawer from './components/drawers/DonationFlowDrawer';
 
+// Import the ImproveButton animation
+import ImproveButton from './animations/improve_button.json';
+
 // Define constants
 const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
 const CONTRACT_ADDRESS = '0x654dff96c6759f1e3218c384767528eec937a55c'; // Your contract address
@@ -80,6 +83,17 @@ interface Config {
 
 // Import JSON configuration with type assertion
 import config from './configs/MainVoteConfig.json';
+
+// Function to dynamically load the voting config based on the current animation index
+const loadVotingConfig = async (index: number) => {
+  try {
+    const config = await import(`./configs/VotingConfigAnimation${index - 1}.json`);
+    return config;
+  } catch (error) {
+    console.error('Error loading voting config:', error);
+    return null;
+  }
+};
 
 export default function Page() {
   const { address } = useAccount();
@@ -604,6 +618,18 @@ export default function Page() {
     }
   };
 
+  // State to store the current voting config
+  const [votingConfig, setVotingConfig] = useState<any>(null);
+
+  // Load the voting config whenever the animation index changes
+  useEffect(() => {
+    const fetchConfig = async () => {
+      const config = await loadVotingConfig(currentAnimationIndex);
+      setVotingConfig(config);
+    };
+    fetchConfig();
+  }, [currentAnimationIndex]);
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Desktop View */}
@@ -854,6 +880,22 @@ export default function Page() {
               </button>
             </div>
           )}
+
+          {votingConfig?.votingButtonVisible && (
+            <Lottie
+              animationData={ImproveButton as any}
+              loop={true}
+              style={{
+                width: '30%',
+                height: '30%',
+                position: 'absolute',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                bottom: '10%',
+                zIndex: 25,
+              }}
+            />
+          )}
         </div>
       </div>
 
@@ -1014,6 +1056,21 @@ export default function Page() {
                 Table of Contents
               </button>
             </div>
+          )}
+          {votingConfig?.votingButtonVisible && (
+            <Lottie
+              animationData={ImproveButton as any}
+              loop={true}
+              style={{
+                width: '30%',
+                height: '30%',
+                position: 'absolute',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                bottom: '20%',
+                zIndex: 25,
+              }}
+            />
           )}
         </div>
       </div>

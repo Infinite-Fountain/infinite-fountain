@@ -1,6 +1,10 @@
 {
-    "votingButtonVisible": false,
-    "votingType": "abc",
+    "votingButtonVisible": true,
+    "containerDesktop": "yellow",
+    "containerMobile": "yellow",
+    "positionXaxis": "20%",
+    "positionYaxis": "20%",
+    "votingButton": "abc",
     "VoteOption1": {
       "Active": true,
       "positionXaxis": "20%",
