@@ -886,12 +886,13 @@ export default function Page() {
               animationData={ImproveButton as any}
               loop={true}
               style={{
-                width: '30%',
-                height: '30%',
+                width: '40%',
+                height: '40%',
                 position: 'absolute',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 bottom: '10%',
+                marginBottom: '20px',
                 zIndex: 25,
               }}
             />
@@ -1062,12 +1063,13 @@ export default function Page() {
               animationData={ImproveButton as any}
               loop={true}
               style={{
-                width: '30%',
-                height: '30%',
+                width: '70%',
+                height: '70%',
                 position: 'absolute',
-                left: '50%',
+                left: '20%',
                 transform: 'translateX(-50%)',
-                bottom: '20%',
+                bottom: '10%',
+                marginBottom: '20px',
                 zIndex: 25,
               }}
             />
