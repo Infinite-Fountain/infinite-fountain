@@ -54,6 +54,9 @@ import DonationFlowDrawer from './components/drawers/DonationFlowDrawer';
 // Import the ImproveButton animation
 import ImproveButton from './animations/improve_button.json';
 
+// Import the VoteDrawer component
+import VoteDrawer from './components/drawers/VoteDrawer';
+
 // Define constants
 const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
 const CONTRACT_ADDRESS = '0x654dff96c6759f1e3218c384767528eec937a55c'; // Your contract address
@@ -630,6 +633,13 @@ export default function Page() {
     fetchConfig();
   }, [currentAnimationIndex]);
 
+  // New state variable for the vote drawer
+  const [voteDrawerState, setVoteDrawerState] = useState<'open' | 'closed'>('closed');
+
+  const handleImproveButtonClick = () => {
+    setVoteDrawerState('open');
+  };
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Desktop View */}
@@ -895,6 +905,7 @@ export default function Page() {
                 marginBottom: '20px',
                 zIndex: 25,
               }}
+              onClick={handleImproveButtonClick}
             />
           )}
         </div>
@@ -1072,6 +1083,7 @@ export default function Page() {
                 marginBottom: '20px',
                 zIndex: 25,
               }}
+              onClick={handleImproveButtonClick}
             />
           )}
         </div>
@@ -1444,6 +1456,9 @@ export default function Page() {
         onClose={handleCloseDonationFlowDrawer}
         donationAmount={donationAmount}
       />
+
+      {/* Vote Drawer */}
+      <VoteDrawer drawerState={voteDrawerState} handleCloseVoteDrawer={() => setVoteDrawerState('closed')} />
     </div>
   );
 }
