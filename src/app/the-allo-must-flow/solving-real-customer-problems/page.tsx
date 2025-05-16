@@ -101,8 +101,78 @@ const loadVotingConfig = async (index: number) => {
 import { narrationSources } from './audioConfig';
 import MuteButton from './components/MuteButton';
 
+// Token gating configuration
+export const TOKEN_GATED = false; // Set to false to disable token gating
+
+// Custom hook for token gating
+function useTokenGate() {
+  const { address } = useAccount();
+  const [isChecking, setIsChecking] = useState(TOKEN_GATED);
+  const [isVerified, setIsVerified] = useState(!TOKEN_GATED);
+  const [gateError, setGateError] = useState<string | null>(null);
+
+  // Initialize mainnet provider
+  const mainnetProvider = new ethers.providers.JsonRpcProvider(ALCHEMY_MAINNET_API_URL);
+
+  useEffect(() => {
+    if (!TOKEN_GATED || !address) {
+      setIsVerified(true);
+      setIsChecking(false);
+      return;
+    }
+
+    const checkTokenStatus = async () => {
+      try {
+        // First check Supabase
+        const { data } = await supabase
+          .from('pools_members')
+          .select('allominati')
+          .eq('wallet_address', address.toLowerCase())
+          .maybeSingle();
+
+        if (data?.allominati) {
+          setIsVerified(true);
+          setIsChecking(false);
+          return;
+        }
+
+        // If not in Supabase, check on-chain
+        const contract = new ethers.Contract(
+          MEMBERS_NFT_CONTRACT,
+          allominatiAbi,
+          mainnetProvider
+        );
+        const balance = await contract.balanceOf(address);
+        
+        if (balance.gt(0)) {
+          // Update Supabase with the verified status
+          await supabase.from('pools_members').upsert({
+            wallet_address: address.toLowerCase(),
+            allominati: true,
+          });
+          setIsVerified(true);
+        } else {
+          setIsVerified(false);
+        }
+      } catch (error: any) {
+        console.error('Token gate error:', error);
+        setGateError(error.message || 'Failed to verify token ownership');
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    checkTokenStatus();
+  }, [address, mainnetProvider]);
+
+  return { isChecking, isVerified, gateError };
+}
+
 export default function Page() {
   const { address } = useAccount();
+
+  // Use the token gate hook
+  const { isChecking, isVerified, gateError } = useTokenGate();
 
   // Array of animations in order
   const animations = [Gate1, Gate2, Animation1, Animation2, Animation3, Animation4, Animation5, Animation6, Animation7, Animation8, Animation9, Animation10, Animation11, Animation12, Animation13, Animation14, Animation15];
@@ -111,7 +181,7 @@ export default function Page() {
   const animationLoopSettings = [true, false, false, true, false, true, false, true, false, true, true, false, true, false, true, false, true];
 
   // State to manage current animation index
-  const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(0);
+  const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
 
   // State to trigger animation playback
   const [animationData, setAnimationData] = useState<any>(null);
@@ -157,9 +227,6 @@ export default function Page() {
 
   // NEW: State variable to track if the user has seen the last animation (resets on refresh)
   const [hasSeenLastAnimation, setHasSeenLastAnimation] = useState(false);
-
-  // NEW: State variable to track if NFT is verified (i.e. user has the NFT)
-  const [nftVerified, setNftVerified] = useState(false);
 
   // State to track if user balance has been found
   const [userBalanceFound, setUserBalanceFound] = useState<boolean>(false);
@@ -271,7 +338,7 @@ export default function Page() {
         .maybeSingle();
       
       if (data && data.allominati === true) {
-        setNftVerified(true);
+        setUserBalanceFound(true);
         return;
       }
 
@@ -296,7 +363,7 @@ export default function Page() {
         .maybeSingle();
 
       if (refreshedData && refreshedData.allominati === true) {
-        setNftVerified(true);
+        setUserBalanceFound(true);
       } else {
         alert("your wallet does not hold the Allominati NFT");
       }
@@ -305,37 +372,33 @@ export default function Page() {
     }
   };
 
-  // --- New useEffect: Auto-switch animations based on wallet connection & NFT status ---
+  // Effect to handle token gating and animation state
   useEffect(() => {
-    if (address) {
-      if (nftVerified) {
-        // If wallet connected and NFT is verified, ensure we are in Gate2 initially.
-        if (currentAnimationIndex < 2) {
-          setCurrentAnimationIndex(1);
-          setAnimationData(animations[1]);
-        }
-      } else {
-        // If wallet connected but NFT not verified, force Gate1.
-        if (currentAnimationIndex !== 0) {
-          setCurrentAnimationIndex(0);
-          setAnimationData(animations[0]);
-        }
+    if (!TOKEN_GATED) return;
+
+    if (isChecking) {
+      // Still checking token status - stay on Gate1
+      if (currentAnimationIndex !== 0) {
+        setCurrentAnimationIndex(0);
+        setAnimationData(animations[0]);
+      }
+      return;
+    }
+
+    if (isVerified) {
+      // Token verified - move to Gate2
+      if (currentAnimationIndex < 1) {
+        setCurrentAnimationIndex(1);
+        setAnimationData(animations[1]);
       }
     } else {
-      // If no wallet, remain on Gate1.
+      // Token not verified - stay on Gate1
       if (currentAnimationIndex !== 0) {
         setCurrentAnimationIndex(0);
         setAnimationData(animations[0]);
       }
     }
-  }, [address, nftVerified]);
-
-  // --- New useEffect: Trigger checkNFTStatus when address is available ---
-  useEffect(() => {
-    if (address) {
-      checkNFTStatus();
-    }
-  }, [address]);
+  }, [TOKEN_GATED, isChecking, isVerified, currentAnimationIndex]);
 
   // --- Existing useEffect: Animation and smart contract data fetch ---
   useEffect(() => {
@@ -436,7 +499,7 @@ export default function Page() {
 
   // --- New autoNext function for automatic transitions ---
   const autoNext = () => {
-    if (currentAnimationIndex === 1 && nftVerified) {
+    if (currentAnimationIndex === 1 && isVerified) {
       // Gate2 finished, advance to Animation1 (index 2)
       setCurrentAnimationIndex(2);
       setAnimationData(animations[2]);
