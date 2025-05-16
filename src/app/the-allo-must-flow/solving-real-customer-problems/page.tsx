@@ -100,9 +100,7 @@ const loadVotingConfig = async (index: number) => {
 
 import { narrationSources } from './audioConfig';
 import MuteButton from './components/MuteButton';
-
-// Token gating configuration
-export const TOKEN_GATED = false; // Set to false to disable token gating
+import { TOKEN_GATED } from './config';
 
 // Custom hook for token gating
 function useTokenGate() {
