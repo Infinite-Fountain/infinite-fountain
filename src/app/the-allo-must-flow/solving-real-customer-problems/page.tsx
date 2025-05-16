@@ -98,6 +98,9 @@ const loadVotingConfig = async (index: number) => {
   }
 };
 
+import { narrationSources } from './audioConfig';
+import MuteButton from './components/MuteButton';
+
 export default function Page() {
   const { address } = useAccount();
 
@@ -640,10 +643,53 @@ export default function Page() {
     setVoteDrawerState('open');
   };
 
+  // Add new state for audio
+  const [muted, setMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Add helper to (re)start narration
+  const playNarration = (index: number) => {
+    const src = narrationSources[index];
+    if (!src) return; // some screens may have no audio
+
+    // lazily create the element
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.preload = 'auto';
+    }
+
+    const a = audioRef.current;
+    a.pause();               // stop previous
+    a.currentTime = 0;
+    a.src = src;
+    a.muted = muted;
+    // play() returns a promise; ignore if user muted / autoplay rules
+    a.load();
+    a.play().catch(() => {/* suppressed */});
+  };
+
+  // Add effect to handle audio playback
+  useEffect(() => {
+    if (animationPlayed) {
+      playNarration(currentAnimationIndex);
+    }
+  }, [currentAnimationIndex, animationPlayed, muted]);
+
+  // Add mute toggle handler
+  const handleMuteToggle = () => {
+    setMuted((m) => {
+      if (audioRef.current) audioRef.current.muted = !m;
+      return !m;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Desktop View */}
       <div className="hidden md:block">
+        {/* Add MuteButton to desktop view */}
+        <MuteButton muted={muted} onToggle={handleMuteToggle} />
+        
         {/* Brown Container (left side) */}
         <div className="brown-container"></div>
 
@@ -913,6 +959,9 @@ export default function Page() {
 
       {/* Mobile View */}
       <div className="block md:hidden">
+        {/* Add MuteButton to mobile view */}
+        <MuteButton muted={muted} onToggle={handleMuteToggle} />
+        
         {/* Green Container */}
         <div className="green-container relative">
           {/* Login Buttons */}
