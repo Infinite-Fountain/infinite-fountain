@@ -826,8 +826,8 @@ export default function Page() {
           }
         ];
         
-        // Create an array of null values matching the number of URLs
-        const texts = new Array(markdownUrls.length).fill(null);
+        // Create an array of null values matching the number of animations
+        const texts = new Array(animations.length).fill(null);
         
         // Fetch each markdown file and store it at the correct index
         await Promise.all(
@@ -1106,7 +1106,7 @@ export default function Page() {
               ) : (
                 animationTexts[currentAnimationIndex - 1] && (
                   <div 
-                    className="animation-text w-[95%] max-h-[80%] overflow-y-auto bg-transparent"
+                    className="animation-text w-[95%] max-h-[90%] overflow-y-auto bg-transparent"
                     dangerouslySetInnerHTML={{ __html: isTranscriptOpen ? animationTexts[currentAnimationIndex -1] || '' : '' }}
                   />
                 )
