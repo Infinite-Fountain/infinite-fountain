@@ -535,10 +535,9 @@ export default function Page() {
       return;
     }
     
-    // If we're at the last index in the array, loop back to the first one
+    // If we're at the last index in the array, do nothing
     if (currentIndexInArray === navigationIndex.length - 1) {
-      setCurrentAnimationIndex(navigationIndex[0]);
-      setAnimationData(animations[navigationIndex[0]]);
+      return;
     } else {
       // Move to the next index in the array
       setCurrentAnimationIndex(navigationIndex[currentIndexInArray + 1]);
@@ -554,7 +553,7 @@ export default function Page() {
     // Find the current index in the navigationIndex array
     const currentIndexInArray = navigationIndex.indexOf(currentAnimationIndex);
     
-    // If current index is not in the array (like 7), find the previous closest index
+    // If current index is not in the array, find the previous closest index
     if (currentIndexInArray === -1) {
       const prevIndex = [...navigationIndex].reverse().find(index => index < currentAnimationIndex);
       if (prevIndex !== undefined) {
@@ -563,19 +562,15 @@ export default function Page() {
         if (prevIndexInArray > 0) {
           setCurrentAnimationIndex(navigationIndex[prevIndexInArray - 1]);
           setAnimationData(animations[navigationIndex[prevIndexInArray - 1]]);
-        } else {
-          // If we're at the start of navigationIndex, wrap to the end
-          setCurrentAnimationIndex(navigationIndex[navigationIndex.length - 1]);
-          setAnimationData(animations[navigationIndex[navigationIndex.length - 1]]);
         }
+        // If we're at the start of navigationIndex, do nothing
       }
       return;
     }
     
-    // If we're at the first index in the array, loop to the last one
+    // If we're at the first index in the array, do nothing
     if (currentIndexInArray === 0) {
-      setCurrentAnimationIndex(navigationIndex[navigationIndex.length - 1]);
-      setAnimationData(animations[navigationIndex[navigationIndex.length - 1]]);
+      return;
     } else {
       // Move back 1 position in the navigationIndex array
       setCurrentAnimationIndex(navigationIndex[currentIndexInArray - 1]);
@@ -854,6 +849,25 @@ export default function Page() {
 
     fetchMarkdownFiles();
   }, []);
+
+  // Add keyboard event listeners for arrow keys
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        handlePrev();
+      } else if (event.key === 'ArrowRight') {
+        handleNext();
+      }
+    };
+
+    // Add event listener
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentAnimationIndex]); // Re-run effect when currentAnimationIndex changes
 
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
