@@ -57,6 +57,9 @@ import ImproveButton from './animations/improve_button.json';
 // Import the VoteDrawer component
 import VoteDrawer from './components/drawers/VoteDrawer';
 
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
+
 // Define constants
 const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
 const CONTRACT_ADDRESS = '0x654dff96c6759f1e3218c384767528eec937a55c'; // Your contract address
@@ -744,6 +747,53 @@ export default function Page() {
     });
   };
 
+  // Add after other state declarations
+  const [animationTexts, setAnimationTexts] = useState<(string | null)[]>([]);
+  const [isLoadingText, setIsLoadingText] = useState(true);
+
+  // Add after other useEffect hooks
+  useEffect(() => {
+    const fetchMarkdownFiles = async () => {
+      setIsLoadingText(true);
+      try {
+        const texts = await Promise.all(
+          Array.from({ length: 15 }, (_, i) => {
+            const url = `https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation${i + 1}.md`;
+            return fetch(url, { 
+              cache: 'force-cache',
+              next: { revalidate: 3600 } // Revalidate every hour
+            })
+              .then(res => {
+                if (!res.ok) {
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log(`Markdown file not found: animation${i + 1}.md`);
+                  }
+                  return null;
+                }
+                return res.text();
+              })
+              .then(raw => raw ? DOMPurify.sanitize(marked.parse(raw, { async: false })) : null)
+              .catch(err => {
+                if (process.env.NODE_ENV === 'development') {
+                  console.error(`Error fetching animation${i + 1}.md:`, err);
+                }
+                return null;
+              });
+          })
+        );
+        setAnimationTexts(texts);
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching markdown files:', error);
+        }
+      } finally {
+        setIsLoadingText(false);
+      }
+    };
+
+    fetchMarkdownFiles();
+  }, []);
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Desktop View */}
@@ -1014,6 +1064,21 @@ export default function Page() {
               }}
               onClick={handleImproveButtonClick}
             />
+          )}
+
+          {currentAnimationIndex >= 2 && (
+            <div className="flex-1 flex items-center justify-center w-full">
+              {isLoadingText ? (
+                <div className="text-gray-500">Loading text...</div>
+              ) : (
+                animationTexts[currentAnimationIndex - 2] && (
+                  <div 
+                    className="animation-text w-[95%] max-h-[60%] overflow-y-auto"
+                    dangerouslySetInnerHTML={{ __html: animationTexts[currentAnimationIndex - 2] || '' }}
+                  />
+                )
+              )}
+            </div>
           )}
         </div>
       </div>
