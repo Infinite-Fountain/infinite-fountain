@@ -758,7 +758,11 @@ export default function Page() {
     const fetchMarkdownFiles = async () => {
       setIsLoadingText(true);
       try {
-        const texts = await Promise.all(
+        // Create an array of 15 null values to store the texts
+        const texts = new Array(15).fill(null);
+        
+        // Fetch each markdown file and store it at the correct index
+        await Promise.all(
           Array.from({ length: 15 }, (_, i) => {
             const url = `https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation${i + 1}.md`;
             return fetch(url, { 
@@ -774,7 +778,13 @@ export default function Page() {
                 }
                 return res.text();
               })
-              .then(raw => raw ? DOMPurify.sanitize(marked.parse(raw, { async: false })) : null)
+              .then(raw => {
+                if (raw) {
+                  // Store the text at the index that matches the animation number
+                  texts[i] = DOMPurify.sanitize(marked.parse(raw, { async: false }));
+                }
+                return null;
+              })
               .catch(err => {
                 if (process.env.NODE_ENV === 'development') {
                   console.error(`Error fetching animation${i + 1}.md:`, err);
@@ -1014,16 +1024,16 @@ export default function Page() {
             {<LoginButton />}
           </div>
           
-          {/* Dynamic Text Container */}
+          {/* Dynamic Text Container ++ change the offset value against animation index in two rows*/}
           {currentAnimationIndex >= 2 && (
             <div className="flex-1 flex items-center justify-center w-full">
               {isLoadingText ? (
                 <div className="text-gray-500">Loading text...</div>
               ) : (
-                animationTexts[currentAnimationIndex - 2] && (
+                animationTexts[currentAnimationIndex - 1] && (
                   <div 
                     className="animation-text w-[95%] max-h-[80%] overflow-y-auto bg-transparent"
-                    dangerouslySetInnerHTML={{ __html: isTranscriptOpen ? animationTexts[currentAnimationIndex - 2] || '' : '' }}
+                    dangerouslySetInnerHTML={{ __html: isTranscriptOpen ? animationTexts[currentAnimationIndex -1] || '' : '' }}
                   />
                 )
               )}
