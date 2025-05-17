@@ -761,46 +761,41 @@ export default function Page() {
     const fetchMarkdownFiles = async () => {
       setIsLoadingText(true);
       try {
-        // Create an array of 15 null values to store the texts
-        const texts = new Array(15).fill(null);
+        // List of markdown file URLs with their corresponding animation numbers
+        const markdownUrls = [
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation3.md',
+            animationNumber: 3
+          }
+        ];
+        
+        // Create an array of null values matching the number of URLs
+        const texts = new Array(markdownUrls.length).fill(null);
         
         // Fetch each markdown file and store it at the correct index
         await Promise.all(
-          Array.from({ length: 15 }, (_, i) => {
-            const url = `https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation${i + 1}.md`;
-            return fetch(url, { 
-              cache: 'force-cache',
-              next: { revalidate: 3600 } // Revalidate every hour
-            })
-              .then(res => {
-                if (!res.ok) {
-                  if (process.env.NODE_ENV === 'development') {
-                    console.log(`Markdown file not found: animation${i + 1}.md`);
-                  }
-                  return null;
-                }
-                return res.text();
-              })
-              .then(raw => {
-                if (raw) {
-                  // Store the text at the index that matches the animation number
-                  texts[i] = DOMPurify.sanitize(marked.parse(raw, { async: false }));
-                }
+          markdownUrls.map(async ({ url, animationNumber }) => {
+            try {
+              const res = await fetch(url);
+              
+              if (!res.ok) {
                 return null;
-              })
-              .catch(err => {
-                if (process.env.NODE_ENV === 'development') {
-                  console.error(`Error fetching animation${i + 1}.md:`, err);
-                }
-                return null;
-              });
+              }
+              
+              const raw = await res.text();
+              
+              if (raw) {
+                texts[animationNumber] = DOMPurify.sanitize(marked.parse(raw, { async: false }));
+              }
+            } catch (err) {
+              return null;
+            }
+            return null;
           })
         );
         setAnimationTexts(texts);
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Error fetching markdown files:', error);
-        }
+        console.error('Error in fetchMarkdownFiles:', error);
       } finally {
         setIsLoadingText(false);
       }
