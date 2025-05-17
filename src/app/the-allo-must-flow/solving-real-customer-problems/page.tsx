@@ -181,10 +181,10 @@ export default function Page() {
   const animations = [Gate1, Gate2, Animation1, Animation2, Animation3, Animation4, Animation5, Animation6, Animation7, Animation8, Animation9, Animation10, Animation11, Animation12, Animation13, Animation14, Animation15];
 
   // Array indicating whether each animation should loop
-  const animationLoopSettings = [true, false, false, true, true, true, false, true, false, true, true, false, true, false, true, false, true];
+  const animationLoopSettings = [true, false, false, true, true, false, true, true, false, true, true, false, true, false, true, false, true];
 
   // New array for controlling animation navigation
-  const navigationIndex = [2, 4, 5, 6, 8, 9, 11, 13, 15];
+  const navigationIndex = [2, 4, 5, 7, 8, 9, 11, 13, 15];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
@@ -759,26 +759,33 @@ export default function Page() {
   const [muted, setMuted] = useState(false);
   const audioRefs = useRef<{ [key: number]: HTMLAudioElement | null }>({});
 
+  // Add a ref to track the currently playing audio
+  const currentPlayingAudio = useRef<HTMLAudioElement | null>(null);
+
   // Add helper to (re)start narration
   const playNarration = (index: number) => {
     const configIndex = index;
     const src = narrationSources[configIndex];
     if (!src) return; // some screens may have no audio
 
-    // lazily create the element
-    if (!audioRefs.current[configIndex]) {
-      audioRefs.current[configIndex] = new Audio();
-      audioRefs.current[configIndex]!.preload = 'auto';
+    // Stop the currently playing audio if it exists
+    if (currentPlayingAudio.current) {
+      currentPlayingAudio.current.pause();
+      currentPlayingAudio.current.currentTime = 0;
     }
 
-    const a = audioRefs.current[configIndex]!;
-    a.pause();               // stop previous
-    a.currentTime = 0;
-    a.src = src;
-    a.muted = muted;
-    // play() returns a promise; ignore if user muted / autoplay rules
-    a.load();
-    a.play().catch(() => {/* suppressed */});
+    // Create new audio element
+    const audio = new Audio();
+    audio.preload = 'auto';
+    audio.src = src;
+    audio.muted = muted;
+    
+    // Store reference to this audio
+    currentPlayingAudio.current = audio;
+    
+    // Play the new audio
+    audio.load();
+    audio.play().catch(() => {/* suppressed */});
   };
 
   // Add effect to handle audio playback

@@ -7,7 +7,7 @@ export const narrationSources: (string | null)[] = [
   null, // Animation2
   '/audio/the-allo-must-flow/solving-real-customer-problems/audio3.mp3', // Animation3
   null, // Animation4
-  null, // Animation5
+  '/audio/the-allo-must-flow/solving-real-customer-problems/audio5.mp3', // Animation5
   null, // Animation6
   null, // Animation7
   null, // Animation8
