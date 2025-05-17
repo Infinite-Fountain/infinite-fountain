@@ -181,7 +181,7 @@ export default function Page() {
   const animations = [Gate1, Gate2, Animation1, Animation2, Animation3, Animation4, Animation5, Animation6, Animation7, Animation8, Animation9, Animation10, Animation11, Animation12, Animation13, Animation14, Animation15];
 
   // Array indicating whether each animation should loop
-  const animationLoopSettings = [true, false, false, true, false, true, false, true, false, true, true, false, true, false, true, false, true];
+  const animationLoopSettings = [true, false, false, true, true, true, false, true, false, true, true, false, true, false, true, false, true];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
@@ -193,7 +193,7 @@ export default function Page() {
   const [animationPlayed, setAnimationPlayed] = useState<boolean>(false);
 
   // State to manage visibility of Prev and Next buttons
-  const [showButtons, setShowButtons] = useState<boolean>(false);
+  const [showButtons, setShowButtons] = useState<boolean>(true);
 
   // State to manage visibility of the vote_button
   const [voteButtonVisible, setVoteButtonVisible] = useState<boolean>(true);
@@ -1031,7 +1031,7 @@ export default function Page() {
           )}
 
           {/* Table of Contents Button */}
-          {showButtons && address && (
+          {showButtons && (
             <div className="flex flex-col items-center mt-4 space-y-4">
               {/* Sound and Transcript Buttons */}
               <div className="flex w-full gap-4">
@@ -1211,7 +1211,7 @@ export default function Page() {
         {/* Blue Container */}
         <div className="blue-container relative">
           {/* Prev and Next Buttons */}
-          {showButtons && address && (
+          {showButtons && (
             <div
               className="absolute top-0 right-0 z-20"
               style={{ paddingTop: '5px', paddingRight: '5px' }}
@@ -1237,7 +1237,7 @@ export default function Page() {
             </div>
           )}
           {/* Table of Contents Button */}
-          {showButtons && address && (
+          {showButtons && (
             <div
               className="absolute top-12 right-0 z-20"
               style={{ paddingRight: '5px' }}
