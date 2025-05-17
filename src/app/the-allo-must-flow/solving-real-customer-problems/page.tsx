@@ -183,6 +183,9 @@ export default function Page() {
   // Array indicating whether each animation should loop
   const animationLoopSettings = [true, false, false, true, true, true, false, true, false, true, true, false, true, false, true, false, true];
 
+  // New array for controlling animation navigation
+  const navigationIndex = [2, 4, 5, 6, 8, 9, 11, 13, 15];
+
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
 
@@ -518,18 +521,66 @@ export default function Page() {
   const handleNext = () => {
     // Ignore manual next if in gating section (indexes 0 and 1)
     if (currentAnimationIndex < 2) return;
-    const nextIndex = currentAnimationIndex === animations.length - 1 ? 2 : currentAnimationIndex + 1;
-    setCurrentAnimationIndex(nextIndex);
-    setAnimationData(animations[nextIndex]);
+    
+    // Find the current index in the navigationIndex array
+    const currentIndexInArray = navigationIndex.indexOf(currentAnimationIndex);
+    
+    // If current index is not in the array, find the next closest index
+    if (currentIndexInArray === -1) {
+      const nextIndex = navigationIndex.find(index => index > currentAnimationIndex);
+      if (nextIndex !== undefined) {
+        setCurrentAnimationIndex(nextIndex);
+        setAnimationData(animations[nextIndex]);
+      }
+      return;
+    }
+    
+    // If we're at the last index in the array, loop back to the first one
+    if (currentIndexInArray === navigationIndex.length - 1) {
+      setCurrentAnimationIndex(navigationIndex[0]);
+      setAnimationData(animations[navigationIndex[0]]);
+    } else {
+      // Move to the next index in the array
+      setCurrentAnimationIndex(navigationIndex[currentIndexInArray + 1]);
+      setAnimationData(animations[navigationIndex[currentIndexInArray + 1]]);
+    }
   };
 
   // --- Modified handler for Prev button ---
   const handlePrev = () => {
-    // Only allow prev navigation if current animation index is xxx or above
-    if (currentAnimationIndex < 4) return;
-    const newIndex = currentAnimationIndex - 2;
-    setCurrentAnimationIndex(newIndex);
-    setAnimationData(animations[newIndex]);
+    // Only allow prev navigation if current animation index is 2 or above
+    if (currentAnimationIndex < 2) return;
+    
+    // Find the current index in the navigationIndex array
+    const currentIndexInArray = navigationIndex.indexOf(currentAnimationIndex);
+    
+    // If current index is not in the array (like 7), find the previous closest index
+    if (currentIndexInArray === -1) {
+      const prevIndex = [...navigationIndex].reverse().find(index => index < currentAnimationIndex);
+      if (prevIndex !== undefined) {
+        // Once we find the previous index, go back one more slot in navigationIndex
+        const prevIndexInArray = navigationIndex.indexOf(prevIndex);
+        if (prevIndexInArray > 0) {
+          setCurrentAnimationIndex(navigationIndex[prevIndexInArray - 1]);
+          setAnimationData(animations[navigationIndex[prevIndexInArray - 1]]);
+        } else {
+          // If we're at the start of navigationIndex, wrap to the end
+          setCurrentAnimationIndex(navigationIndex[navigationIndex.length - 1]);
+          setAnimationData(animations[navigationIndex[navigationIndex.length - 1]]);
+        }
+      }
+      return;
+    }
+    
+    // If we're at the first index in the array, loop to the last one
+    if (currentIndexInArray === 0) {
+      setCurrentAnimationIndex(navigationIndex[navigationIndex.length - 1]);
+      setAnimationData(animations[navigationIndex[navigationIndex.length - 1]]);
+    } else {
+      // Move back 1 position in the navigationIndex array
+      setCurrentAnimationIndex(navigationIndex[currentIndexInArray - 1]);
+      setAnimationData(animations[navigationIndex[currentIndexInArray - 1]]);
+    }
   };
 
   // --- Existing handlers for opening and closing drawers ---
