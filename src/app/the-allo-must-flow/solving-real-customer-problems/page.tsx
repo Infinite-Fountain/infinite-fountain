@@ -103,6 +103,7 @@ const loadVotingConfig = async (index: number) => {
 
 import { narrationSources } from './audioConfig';
 import MuteButton from './components/MuteButton';
+import TranscriptButton from './components/TranscriptButton';
 import { TOKEN_GATED } from './config';
 
 // Custom hook for token gating
@@ -171,6 +172,7 @@ function useTokenGate() {
 
 export default function Page() {
   const { address } = useAccount();
+  const [isTranscriptOpen, setIsTranscriptOpen] = useState(true);
 
   // Use the token gate hook
   const { isChecking, isVerified, gateError } = useTokenGate();
@@ -1020,8 +1022,8 @@ export default function Page() {
               ) : (
                 animationTexts[currentAnimationIndex - 2] && (
                   <div 
-                    className="animation-text w-[95%] max-h-[80%] overflow-y-auto bg-white"
-                    dangerouslySetInnerHTML={{ __html: animationTexts[currentAnimationIndex - 2] || '' }}
+                    className="animation-text w-[95%] max-h-[80%] overflow-y-auto bg-transparent"
+                    dangerouslySetInnerHTML={{ __html: isTranscriptOpen ? animationTexts[currentAnimationIndex - 2] || '' : '' }}
                   />
                 )
               )}
@@ -1031,9 +1033,14 @@ export default function Page() {
           {/* Table of Contents Button */}
           {showButtons && address && (
             <div className="flex flex-col items-center mt-4 space-y-4">
-              {/* Sound Button */}
-              <div className="w-full">
-                <MuteButton muted={muted} onToggle={handleMuteToggle} size="large" />
+              {/* Sound and Transcript Buttons */}
+              <div className="flex w-full gap-4">
+                <div className="w-1/2">
+                  <MuteButton muted={muted} onToggle={handleMuteToggle} size="large" />
+                </div>
+                <div className="w-1/2">
+                  <TranscriptButton isOpen={isTranscriptOpen} onToggle={() => setIsTranscriptOpen(!isTranscriptOpen)} size="large" />
+                </div>
               </div>
 
               {/* Prev and Next Buttons */}
