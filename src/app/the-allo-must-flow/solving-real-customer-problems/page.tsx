@@ -711,20 +711,21 @@ export default function Page() {
 
   // Add new state for audio
   const [muted, setMuted] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRefs = useRef<{ [key: number]: HTMLAudioElement | null }>({});
 
   // Add helper to (re)start narration
   const playNarration = (index: number) => {
-    const src = narrationSources[index];
+    const configIndex = index;
+    const src = narrationSources[configIndex];
     if (!src) return; // some screens may have no audio
 
     // lazily create the element
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-      audioRef.current.preload = 'auto';
+    if (!audioRefs.current[configIndex]) {
+      audioRefs.current[configIndex] = new Audio();
+      audioRefs.current[configIndex]!.preload = 'auto';
     }
 
-    const a = audioRef.current;
+    const a = audioRefs.current[configIndex]!;
     a.pause();               // stop previous
     a.currentTime = 0;
     a.src = src;
@@ -744,7 +745,9 @@ export default function Page() {
   // Add mute toggle handler
   const handleMuteToggle = () => {
     setMuted((m) => {
-      if (audioRef.current) audioRef.current.muted = !m;
+      Object.values(audioRefs.current).forEach(a => {
+        if (a) a.muted = !m;
+      });
       return !m;
     });
   };
