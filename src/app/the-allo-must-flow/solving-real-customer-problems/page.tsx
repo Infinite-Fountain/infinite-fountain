@@ -798,9 +798,6 @@ export default function Page() {
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Desktop View */}
       <div className="hidden md:block">
-        {/* Add MuteButton to desktop view */}
-        <MuteButton muted={muted} onToggle={handleMuteToggle} />
-        
         {/* Brown Container (left side) */}
         <div className="brown-container"></div>
 
@@ -809,10 +806,10 @@ export default function Page() {
           {/* Main Animations */}
           {animationData && (
             <Lottie
-              key={currentAnimationIndex} // Force re-mount on animation change
+              key={currentAnimationIndex}
               animationData={animationData}
-              loop={animationLoopSettings[currentAnimationIndex]} // true or false
-              onComplete={autoNext} // Automatically calls autoNext when animation completes
+              loop={animationLoopSettings[currentAnimationIndex]}
+              onComplete={autoNext}
               style={{
                 width: '100%',
                 height: '100%',
@@ -1023,7 +1020,7 @@ export default function Page() {
               ) : (
                 animationTexts[currentAnimationIndex - 2] && (
                   <div 
-                    className="animation-text w-[95%] max-h-[60%] overflow-y-auto"
+                    className="animation-text w-[95%] max-h-[80%] overflow-y-auto bg-white"
                     dangerouslySetInnerHTML={{ __html: animationTexts[currentAnimationIndex - 2] || '' }}
                   />
                 )
@@ -1033,9 +1030,14 @@ export default function Page() {
 
           {/* Table of Contents Button */}
           {showButtons && address && (
-            <div className="flex flex-col items-center mt-4">
+            <div className="flex flex-col items-center mt-4 space-y-4">
+              {/* Sound Button */}
+              <div className="w-full">
+                <MuteButton muted={muted} onToggle={handleMuteToggle} size="large" />
+              </div>
+
               {/* Prev and Next Buttons */}
-              <div className="flex justify-center mb-4">
+              <div className="flex justify-center">
                 {(currentAnimationIndex !== 0 || hasSeenLastAnimation) && (
                   <button
                     className="prev-button px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg"
@@ -1086,9 +1088,6 @@ export default function Page() {
 
       {/* Mobile View */}
       <div className="block md:hidden">
-        {/* Add MuteButton to mobile view */}
-        <MuteButton muted={muted} onToggle={handleMuteToggle} />
-        
         {/* Green Container */}
         <div className="green-container relative">
           {/* Login Buttons */}
@@ -1105,10 +1104,10 @@ export default function Page() {
           {/* Main Animations */}
           {animationData && (
             <Lottie
-              key={currentAnimationIndex} // Force re-mount on animation change
+              key={currentAnimationIndex}
               animationData={animationData}
-              loop={animationLoopSettings[currentAnimationIndex]} // true or false
-              onComplete={autoNext} // Automatically calls autoNext when animation completes
+              loop={animationLoopSettings[currentAnimationIndex]}
+              onComplete={autoNext}
               style={{
                 width: '100%',
                 height: '100%',
