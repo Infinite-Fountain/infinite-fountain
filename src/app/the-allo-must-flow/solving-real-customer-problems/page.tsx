@@ -1015,6 +1015,22 @@ export default function Page() {
             {<LoginButton />}
           </div>
           
+          {/* Dynamic Text Container */}
+          {currentAnimationIndex >= 2 && (
+            <div className="flex-1 flex items-center justify-center w-full">
+              {isLoadingText ? (
+                <div className="text-gray-500">Loading text...</div>
+              ) : (
+                animationTexts[currentAnimationIndex - 2] && (
+                  <div 
+                    className="animation-text w-[95%] max-h-[60%] overflow-y-auto"
+                    dangerouslySetInnerHTML={{ __html: animationTexts[currentAnimationIndex - 2] || '' }}
+                  />
+                )
+              )}
+            </div>
+          )}
+
           {/* Table of Contents Button */}
           {showButtons && address && (
             <div className="flex flex-col items-center mt-4">
@@ -1064,21 +1080,6 @@ export default function Page() {
               }}
               onClick={handleImproveButtonClick}
             />
-          )}
-
-          {currentAnimationIndex >= 2 && (
-            <div className="flex-1 flex items-center justify-center w-full">
-              {isLoadingText ? (
-                <div className="text-gray-500">Loading text...</div>
-              ) : (
-                animationTexts[currentAnimationIndex - 2] && (
-                  <div 
-                    className="animation-text w-[95%] max-h-[60%] overflow-y-auto"
-                    dangerouslySetInnerHTML={{ __html: animationTexts[currentAnimationIndex - 2] || '' }}
-                  />
-                )
-              )}
-            </div>
           )}
         </div>
       </div>
