@@ -1,0 +1,1 @@
+We built for ETHDenver and we had a lot of success: we took an 18-minute onboarding experience in 2024 and brought it down to 90 seconds. Also the onboarding for ETHDenver in 2024 only 23% were able to actually stake their $SPORK and become a legal member of the Colorado Co-op, and we brought their success rate to 100%.
