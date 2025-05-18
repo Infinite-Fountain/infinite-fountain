@@ -184,7 +184,7 @@ export default function Page() {
   const animationLoopSettings = [true, false, false, true, true, false, true, true, false, true, true, false, true, false, true, false, true];
 
   // New array for controlling animation navigation
-  const navigationIndex = [2, 4, 5, 7, 8, 9, 11, 13, 15];
+  const navigationIndex = [3, 4, 6, 7, 9, 11, 13, 15];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
@@ -522,27 +522,13 @@ export default function Page() {
     // Ignore manual next if in gating section (indexes 0 and 1)
     if (currentAnimationIndex < 2) return;
     
-    // Find the current index in the navigationIndex array
-    const currentIndexInArray = navigationIndex.indexOf(currentAnimationIndex);
+    // If we're at the last animation, do nothing
+    if (currentAnimationIndex === animations.length - 1) return;
     
-    // If current index is not in the array, find the next closest index
-    if (currentIndexInArray === -1) {
-      const nextIndex = navigationIndex.find(index => index > currentAnimationIndex);
-      if (nextIndex !== undefined) {
-        setCurrentAnimationIndex(nextIndex);
-        setAnimationData(animations[nextIndex]);
-      }
-      return;
-    }
-    
-    // If we're at the last index in the array, do nothing
-    if (currentIndexInArray === navigationIndex.length - 1) {
-      return;
-    } else {
-      // Move to the next index in the array
-      setCurrentAnimationIndex(navigationIndex[currentIndexInArray + 1]);
-      setAnimationData(animations[navigationIndex[currentIndexInArray + 1]]);
-    }
+    // Otherwise, move to the next animation
+    const nextIndex = currentAnimationIndex + 1;
+    setCurrentAnimationIndex(nextIndex);
+    setAnimationData(animations[nextIndex]);
   };
 
   // --- Modified handler for Prev button ---
@@ -550,32 +536,18 @@ export default function Page() {
     // Only allow prev navigation if current animation index is 2 or above
     if (currentAnimationIndex < 2) return;
     
-    // Find the current index in the navigationIndex array
-    const currentIndexInArray = navigationIndex.indexOf(currentAnimationIndex);
+    // Find the immediate smaller number in navigationIndex
+    const smallerNumbers = navigationIndex.filter(index => index < currentAnimationIndex);
     
-    // If current index is not in the array, find the previous closest index
-    if (currentIndexInArray === -1) {
-      const prevIndex = [...navigationIndex].reverse().find(index => index < currentAnimationIndex);
-      if (prevIndex !== undefined) {
-        // Once we find the previous index, go back one more slot in navigationIndex
-        const prevIndexInArray = navigationIndex.indexOf(prevIndex);
-        if (prevIndexInArray > 0) {
-          setCurrentAnimationIndex(navigationIndex[prevIndexInArray - 1]);
-          setAnimationData(animations[navigationIndex[prevIndexInArray - 1]]);
-        }
-        // If we're at the start of navigationIndex, do nothing
-      }
-      return;
-    }
+    // If there are no smaller numbers, do nothing
+    if (smallerNumbers.length === 0) return;
     
-    // If we're at the first index in the array, do nothing
-    if (currentIndexInArray === 0) {
-      return;
-    } else {
-      // Move back 1 position in the navigationIndex array
-      setCurrentAnimationIndex(navigationIndex[currentIndexInArray - 1]);
-      setAnimationData(animations[navigationIndex[currentIndexInArray - 1]]);
-    }
+    // Get the largest of the smaller numbers (immediate previous)
+    const previousIndex = Math.max(...smallerNumbers);
+    
+    // Set the new animation index and data
+    setCurrentAnimationIndex(previousIndex);
+    setAnimationData(animations[previousIndex]);
   };
 
   // --- Existing handlers for opening and closing drawers ---
@@ -823,6 +795,10 @@ export default function Page() {
           {
             url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation5.md',
             animationNumber: 5
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation6.md',
+            animationNumber: 6
           }
         ];
         
