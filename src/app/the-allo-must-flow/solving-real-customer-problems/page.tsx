@@ -184,7 +184,7 @@ export default function Page() {
   const animationLoopSettings = [true, false, false, true, true, false, true, true, true, true, true, true, true, true, true, true, true];
 
   // New array for controlling animation navigation
-  const navigationIndex = [3, 4, 6, 7, 8, 9, 13, 15];
+  const navigationIndex = [3, 4, 6, 7, 8, 9, 10];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
@@ -803,6 +803,14 @@ export default function Page() {
           {
             url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation7.md',
             animationNumber: 7
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation8.md',
+            animationNumber: 8
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation9.md',
+            animationNumber: 9
           }
         ];
         
