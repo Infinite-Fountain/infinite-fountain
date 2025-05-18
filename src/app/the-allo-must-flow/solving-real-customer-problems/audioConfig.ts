@@ -10,7 +10,7 @@ export const narrationSources: (string | null)[] = [
   '/audio/the-allo-must-flow/solving-real-customer-problems/audio5.mp3', // Animation5
   '/audio/the-allo-must-flow/solving-real-customer-problems/audio6.mp3', // Animation6
   '/audio/the-allo-must-flow/solving-real-customer-problems/audio7.mp3', // Animation7
-  null, // Animation8
+  '/audio/the-allo-must-flow/solving-real-customer-problems/audio8.mp3', // Animation8
   null, // Animation9
   null, // Animation10
   null, // Animation11

@@ -184,7 +184,7 @@ export default function Page() {
   const animationLoopSettings = [true, false, false, true, true, false, true, true, true, true, true, true, true, true, true, true, true];
 
   // New array for controlling animation navigation
-  const navigationIndex = [3, 4, 6, 7, 8, 11, 13, 15];
+  const navigationIndex = [3, 4, 6, 7, 8, 9, 13, 15];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
