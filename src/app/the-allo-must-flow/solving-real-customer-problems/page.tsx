@@ -181,10 +181,10 @@ export default function Page() {
   const animations = [Gate1, Gate2, Animation1, Animation2, Animation3, Animation4, Animation5, Animation6, Animation7, Animation8, Animation9, Animation10, Animation11, Animation12, Animation13, Animation14, Animation15];
 
   // Array indicating whether each animation should loop
-  const animationLoopSettings = [true, false, false, true, true, false, true, true, false, true, true, false, true, false, true, false, true];
+  const animationLoopSettings = [true, false, false, true, true, false, true, true, true, true, true, true, true, true, true, true, true];
 
   // New array for controlling animation navigation
-  const navigationIndex = [3, 4, 6, 7, 9, 11, 13, 15];
+  const navigationIndex = [3, 4, 6, 7, 8, 11, 13, 15];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
@@ -799,6 +799,10 @@ export default function Page() {
           {
             url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation6.md',
             animationNumber: 6
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation7.md',
+            animationNumber: 7
           }
         ];
         
