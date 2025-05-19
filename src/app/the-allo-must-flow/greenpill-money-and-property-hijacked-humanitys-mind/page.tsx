@@ -181,10 +181,10 @@ export default function Page() {
   const animations = [Gate1, Gate2, Animation1, Animation2, Animation3, Animation4, Animation5, Animation6, Animation7, Animation8, Animation9, Animation10, Animation11, Animation12, Animation13, Animation14, Animation15];
 
   // Array indicating whether each animation should loop
-  const animationLoopSettings = [true, false, false, true, true, false, true, true, true, true, true, true, true, true, true, true, true];
+  const animationLoopSettings = [true, false, true, false, true, true, true, true, true, true, true, true, true, true, true, true, true];
 
   // New array for controlling animation navigation
-  const navigationIndex = [3, 4, 6, 7, 8, 9, 10, 11];
+  const navigationIndex = [2, 4, 6, 7, 8, 9, 10, 11];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
@@ -789,32 +789,8 @@ export default function Page() {
         // List of markdown file URLs with their corresponding animation numbers
         const markdownUrls = [
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation3.md',
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation3.md',
             animationNumber: 3
-          },
-          {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation5.md',
-            animationNumber: 5
-          },
-          {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation6.md',
-            animationNumber: 6
-          },
-          {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation7.md',
-            animationNumber: 7
-          },
-          {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation8.md',
-            animationNumber: 8
-          },
-          {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation9.md',
-            animationNumber: 9
-          },
-          {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/solving-real-customer-problems/dynamicText/animation10.md',
-            animationNumber: 10
           }
         ];
         

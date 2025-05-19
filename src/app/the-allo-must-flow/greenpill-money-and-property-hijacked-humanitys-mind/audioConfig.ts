@@ -5,14 +5,14 @@ export const narrationSources: (string | null)[] = [
   null, // Gate2 - no audio
   null, // Animation1
   null, // Animation2
-  '/audio/the-allo-must-flow/solving-real-customer-problems/audio3.mp3', // Animation3
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio3.mp3', // Animation3
   null, // Animation4
-  '/audio/the-allo-must-flow/solving-real-customer-problems/audio5.mp3', // Animation5
-  '/audio/the-allo-must-flow/solving-real-customer-problems/audio6.mp3', // Animation6
-  '/audio/the-allo-must-flow/solving-real-customer-problems/audio7.mp3', // Animation7
-  '/audio/the-allo-must-flow/solving-real-customer-problems/audio8.mp3', // Animation8
-  '/audio/the-allo-must-flow/solving-real-customer-problems/audio9.mp3',  // Animation9
-  '/audio/the-allo-must-flow/solving-real-customer-problems/audio10.mp3', // Animation10
+  null, // Animation5
+  null, // Animation6
+  null, // Animation7
+  null, // Animation8
+  null, // Animation9
+  null, // Animation10
   null, // Animation11
   null, // Animation12
   null, // Animation13

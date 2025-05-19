@@ -1,1 +1,0 @@
-But I kept trying to build it and didn’t have anyone to build for besides myself until I met up with ETHDenver... and then things became very easy, because then I could get tested, and my theories, my questions, my thoughts got to get challenged by someone who had a real problem they needed to solve.
