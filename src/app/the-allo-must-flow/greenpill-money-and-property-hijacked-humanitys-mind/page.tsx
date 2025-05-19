@@ -184,7 +184,7 @@ export default function Page() {
   const animationLoopSettings = [true, false, true, false, true, true, true, true, true, true, true, true, true, true, true, true, true];
 
   // New array for controlling animation navigation
-  const navigationIndex = [2, 4, 6, 7, 8, 9, 10, 11];
+  const navigationIndex = [2, 4, 5];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
@@ -791,6 +791,14 @@ export default function Page() {
           {
             url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation3.md',
             animationNumber: 3
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation4.md',
+            animationNumber: 4
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation5.md',
+            animationNumber: 5
           }
         ];
         

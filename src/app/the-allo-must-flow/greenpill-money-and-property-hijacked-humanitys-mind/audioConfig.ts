@@ -6,8 +6,8 @@ export const narrationSources: (string | null)[] = [
   null, // Animation1
   null, // Animation2
   '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio3.mp3', // Animation3
-  null, // Animation4
-  null, // Animation5
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio4.mp3', // Animation4
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio5.mp3', // Animation5
   null, // Animation6
   null, // Animation7
   null, // Animation8

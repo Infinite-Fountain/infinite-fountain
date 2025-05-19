@@ -1,0 +1,1 @@
+creates these mushrooms that takes over their nervous system and makes them crawl up grass and then, so that the fungus can sprout from their head and get better light, and then the cows come and eat it and then it gestates in the cows belly and then comes back… it’s a crazy mind control thing.
