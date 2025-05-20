@@ -1,0 +1,1 @@
+But it’s kind like we got incepted by our own cordyceps which was the notion of property and money. And what that did was it took this human organism and it took over its mind and it made it spread out through the entire world.

@@ -1,0 +1,1 @@
+We’ve been in this period of conquest really, and command and control, which is how corporations and nations have worked, and it’s been violent and abusive. 

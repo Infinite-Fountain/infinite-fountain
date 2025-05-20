@@ -1,0 +1,1 @@
+Now we’re at the edge of the petri dish, there’s not enough jelly left for us to keep expanding. We have to switch gears to a new metabolism and that’s “sense and respond”.
