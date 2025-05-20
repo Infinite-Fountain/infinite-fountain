@@ -181,10 +181,10 @@ export default function Page() {
   const animations = [Gate1, Gate2, Animation1, Animation2, Animation3, Animation4, Animation5, Animation6, Animation7, Animation8, Animation9, Animation10, Animation11, Animation12, Animation13, Animation14, Animation15];
 
   // Array indicating whether each animation should loop
-  const animationLoopSettings = [true, false, true, false, true, true, true, true, false, true, true, true, true, true, true, true, true];
+  const animationLoopSettings = [true, false, true, false, true, true, true, true, false, true, true, true, true, true, true, true, true, true];
 
   // New array for controlling animation navigation
-  const navigationIndex = [2, 4, 5, 6, 7, 9, 10, 11];
+  const navigationIndex = [2, 4, 5, 6, 7, 9, 10, 11, 12];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
@@ -815,7 +815,11 @@ export default function Page() {
           {
             url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation10.md',
             animationNumber: 10
-          }
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation11.md',
+            animationNumber: 11
+          },
         ];
         
         // Create an array of null values matching the number of animations

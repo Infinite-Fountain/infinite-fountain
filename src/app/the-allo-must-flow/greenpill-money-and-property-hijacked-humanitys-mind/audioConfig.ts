@@ -13,7 +13,7 @@ export const narrationSources: (string | null)[] = [
   '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio8.mp3', // Animation8
   '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio9.mp3', // Animation9
   '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio10.mp3', // Animation10
-  null, // Animation11
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio11.mp3', // Animation11
   null, // Animation12
   null, // Animation13
   null, // Animation14
