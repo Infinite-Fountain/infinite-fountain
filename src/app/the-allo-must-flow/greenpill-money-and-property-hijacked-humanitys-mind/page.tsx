@@ -805,36 +805,36 @@ export default function Page() {
         // List of markdown file URLs with their corresponding animation numbers
         const markdownUrls = [
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation3.md',
-            animationNumber: 3
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/index4.md',
+            animationIndex: 4
           },
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation4.md',
-            animationNumber: 4
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/index5.md',
+            animationIndex: 5
           },
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation5.md',
-            animationNumber: 5
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/index6.md',
+            animationIndex: 6
           },
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation6.md',
-            animationNumber: 6
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/index7.md',
+            animationIndex: 7
           },
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation8.md',
-            animationNumber: 8
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/index9.md',
+            animationIndex: 9
           },
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation9.md',
-            animationNumber: 9
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/index10.md',
+            animationIndex: 10
           },
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation10.md',
-            animationNumber: 10
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/index11.md',
+            animationIndex: 11
           },
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/animation11.md',
-            animationNumber: 11
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/index12.md',
+            animationIndex: 12
           },
         ];
         
@@ -843,7 +843,7 @@ export default function Page() {
         
         // Fetch each markdown file and store it at the correct index
         await Promise.all(
-          markdownUrls.map(async ({ url, animationNumber }) => {
+          markdownUrls.map(async ({ url, animationIndex }) => {
             try {
               const res = await fetch(url);
               
@@ -854,7 +854,7 @@ export default function Page() {
               const raw = await res.text();
               
               if (raw) {
-                texts[animationNumber] = DOMPurify.sanitize(marked.parse(raw, { async: false }));
+                texts[animationIndex] = DOMPurify.sanitize(marked.parse(raw, { async: false }));
               }
             } catch (err) {
               return null;
@@ -1163,10 +1163,10 @@ export default function Page() {
               {isLoadingText ? (
                 <div className="text-gray-500">Loading text...</div>
               ) : (
-                animationTexts[currentAnimationIndex - 1] && (
+                animationTexts[currentAnimationIndex] && (
                   <div 
                     className="animation-text w-[95%] max-h-[95%] overflow-y-auto bg-transparent"
-                    dangerouslySetInnerHTML={{ __html: isTranscriptOpen ? animationTexts[currentAnimationIndex -1] || '' : '' }}
+                    dangerouslySetInnerHTML={{ __html: isTranscriptOpen ? animationTexts[currentAnimationIndex] || '' : '' }}
                   />
                 )
               )}
