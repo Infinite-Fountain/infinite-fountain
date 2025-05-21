@@ -175,6 +175,9 @@ export default function Page() {
   // Array indicating whether each animation should loop
   const animationLoopSettings = [true, false, true, false, true, true, true, true, false, true, true, true, true, true, true, true, true, true];
 
+  // Define the sequence of animations to play
+  const animationSequence = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]; // Maps to Animation1, Animation2, etc.
+
   // New array for controlling animation navigation
   const navigationIndex = [2, 4, 5, 6, 7, 9, 10, 11, 12, 13];
 
@@ -502,7 +505,9 @@ export default function Page() {
       setCurrentAnimationIndex(2);
     } else if (currentAnimationIndex >= 2) {
       // For normal animations: if at last, jump to Animation1 (index 2); otherwise, next animation.
-      const nextIndex = currentAnimationIndex === STORY_START_INDEX + STORY_COUNT - 1 ? 2 : currentAnimationIndex + 1;
+      const currentSequenceIndex = animationSequence.indexOf(currentAnimationIndex);
+      const nextSequenceIndex = (currentSequenceIndex + 1) % animationSequence.length;
+      const nextIndex = animationSequence[nextSequenceIndex];
       setCurrentAnimationIndex(nextIndex);
     }
   };
@@ -512,11 +517,16 @@ export default function Page() {
     // Ignore manual next if in gating section (indexes 0 and 1)
     if (currentAnimationIndex < 2) return;
     
-    // If we're at the last animation, do nothing
-    if (currentAnimationIndex === STORY_START_INDEX + STORY_COUNT - 1) return;
+    // Find current position in sequence
+    const currentSequenceIndex = animationSequence.indexOf(currentAnimationIndex);
+    if (currentSequenceIndex === -1) return;
     
-    // Otherwise, move to the next animation
-    const nextIndex = currentAnimationIndex + 1;
+    // If we're at the last animation in sequence, do nothing
+    if (currentSequenceIndex === animationSequence.length - 1) return;
+    
+    // Get next animation in sequence
+    const nextSequenceIndex = currentSequenceIndex + 1;
+    const nextIndex = animationSequence[nextSequenceIndex];
     setCurrentAnimationIndex(nextIndex);
   };
 
