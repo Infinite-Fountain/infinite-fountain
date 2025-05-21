@@ -5,18 +5,17 @@ export const narrationSources: (string | null)[] = [
   null, // Gate2 - no audio
   null, // Animation1
   null, // Animation2
-  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio3.mp3', // Animation3
-  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio4.mp3', // Animation4
-  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio5.mp3', // Animation5
-  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio6.mp3', // Animation6
-  null, // Animation7
-  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio8.mp3', // Animation8
-  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio9.mp3', // Animation9
-  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio10.mp3', // Animation10
-  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/audio11.mp3', // Animation11
-  null, // Animation12
-  null, // Animation13
-  null, // Animation14
-  null, // Animation15
-  null, // Animation16
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/index4.mp3', 
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/index5.mp3', 
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/index6.mp3', 
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/index7.mp3', 
+  null, 
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/index9.mp3', 
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/index10.mp3', 
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/index11.mp3', 
+  '/audio/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/index12.mp3', 
+  null, 
+  null, 
+  null, 
+  null, 
 ]; 

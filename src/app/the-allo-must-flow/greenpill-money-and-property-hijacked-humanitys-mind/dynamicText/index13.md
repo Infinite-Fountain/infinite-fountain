@@ -1,4 +1,4 @@
-Extracted from a GreenPill Podcast Episode.
+Extracted from a GreenPill Episode @greenpillnet
 
 Guest: @tracheopteryx
 
