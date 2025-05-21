@@ -23,25 +23,13 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // Import your animations
 import Gate1 from './animations/gate1.json';
 import Gate2 from './animations/gate2.json';
-import Animation1 from './animations/animation1.json';
-import Animation2 from './animations/animation2.json';
-import Animation3 from './animations/animation3.json';
-import Animation4 from './animations/animation4.json';
-import Animation5 from './animations/animation5.json';
-import Animation6 from './animations/animation6.json';
-import Animation7 from './animations/animation7.json';
-import Animation8 from './animations/animation8.json';
-import Animation9 from './animations/animation9.json';
-import Animation10 from './animations/animation10.json';
-import Animation11 from './animations/animation11.json';
-import Animation12 from './animations/animation12.json';
-import Animation13 from './animations/animation13.json';
-import Animation14 from './animations/animation14.json';
-import Animation15 from './animations/animation15.json';
-import BottomMenu from './animations/bottom-menu.json'; // NEW: Import bottom-menu animation
-
+import BottomMenu from './animations/bottom-menu.json';
 import DashboardAnimation from './animations/dashboard.json';
 import LeaderboardAnimation from './animations/leaderboard.json';
+import ImproveButton from './animations/improve_button.json';
+
+// Static animations array for quick access
+const staticAnimations = [Gate1, Gate2];
 
 import TableOfContentDrawer from './components/drawers/TableOfContentDrawer';
 
@@ -51,14 +39,18 @@ import DonationChartDrawer from './components/drawers/DonationChartDrawer';
 // Import the DonationFlowDrawer component
 import DonationFlowDrawer from './components/drawers/DonationFlowDrawer';
 
-// Import the ImproveButton animation
-import ImproveButton from './animations/improve_button.json';
-
 // Import the VoteDrawer component
 import VoteDrawer from './components/drawers/VoteDrawer';
 
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+
+/***** LAZY-LOAD CONSTANTS & CACHE *****/
+const PREFETCH_RANGE = 3;          // user-tunable
+const STORY_START_INDEX = 2;       // Gate2 → Animation1
+const STORY_COUNT = 15;            // animation1.json … animation15.json
+const lottieCache: Record<number, any> = {};   // idx → parsed JSON
+/***************************************/
 
 // Define constants
 const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
@@ -177,8 +169,8 @@ export default function Page() {
   // Use the token gate hook
   const { isChecking, isVerified, gateError } = useTokenGate();
 
-  // Array of animations in order
-  const animations = [Gate1, Gate2, Animation1, Animation2, Animation3, Animation4, Animation5, Animation6, Animation7, Animation8, Animation9, Animation10, Animation11, Animation1];
+  // Array of animations in order (only static ones)
+  const animations = [Gate1, Gate2];
 
   // Array indicating whether each animation should loop
   const animationLoopSettings = [true, false, true, false, true, true, true, true, false, true, true, true, true, true, true, true, true, true];
@@ -508,12 +500,10 @@ export default function Page() {
     if (currentAnimationIndex === 1 && isVerified) {
       // Gate2 finished, advance to Animation1 (index 2)
       setCurrentAnimationIndex(2);
-      setAnimationData(animations[2]);
     } else if (currentAnimationIndex >= 2) {
       // For normal animations: if at last, jump to Animation1 (index 2); otherwise, next animation.
-      const nextIndex = currentAnimationIndex === animations.length - 1 ? 2 : currentAnimationIndex + 1;
+      const nextIndex = currentAnimationIndex === STORY_START_INDEX + STORY_COUNT - 1 ? 2 : currentAnimationIndex + 1;
       setCurrentAnimationIndex(nextIndex);
-      setAnimationData(animations[nextIndex]);
     }
   };
 
@@ -523,12 +513,11 @@ export default function Page() {
     if (currentAnimationIndex < 2) return;
     
     // If we're at the last animation, do nothing
-    if (currentAnimationIndex === animations.length - 1) return;
+    if (currentAnimationIndex === STORY_START_INDEX + STORY_COUNT - 1) return;
     
     // Otherwise, move to the next animation
     const nextIndex = currentAnimationIndex + 1;
     setCurrentAnimationIndex(nextIndex);
-    setAnimationData(animations[nextIndex]);
   };
 
   // --- Modified handler for Prev button ---
@@ -545,9 +534,8 @@ export default function Page() {
     // Get the largest of the smaller numbers (immediate previous)
     const previousIndex = Math.max(...smallerNumbers);
     
-    // Set the new animation index and data
+    // Set the new animation index
     setCurrentAnimationIndex(previousIndex);
-    setAnimationData(animations[previousIndex]);
   };
 
   // --- Existing handlers for opening and closing drawers ---
@@ -569,8 +557,8 @@ export default function Page() {
 
   // Add new handler for table of contents drawer
   const handleTableOfContentsClick = () => {
-    // Only allow table of contents to open if in main content section (index 2 or above)
-    if (currentAnimationIndex < 2) return;
+    // Only allow table of contents to open if in main content section (index 1 or above)
+    if (currentAnimationIndex < 1) return;
     setDrawerState('table-of-contents-open');
   };
 
@@ -876,6 +864,53 @@ export default function Page() {
     };
   }, [currentAnimationIndex]); // Re-run effect when currentAnimationIndex changes
 
+  /***** INLINE ANIMATION LOADER *****/
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async (idx: number) => {
+      // skip Gate0/1 (static)
+      if (idx < STORY_START_INDEX) {
+        return staticAnimations[idx];   // Gate1 / Gate2 already imported
+      }
+
+      // 0-based → file number
+      if (lottieCache[idx]) return lottieCache[idx];         // cache hit
+      const fileNo = idx - STORY_START_INDEX + 1;            // 2 → 1, 3 → 2 …
+      const mod = await import(
+        /* webpackMode:"lazy" */
+        `./animations/animation${fileNo}.json`
+      );
+      lottieCache[idx] = mod.default;
+      return lottieCache[idx];
+    };
+
+    // 1️⃣ load current
+    load(currentAnimationIndex).then(d => {
+      if (!cancelled) setAnimationData(d);
+    });
+
+    // 2️⃣ prefetch neighbours
+    for (let off = 1; off <= PREFETCH_RANGE; off++) {
+      [currentAnimationIndex + off, currentAnimationIndex - off].forEach(i => {
+        if (i >= STORY_START_INDEX && i < STORY_START_INDEX + STORY_COUNT) {
+          load(i);
+        }
+      });
+    }
+
+    // 3️⃣ evict items that drift outside the window
+    Object.keys(lottieCache).forEach(k => {
+      const n = Number(k);
+      if (Math.abs(n - currentAnimationIndex) > PREFETCH_RANGE) {
+        delete lottieCache[n];
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, [currentAnimationIndex]);
+  /************************************/
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Desktop View */}
@@ -935,7 +970,7 @@ export default function Page() {
             style={{ zIndex: 15 }}
           ></button>
           {/* Bottom Menu Animation rendered on top with a higher z-index and pointerEvents disabled */}
-          {currentAnimationIndex >= 2 && (
+          {currentAnimationIndex >= 1 && (
             <Lottie
               animationData={BottomMenu}
               loop={true}
@@ -1095,7 +1130,7 @@ export default function Page() {
           </div>
           
           {/* Dynamic Text Container ++ change the offset value against animation index in two rows*/}
-          {currentAnimationIndex >= 2 && (
+          {currentAnimationIndex >= 1 && (
             <div className="flex-1 flex items-center justify-center w-full">
               {isLoadingText ? (
                 <div className="text-gray-500">Loading text...</div>
@@ -1238,7 +1273,7 @@ export default function Page() {
             style={{ zIndex: 15 }}
           ></button>
           {/* Bottom Menu Animation rendered on top with a higher z-index and pointerEvents disabled */}
-          {currentAnimationIndex >= 2 && (
+          {currentAnimationIndex >= 1 && (
             <Lottie
               animationData={BottomMenu}
               loop={true}
