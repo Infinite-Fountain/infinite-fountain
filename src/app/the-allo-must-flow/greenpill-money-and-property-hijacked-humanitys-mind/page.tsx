@@ -500,22 +500,33 @@ export default function Page() {
     return 'th';
   };
 
-  // --- New autoNext function for automatic transitions ---
-  const autoNext = () => {
-    // Stop current animation at frame 0 before transitioning
-    if (lottieRef.current) {
-      lottieRef.current.goToAndStop(0, true);
+  // Add synchronous loader
+  const getAnimationSync = (idx: number) => {
+    if (idx < STORY_START_INDEX) {
+      return staticAnimations[idx];
     }
+    return lottieCache[idx]!;
+  };
 
+  // Add centralized navigation helper
+  const goto = (idx: number) => {
+    // 1️⃣ synchronously swap in the JSON  
+    setAnimationData(getAnimationSync(idx));
+    // 2️⃣ update the index (this will re-render Lottie immediately)  
+    setCurrentAnimationIndex(idx);
+  };
+
+  // --- Modified autoNext function for automatic transitions ---
+  const autoNext = () => {
     if (currentAnimationIndex === 1 && isVerified) {
       // Gate2 finished, advance to Animation1 (index 2)
-      setCurrentAnimationIndex(2);
+      goto(2);
     } else if (currentAnimationIndex >= 2) {
       // For normal animations: if at last, jump to Animation1 (index 2); otherwise, next animation.
       const currentSequenceIndex = animationSequence.indexOf(currentAnimationIndex);
       const nextSequenceIndex = (currentSequenceIndex + 1) % animationSequence.length;
       const nextIndex = animationSequence[nextSequenceIndex];
-      setCurrentAnimationIndex(nextIndex);
+      goto(nextIndex);
     }
   };
 
@@ -534,7 +545,7 @@ export default function Page() {
     // Get next animation in sequence
     const nextSequenceIndex = currentSequenceIndex + 1;
     const nextIndex = animationSequence[nextSequenceIndex];
-    setCurrentAnimationIndex(nextIndex);
+    goto(nextIndex);
   };
 
   // --- Modified handler for Prev button ---
@@ -552,7 +563,7 @@ export default function Page() {
     const previousIndex = Math.max(...smallerNumbers);
     
     // Set the new animation index
-    setCurrentAnimationIndex(previousIndex);
+    goto(previousIndex);
   };
 
   // --- Existing handlers for opening and closing drawers ---
@@ -1750,9 +1761,7 @@ export default function Page() {
         drawerState={drawerState === 'table-of-contents-open' ? 'table-of-contents-open' : 'closed'}
         handleCloseTableOfContentsDrawer={handleCloseTableOfContentsDrawer}
         onSelectSection={(index) => {
-          console.log('Setting animation index to:', index);
-          setCurrentAnimationIndex(index);
-          setAnimationData(animations[index]);
+          goto(index);
         }}
       />
 
