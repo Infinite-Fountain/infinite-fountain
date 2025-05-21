@@ -1169,7 +1169,9 @@ export default function Page() {
               <div className="flex justify-center">
                 {(currentAnimationIndex !== 0 || hasSeenLastAnimation) && (
                   <button
-                    className="prev-button px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg"
+                    className={`prev-button px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg ${
+                      currentAnimationIndex === animationSequence[0] ? 'first-animation' : ''
+                    }`}
                     onClick={handlePrev}
                     aria-label="Previous Animation"
                   >
@@ -1177,7 +1179,9 @@ export default function Page() {
                   </button>
                 )}
                 <button
-                  className="next-button px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg ml-4"
+                  className={`next-button px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg ml-4 ${
+                    currentAnimationIndex === animationSequence[animationSequence.length - 1] ? 'last-animation' : ''
+                  }`}
                   onClick={handleNext}
                   aria-label="Next Animation"
                 >
@@ -1340,7 +1344,9 @@ export default function Page() {
               <div className="flex space-x-2">
                 {(currentAnimationIndex !== 0 || hasSeenLastAnimation) && (
                   <button
-                    className="prev-button px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
+                    className={`prev-button px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition ${
+                      currentAnimationIndex === animationSequence[0] ? 'first-animation' : ''
+                    }`}
                     onClick={handlePrev}
                     aria-label="Previous Animation"
                   >
@@ -1348,7 +1354,9 @@ export default function Page() {
                   </button>
                 )}
                 <button
-                  className="next-button px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
+                  className={`next-button px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition ${
+                    currentAnimationIndex === animationSequence[animationSequence.length - 1] ? 'last-animation' : ''
+                  }`}
                   onClick={handleNext}
                   aria-label="Next Animation"
                 >

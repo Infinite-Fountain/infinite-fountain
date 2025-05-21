@@ -280,3 +280,19 @@ a {
 .animation-text p:last-child {
   margin-bottom: 0;
 }
+
+/* Add new class for prev button at first animation */
+.prev-button.first-animation {
+  background-color: transparent !important;
+  color: transparent !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+/* Add new class for next button at last animation */
+.next-button.last-animation {
+  background-color: transparent !important;
+  color: transparent !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
