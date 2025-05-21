@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, forwardRef } from 'react';
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers'; // Import ethers
 import Lottie from 'lottie-react';
@@ -162,11 +162,14 @@ function useTokenGate() {
   return { isChecking, isVerified, gateError };
 }
 
+// Add this before the Page component
+const ForwardedLottie = forwardRef((props: any, ref) => (
+  <Lottie {...props} ref={ref} />
+));
+
 export default function Page() {
   const { address } = useAccount();
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(true);
-  // Add ref for Lottie instance
-  const lottieRef = useRef<any>(null);
 
   // Use the token gate hook
   const { isChecking, isVerified, gateError } = useTokenGate();
@@ -955,7 +958,6 @@ export default function Page() {
           {/* Main Animations */}
           {animationData && (
             <Lottie
-              ref={lottieRef}
               animationData={animationData}
               loop={animationLoopSettings[currentAnimationIndex]}
               onComplete={autoNext}
@@ -1258,7 +1260,6 @@ export default function Page() {
           {/* Main Animations */}
           {animationData && (
             <Lottie
-              ref={lottieRef}
               animationData={animationData}
               loop={animationLoopSettings[currentAnimationIndex]}
               onComplete={autoNext}
