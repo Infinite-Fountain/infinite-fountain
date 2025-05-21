@@ -41,6 +41,8 @@ import DonationFlowDrawer from './components/drawers/DonationFlowDrawer';
 // Import the VoteDrawer component
 import VoteDrawer from './components/drawers/VoteDrawer';
 
+import CommentDrawer from './components/drawers/CommentDrawer';
+
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 
@@ -712,12 +714,44 @@ export default function Page() {
     fetchConfig();
   }, [currentAnimationIndex]);
 
-  // New state variable for the vote drawer
+  // Add after other state declarations
   const [voteDrawerState, setVoteDrawerState] = useState<'open' | 'closed'>('closed');
+  const [commentDrawerState, setCommentDrawerState] = useState<'open' | 'closed'>('closed');
 
+  // Add the drawer type enum
+  type DrawerKind = 'vote' | 'comment';
+
+  // Add the drawer management function
+  function openDrawer(kind: DrawerKind) {
+    setVoteDrawerState(kind === 'vote' ? 'open' : 'closed');
+    setCommentDrawerState(kind === 'comment' ? 'open' : 'closed');
+  }
+
+  // Replace the existing handleImproveButtonClick
   const handleImproveButtonClick = () => {
-    setVoteDrawerState('open');
+    // always start by closing anything else
+    setVoteDrawerState('closed');
+    setCommentDrawerState('closed');
+
+    const drawer = votingConfig?.default?.drawerToOpen?.toLowerCase?.() ?? '';
+
+    switch (drawer) {
+      case 'vote':
+        openDrawer('vote');
+        break;
+      case 'comment':
+        openDrawer('comment');
+        break;
+      // any unknown value → button stays visible but inert
+    }
   };
+
+  // Add to the useEffect that watches currentAnimationIndex
+  useEffect(() => {
+    setVoteDrawerState('closed');
+    setCommentDrawerState('closed');
+    // ... existing fetch/load logic ...
+  }, [currentAnimationIndex]);
 
   // Add new state for audio
   const [muted, setMuted] = useState(false);
@@ -924,7 +958,25 @@ export default function Page() {
       {/* Desktop View */}
       <div className="hidden md:block">
         {/* Brown Container (left side) */}
-        <div className="brown-container"></div>
+        <div className="brown-container">
+          {votingConfig?.votingButtonVisible && (
+            <Lottie
+              animationData={ImproveButton as any}
+              loop={true}
+              style={{
+                width: '40%',
+                height: '40%',
+                position: 'absolute',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                bottom: '10%',
+                marginBottom: '20px',
+                zIndex: 25,
+              }}
+              onClick={handleImproveButtonClick}
+            />
+          )}
+        </div>
 
         {/* Yellow Container (center) */}
         <div className="yellow-container relative">
@@ -1197,24 +1249,6 @@ export default function Page() {
                 Table of Contents
               </button>
             </div>
-          )}
-
-          {votingConfig?.votingButtonVisible && (
-            <Lottie
-              animationData={ImproveButton as any}
-              loop={true}
-              style={{
-                width: '40%',
-                height: '40%',
-                position: 'absolute',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                bottom: '10%',
-                marginBottom: '20px',
-                zIndex: 25,
-              }}
-              onClick={handleImproveButtonClick}
-            />
           )}
         </div>
       </div>
@@ -1733,7 +1767,15 @@ export default function Page() {
       />
 
       {/* Vote Drawer */}
-      <VoteDrawer drawerState={voteDrawerState} handleCloseVoteDrawer={() => setVoteDrawerState('closed')} />
+      <VoteDrawer
+        drawerState={voteDrawerState}
+        handleCloseVoteDrawer={() => setVoteDrawerState('closed')}
+      />
+
+      <CommentDrawer
+        drawerState={commentDrawerState}
+        handleCloseCommentDrawer={() => setCommentDrawerState('closed')}
+      />
     </div>
   );
 }

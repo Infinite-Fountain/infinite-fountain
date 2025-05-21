@@ -1,6 +1,7 @@
 {
     "votingButtonVisible": false,
     "votingButton": "abc",
+    "drawerToOpen": "vote",
     "VoteOption1": {
       "Active": true,
       "positionXaxis": "27%",
