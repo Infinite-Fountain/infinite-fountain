@@ -10,7 +10,6 @@ import abi from './abi.json'; // Import ABI from the JSON file
 // New import for the members NFT contract ABI
 import allominatiAbi from './abi-allominati.json';
 import '../.././global.css';
-import { getBasename, type Basename } from '../../../basenames';
 import { getEnsName } from '../../../ensnames';
 import { truncateWalletAddress } from '../../../utils'; // Assuming you have this utility function
 
@@ -218,11 +217,6 @@ export default function Page() {
   // State to handle loading
   const [loading, setLoading] = useState<boolean>(false);
 
-  // New state variable to store the top basename
-  const [topBasename, setTopBasename] = useState<Basename | null>(null);
-
-  const [top10, setTop10] = useState<{ address: string; balance: number }[]>([]);
-
   // New state variable for top 10 users' information
   const [top10UserInfos, setTop10UserInfos] = useState<
     { place: string; userInfo: string; balanceInfo: string }[]
@@ -251,17 +245,11 @@ export default function Page() {
   // State to store fetched basenames
   const [basenamesCache, setBasenamesCache] = useState<{ [address: string]: string }>({});
 
-  // Modify the logic to check basenamesCache before fetching
+  // Simplify fetchUserInfo to only use ENS and truncated address
   const fetchUserInfo = async (address: string): Promise<string> => {
-    if (basenamesCache[address]) {
-      return basenamesCache[address];
-    }
     const ensName = await getEnsName(address as `0x${string}`);
-    const baseName = await getBasename(address as `0x${string}`);
     const truncatedAddress = truncateWalletAddress(address);
-    const userInfo = ensName || baseName || truncatedAddress;
-    setBasenamesCache(prev => ({ ...prev, [address]: userInfo }));
-    return userInfo;
+    return ensName || truncatedAddress;
   };
 
   // --- Existing function: Fetch all Assigned events to get unique user addresses ---
@@ -455,26 +443,11 @@ export default function Page() {
             .sort((a: { balance: number }, b: { balance: number }) => b.balance - a.balance)
             .slice(0, 10);
 
-          setTop10(top10Results);
-
-          // Compute and set the top 10 users' information directly from holders
-          let top10UserInfosArray: { place: string; userInfo: string; balanceInfo: string }[] = [];
-
-          const sortedHolders = results
-            .filter((item: { balance: number | string }) => typeof item.balance === 'number')
-            .sort((a: { balance: number }, b: { balance: number }) => b.balance - a.balance)
-            .slice(0, 10);
-
-          for (let i = 0; i < sortedHolders.length; i++) {
-            const place = `${i + 1}${getOrdinalSuffix(i + 1)} place`;
-            const userInfo = await fetchUserInfo(sortedHolders[i].address);
-            const balanceInfo =
-              typeof sortedHolders[i]?.balance === 'number' ? sortedHolders[i].balance.toString() : 'N/A';
-
-            top10UserInfosArray.push({ place, userInfo, balanceInfo });
-          }
-
-          setTop10UserInfos(top10UserInfosArray);
+          setTop10UserInfos(top10Results.map((item: { address: string; balance: number }, index: number) => ({
+            place: `${index + 1}${getOrdinalSuffix(index + 1)} place`,
+            userInfo: item.address,
+            balanceInfo: typeof item.balance === 'number' ? item.balance.toString() : 'N/A'
+          })));
         } catch (err) {
           console.error('Error executing calculations:', err);
           setError('An error occurred while executing calculations.');
@@ -1491,7 +1464,7 @@ export default function Page() {
             )}
 
             {/* Only render the balances if top10 has been populated */}
-            {top10.length > 0 && typeof top10[0].balance === 'number' && (
+            {top10UserInfos.length > 0 && typeof top10UserInfos[0].balanceInfo === 'string' && (
               <div
                 className="absolute"
                 style={{
@@ -1503,39 +1476,7 @@ export default function Page() {
                   backgroundColor: 'transparent',
                 }}
               >
-                {top10[0].balance}
-              </div>
-            )}
-
-            {top10.length > 1 && typeof top10[1].balance === 'number' && (
-              <div
-                className="absolute"
-                style={{
-                  bottom: '5%',
-                  left: '51%',
-                  fontSize: '30px',
-                  fontWeight: 'bold',
-                  color: 'black',
-                  backgroundColor: 'transparent',
-                }}
-              >
-                {top10[1].balance}
-              </div>
-            )}
-
-            {top10.length > 2 && typeof top10[2].balance === 'number' && (
-              <div
-                className="absolute"
-                style={{
-                  bottom: '5%',
-                  left: '68%',
-                  fontSize: '30px',
-                  fontWeight: 'bold',
-                  color: 'black',
-                  backgroundColor: 'transparent',
-                }}
-              >
-                {top10[2].balance}
+                {top10UserInfos[0].balanceInfo}
               </div>
             )}
 
