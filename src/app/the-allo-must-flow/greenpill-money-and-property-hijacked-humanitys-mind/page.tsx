@@ -165,6 +165,8 @@ function useTokenGate() {
 export default function Page() {
   const { address } = useAccount();
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(true);
+  // Add ref for Lottie instance
+  const lottieRef = useRef<any>(null);
 
   // Use the token gate hook
   const { isChecking, isVerified, gateError } = useTokenGate();
@@ -500,6 +502,11 @@ export default function Page() {
 
   // --- New autoNext function for automatic transitions ---
   const autoNext = () => {
+    // Stop current animation at frame 0 before transitioning
+    if (lottieRef.current) {
+      lottieRef.current.goToAndStop(0, true);
+    }
+
     if (currentAnimationIndex === 1 && isVerified) {
       // Gate2 finished, advance to Animation1 (index 2)
       setCurrentAnimationIndex(2);
@@ -933,7 +940,7 @@ export default function Page() {
           {/* Main Animations */}
           {animationData && (
             <Lottie
-              key={currentAnimationIndex}
+              ref={lottieRef}
               animationData={animationData}
               loop={animationLoopSettings[currentAnimationIndex]}
               onComplete={autoNext}
@@ -1236,7 +1243,7 @@ export default function Page() {
           {/* Main Animations */}
           {animationData && (
             <Lottie
-              key={currentAnimationIndex}
+              ref={lottieRef}
               animationData={animationData}
               loop={animationLoopSettings[currentAnimationIndex]}
               onComplete={autoNext}
@@ -1428,7 +1435,6 @@ export default function Page() {
           <div className="drawer-container w-full h-full relative">
             {/* Lottie Animation */}
             <Lottie
-              key="dashboard" // Unique key for dashboard animation
               animationData={DashboardAnimation}
               loop={true} // This animation loops indefinitely
               className="w-full h-full"
@@ -1570,7 +1576,6 @@ export default function Page() {
           <div className="drawer-container w-full h-full relative">
             {/* Leaderboard Lottie Animation */}
             <Lottie
-              key="leaderboard" // Unique key for leaderboard animation
               animationData={LeaderboardAnimation}
               loop={true} // This animation loops indefinitely
               className="w-full h-full"
