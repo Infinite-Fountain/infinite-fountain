@@ -836,6 +836,10 @@ export default function Page() {
             url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/index12.md',
             animationIndex: 12
           },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/the-allo-must-flow/greenpill-money-and-property-hijacked-humanitys-mind/dynamicText/index13.md',
+            animationIndex: 13
+          }
         ];
         
         // Create an array of null values matching the number of animations
