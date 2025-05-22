@@ -1,0 +1,1 @@
+I think we’re in this period of phase change in the collective space where our collective structures are no longer serving us… the nations and corporations… now we’re transitioning to something new.

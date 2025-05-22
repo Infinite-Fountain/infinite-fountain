@@ -1,0 +1,1 @@
+Charles Eisenstein talks about this, there’s a period of our life where we’re growing up, we have to go from the idea of mother earth, you know, this place that we can infinitely take from… to lover earth, which is a partner.

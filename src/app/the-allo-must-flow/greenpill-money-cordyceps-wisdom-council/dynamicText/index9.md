@@ -1,0 +1,1 @@
+Money as a coordination tool has turned everything into money. But now we need to transition to a new way of being, a new way of relating. 

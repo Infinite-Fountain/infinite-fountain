@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+
+    // Helper to check the signed-in user
+    function isUser(uid) {
+      return request.auth != null
+             && request.auth.uid == uid;
+    }
+
+    // ─── Experiments by type ────────────────────────────────
+    match /experiments/{expType}/{expId} {
+      // Only active experiments are readable
+      allow read: if resource.data.status == "active";
+
+      // Sub-collection: indexes (aka slides)
+      match /indexes/{idx} {
+        allow read: if true;
+
+        // Sub-collection: one message/doc per user
+        match /messages/{uid} {
+          // User can read their own message
+          allow read:   if isUser(uid);
+          // Create only if none exists and UID matches
+          allow create: if isUser(uid)
+                        && !exists(resource);
+          // After creation, user can update or delete their own
+          allow update, delete:
+            if isUser(uid);
+        }
+      }
+
+      // (Optional) Token-gate list, written only by backend
+      match /allowList/{wallet} {
+        allow read:  if false;
+        allow write: if false;
+      }
+    }
+  }
+}
