@@ -2,6 +2,7 @@
     "votingButtonVisible": true,
     "votingButton": "abc",
     "drawerToOpen": "comment",
+    "commentPrompt": "Share your ideas on how to improve this segment",
     "VoteOption1": {
       "Active": true,
       "positionXaxis": "27%",

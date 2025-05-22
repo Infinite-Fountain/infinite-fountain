@@ -1775,6 +1775,7 @@ export default function Page() {
       <CommentDrawer
         drawerState={commentDrawerState}
         handleCloseCommentDrawer={() => setCommentDrawerState('closed')}
+        currentAnimationIndex={currentAnimationIndex}
       />
     </div>
   );
