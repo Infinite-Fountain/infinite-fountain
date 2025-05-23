@@ -18,20 +18,10 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   const [commentPrompt, setCommentPrompt] = useState<string>('Share your thoughts');
 
   useEffect(() => {
-    console.log('CommentDrawer useEffect triggered');
-    console.log('Current animation index:', currentAnimationIndex);
-    console.log('Drawer state:', drawerState);
-
     const fetchConfig = async () => {
       try {
-        console.log('Attempting to load config for index:', currentAnimationIndex);
-        // Dynamically import the config based on currentAnimationIndex
         const config = await import(`../../configs/Index${currentAnimationIndex}voting.json`);
-        console.log('Loaded config:', config);
-        console.log('Comment prompt from config:', config.default?.commentPrompt);
-        
         const prompt = config.default?.commentPrompt || 'Share your thoughts';
-        console.log('Setting comment prompt to:', prompt);
         setCommentPrompt(prompt);
       } catch (error) {
         console.error('Error loading comment prompt:', error);
@@ -39,12 +29,9 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     };
 
     if (drawerState === 'open') {
-      console.log('Drawer is open, fetching config...');
       fetchConfig();
     }
   }, [drawerState, currentAnimationIndex]);
-
-  console.log('Current commentPrompt state:', commentPrompt);
 
   return (
     <div className={`fixed inset-0 z-40 flex items-start justify-center transition-transform duration-300 ease-in-out transform ${drawerState === 'open' ? 'translate-y-0' : 'translate-y-[100vh]'}`}>
