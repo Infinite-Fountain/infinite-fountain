@@ -16,9 +16,6 @@ import Lottie from 'lottie-react';
 import Image from 'next/image';
 import LoginButton from '../components/LoginButton';
 import SignupButton from '../components/SignupButton';
-import FirebaseHello from '../components/FirebaseHello';
-import AuthTest from '../components/AuthTest';
-import FunctionTest from '../components/FunctionTest';
 import abi from './abi.json'; // Import ABI from the JSON file
 import { getBasename } from '../basenames';
 import { getEnsName } from '../ensnames';
@@ -630,21 +627,6 @@ export default function Page() {
           <div className="flex justify-center">
             <SignupButton />
             {!address && <LoginButton />}
-          </div>
-
-          {/* Firebase Hello Component */}
-          <div className="mt-4">
-            <FirebaseHello />
-          </div>
-
-          {/* Auth Test Component */}
-          <div className="mt-4">
-            <AuthTest />
-          </div>
-
-          {/* Function Test Component */}
-          <div className="mt-4">
-            <FunctionTest />
           </div>
 
           {/* Dashboard and Navigation Buttons Group */}
