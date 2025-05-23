@@ -17,6 +17,7 @@ import Image from 'next/image';
 import LoginButton from '../components/LoginButton';
 import SignupButton from '../components/SignupButton';
 import FirebaseHello from '../components/FirebaseHello';
+import AuthTest from '../components/AuthTest';
 import abi from './abi.json'; // Import ABI from the JSON file
 import { getBasename } from '../basenames';
 import { getEnsName } from '../ensnames';
@@ -633,6 +634,11 @@ export default function Page() {
           {/* Firebase Hello Component */}
           <div className="mt-4">
             <FirebaseHello />
+          </div>
+
+          {/* Auth Test Component */}
+          <div className="mt-4">
+            <AuthTest />
           </div>
 
           {/* Dashboard and Navigation Buttons Group */}
