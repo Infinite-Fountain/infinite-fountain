@@ -1,8 +1,6 @@
 // src/firebaseClient.ts
 import { initializeApp } from "firebase/app";
-import { getAuth }       from "firebase/auth";
 import { getFirestore }  from "firebase/firestore";
-import { getFunctions }  from "firebase/functions";
 
 const firebaseConfig = {
   apiKey:            process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
@@ -14,7 +12,5 @@ const firebaseConfig = {
   measurementId:     process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID, // optional
 };
 
-const app       = initializeApp(firebaseConfig);
-export const auth      = getAuth(app);
-export const db        = getFirestore(app);
-export const functions = getFunctions(app);
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
