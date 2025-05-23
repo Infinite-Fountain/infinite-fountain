@@ -321,13 +321,13 @@ export default function Page() {
    * **Effect Hook to Start Loading Animations Sequentially**
    */
   useEffect(() => {
-    if (address && !animationPlayed) {
+    if (!animationPlayed) {
       setAnimationPlayed(true);
       setShowButtons(true);
       setLoading(true);
       setLoadingIndex(0);
     }
-  }, [address, animationPlayed]);
+  }, [animationPlayed]);
 
   // State to track which animation is being loaded
   const [loadingIndex, setLoadingIndex] = useState<number>(0);
@@ -559,9 +559,7 @@ export default function Page() {
         <div className="yellow-container relative">
           {/* Main Animations with Controlled Visibility */}
           <div
-            className={`w-full h-full transition-opacity duration-500 ${
-              address ? 'opacity-100' : 'opacity-0 pointer-events-none'
-            }`}
+            className="w-full h-full transition-opacity duration-500 opacity-100"
           >
             {currentAnimation && (
               <Lottie
@@ -579,13 +577,6 @@ export default function Page() {
               />
             )}
           </div>
-
-          {/* "Please connect your wallet" message */}
-          {!address && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-white text-xl font-semibold">Please connect your wallet</p>
-            </div>
-          )}
 
           {/* Error and Loading Indicators */}
           {error && (
@@ -664,31 +655,6 @@ export default function Page() {
                 />
               </button>
             )}
-
-            {/* Prev and Next Buttons */}
-            {showButtons && address && (
-              <div className="prev-next-buttons z-20">
-                <button
-                  className="prev-button"
-                  onClick={handlePrev}
-                  aria-label="Previous Animation"
-                  style={{ visibility: currentAnimationIndex > 0 ? 'visible' : 'hidden' }}
-                >
-                  Prev
-                </button>
-                <button
-                  className="next-button ml-4"
-                  onClick={handleNext}
-                  aria-label="Next Animation"
-                  style={{
-                    visibility:
-                      currentAnimationIndex === config.animations - 1 ? 'hidden' : 'visible',
-                  }}
-                >
-                  Next
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -711,9 +677,7 @@ export default function Page() {
         <div className="yellow-container relative">
           {/* Main Animations with Controlled Visibility */}
           <div
-            className={`w-full h-full transition-opacity duration-500 ${
-              address ? 'opacity-100' : 'opacity-0 pointer-events-none'
-            }`}
+            className="w-full h-full transition-opacity duration-500 opacity-100"
           >
             {currentAnimation && (
               <Lottie
@@ -731,13 +695,6 @@ export default function Page() {
               />
             )}
           </div>
-
-          {/* "Please connect your wallet" message */}
-          {!address && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-white text-xl font-semibold">Please connect your wallet</p>
-            </div>
-          )}
 
           {/* Error and Loading Indicators */}
           {error && (
@@ -775,32 +732,21 @@ export default function Page() {
 
         {/* Blue Container */}
         <div className="blue-container relative">
-          {/* Prev and Next Buttons */}
-          {showButtons && address && (
-            <div
-              className="absolute top-0 right-0 z-20 flex space-x-2"
-              style={{ paddingTop: '5px', paddingRight: '5px' }}
+          {/* Vote Button */}
+          {address && votingConfigs[currentAnimationIndex]?.votingButtonVisible && (
+            <button
+              onClick={handleVoteButtonClick}
+              className="vote-button z-20" // Use the class defined in global.css
+              aria-label="Vote Button"
             >
-              <button
-                className="prev-button px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
-                onClick={handlePrev}
-                aria-label="Previous Animation"
-                style={{ visibility: currentAnimationIndex > 0 ? 'visible' : 'hidden' }}
-              >
-                Prev
-              </button>
-              <button
-                className="next-button px-2 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition ml-2"
-                onClick={handleNext}
-                aria-label="Next Animation"
-                style={{
-                  visibility:
-                    currentAnimationIndex === config.animations - 1 ? 'hidden' : 'visible',
-                }}
-              >
-                Next
-              </button>
-            </div>
+              <Image
+                src="/buttons/votebutton.png"
+                alt="Vote Button"
+                width={100}
+                height={100}
+                className="object-contain"
+              />
+            </button>
           )}
 
           {/* Dashboard Button */}
@@ -813,23 +759,6 @@ export default function Page() {
               <Image
                 src="/buttons/dashboardbutton.png"
                 alt="Dashboard Button"
-                width={100}
-                height={100}
-                className="object-contain"
-              />
-            </button>
-          )}
-
-          {/* Vote Button */}
-          {address && votingConfigs[currentAnimationIndex]?.votingButtonVisible && (
-            <button
-              onClick={handleVoteButtonClick}
-              className="vote-button z-20" // Use the class defined in global.css
-              aria-label="Vote Button"
-            >
-              <Image
-                src="/buttons/votebutton.png"
-                alt="Vote Button"
                 width={100}
                 height={100}
                 className="object-contain"
