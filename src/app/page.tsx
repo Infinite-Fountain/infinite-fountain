@@ -18,6 +18,7 @@ import LoginButton from '../components/LoginButton';
 import SignupButton from '../components/SignupButton';
 import FirebaseHello from '../components/FirebaseHello';
 import AuthTest from '../components/AuthTest';
+import FunctionTest from '../components/FunctionTest';
 import abi from './abi.json'; // Import ABI from the JSON file
 import { getBasename } from '../basenames';
 import { getEnsName } from '../ensnames';
@@ -641,6 +642,11 @@ export default function Page() {
             <AuthTest />
           </div>
 
+          {/* Function Test Component */}
+          <div className="mt-4">
+            <FunctionTest />
+          </div>
+
           {/* Dashboard and Navigation Buttons Group */}
           <div className="vote-nav-group">
             {/* Vote Button */}
@@ -865,7 +871,7 @@ export default function Page() {
         calculateCompletionPercentage={calculateCompletionPercentage}
       />
 
-      {/* **Vote Drawer** */}
+      {/* Vote Drawer */}
       <VoteDrawer
         drawerState={drawerState as 'closed' | 'vote-open'}
         handleCloseVoteDrawer={handleCloseVoteDrawer}
