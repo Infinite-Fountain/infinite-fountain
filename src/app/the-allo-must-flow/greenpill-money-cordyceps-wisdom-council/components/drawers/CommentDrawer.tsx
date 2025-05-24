@@ -31,7 +31,9 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   const [isThinking, setIsThinking] = useState(false);
   const [isLoadingThread, setIsLoadingThread] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [editedSubmission, setEditedSubmission] = useState("");
+  const upperScrollRef = useRef<HTMLDivElement>(null);
+  const lowerScrollRef = useRef<HTMLDivElement>(null);
   const prevThreadLengthRef = useRef(0);
 
   // Build index document reference using currentAnimationIndex
@@ -76,6 +78,10 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     const unsub = onSnapshot(msgRef, (snap) => {
       const data = snap.data() as any;
       setThread(data?.thread ?? []);
+      // Set the edited submission to match the final submission when it changes
+      if (data?.finalSubmission) {
+        setEditedSubmission(data.finalSubmission);
+      }
       setIsLoadingThread(false);
     }, (error) => {
       console.error("Error loading thread:", error);
@@ -85,21 +91,21 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     return () => unsub();
   }, [msgRef]);
 
-  // Auto-scroll only when new content arrives
+  // Auto-scroll only when new content arrives in the upper pane
   useEffect(() => {
-    if (!scrollRef.current) return;
+    if (!upperScrollRef.current || isEditing) return;
     
     // Only scroll if thread length has increased
     if (thread.length > prevThreadLengthRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
+      upperScrollRef.current.scrollTo({
+        top: upperScrollRef.current.scrollHeight,
         behavior: "smooth",
       });
     }
     
     // Update the ref with current length
     prevThreadLengthRef.current = thread.length;
-  }, [thread.length]);
+  }, [thread.length, isEditing]);
 
   // Auto-trigger followups based on thread state
   useEffect(() => {
@@ -216,7 +222,20 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
   const handleEdit = () => {
     setIsEditing(true);
-    // TODO: Implement edit functionality
+  };
+
+  const handleSaveEdit = async () => {
+    if (!msgRef) return;
+    
+    try {
+      await updateDoc(msgRef!, {
+        finalSubmission: editedSubmission,
+        lastUpdated: serverTimestamp()
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error saving edit:", error);
+    }
   };
 
   // Get the final submission by combining all user messages
@@ -257,7 +276,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
         {/* Upper pane */}
         <div
           className="absolute top-[5%] left-[10%] w-[80%] h-[40%] bg-white/90 text-black p-4 rounded overflow-y-auto"
-          ref={scrollRef}
+          ref={upperScrollRef}
         >
           {initialPrompt && <p className="mb-4">{initialPrompt}</p>}
           {isLoadingThread ? (
@@ -300,19 +319,28 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
               </div>
             </>
           ) : (
-            <div className="flex-1 w-full p-4 overflow-y-auto">
+            <div className="flex-1 w-full p-4 overflow-y-auto" ref={lowerScrollRef}>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold">Your Final Submission:</h3>
                 <button
                   className="px-4 py-2 border rounded"
-                  onClick={handleEdit}
+                  onClick={isEditing ? handleSaveEdit : handleEdit}
                 >
-                  Edit Final
+                  {isEditing ? "Save Edit" : "Edit Final"}
                 </button>
               </div>
-              <div className="whitespace-pre-wrap">
-                {getFinalSubmission()}
-              </div>
+              {isEditing ? (
+                <textarea
+                  className="w-full h-full p-2 border rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={editedSubmission}
+                  onChange={(e) => setEditedSubmission(e.target.value)}
+                  autoFocus
+                />
+              ) : (
+                <div className="whitespace-pre-wrap">
+                  {editedSubmission}
+                </div>
+              )}
             </div>
           )}
         </div>
