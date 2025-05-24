@@ -181,9 +181,47 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     if (isThinking || assistantCount >= 2) return;
 
     let next: { role: string; text: string; ts: number } | null = null;
-    if (userCount >= 1 && assistantCount === 0) {
-      next = simulatedResponses.followup1;
-    } else if (userCount >= 2 && assistantCount === 1) {
+    
+    // For first user message, use our assistant-first API
+    if (userCount === 1 && assistantCount === 0) {
+      setIsThinking(true);
+      const userMessage = thread.find(m => m.role === 'user');
+      if (userMessage) {
+        fetch('/the-allo-must-flow/greenpill-money-cordyceps-wisdom-council/api/assistant-first', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            prompt: userMessage.text,
+            initialPrompt: initialPrompt 
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            console.error('Assistant API error:', data.error);
+            return;
+          }
+          return updateDoc(msgRef!, {
+            thread: arrayUnion({
+              role: "assistant",
+              text: data.reply,
+              ts: Date.now()
+            }),
+            lastUpdated: serverTimestamp()
+          });
+        })
+        .catch(error => {
+          console.error("Error calling assistant API:", error);
+        })
+        .finally(() => {
+          setIsThinking(false);
+        });
+      }
+      return;
+    }
+    
+    // For subsequent messages, use simulated responses
+    if (userCount >= 2 && assistantCount === 1) {
       next = simulatedResponses.followup2;
     }
 
@@ -191,13 +229,11 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       setIsThinking(true);
       setTimeout(async () => {
         try {
-          // Send the followup message
           await updateDoc(msgRef!, { 
             thread: arrayUnion(next!),
             lastUpdated: serverTimestamp()
           });
 
-          // If this was the second followup, send the final submission
           if (userCount >= 3 && assistantCount === 1) {
             const userMessages = thread.filter(m => m.role === 'user');
             const finalSubmission = userMessages.map(m => m.text).join('\n\n');

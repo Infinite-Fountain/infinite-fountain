@@ -172,9 +172,6 @@ const ForwardedLottie = forwardRef((props: any, ref) => (
 export default function Page() {
   const { address } = useAccount();
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(true);
-  const [testPrompt, setTestPrompt] = useState('');
-  const [botReply, setBotReply] = useState<string | null>(null);
-  const [isLoadingTest, setIsLoadingTest] = useState(false);
 
   // Use the token gate hook
   const { isChecking, isVerified, gateError } = useTokenGate();
@@ -960,31 +957,6 @@ export default function Page() {
   // Add preloading hook
   const preloadedData = usePreloadComments(currentAnimationIndex, votingConfig);
 
-  const handleTest = async () => {
-    setIsLoadingTest(true);
-    try {
-      const res = await fetch(
-        '/the-allo-must-flow/greenpill-money-cordyceps-wisdom-council/api/assistant-first',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: testPrompt })
-        }
-      );
-      const payload = await res.json();
-      if ('error' in payload) {
-        setBotReply(`API error: ${payload.error}`);
-      } else {
-        setBotReply(payload.reply);
-      }
-    } catch (e) {
-      console.error(e);
-      setBotReply('Error calling API');
-    } finally {
-      setIsLoadingTest(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Desktop View */}
@@ -1008,28 +980,6 @@ export default function Page() {
               onClick={handleImproveButtonClick}
             />
           )}
-
-          <div className="mt-4 p-4 bg-white rounded">
-            <h4 className="mb-2 font-bold text-black">Test Assistant-First</h4>
-            <textarea
-              className="w-full p-2 border rounded text-black"
-              rows={3}
-              value={testPrompt}
-              onChange={(e) => setTestPrompt(e.target.value)}
-            />
-            <button
-              className="mt-2 px-4 py-2 bg-blue-600 text-white rounded"
-              onClick={handleTest}
-              disabled={isLoadingTest || !testPrompt.trim()}
-            >
-              {isLoadingTest ? 'Thinking…' : 'Send to GPT'}
-            </button>
-            {botReply && (
-              <div className="mt-2 p-2 bg-gray-100 rounded whitespace-pre-wrap text-black">
-                {botReply}
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Yellow Container (center) */}
