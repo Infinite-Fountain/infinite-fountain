@@ -106,11 +106,10 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   }, [msgRef]);
 
   // Auto-scroll only when new content arrives in the upper pane
-  /*
   useEffect(() => {
     if (!upperScrollRef.current || isEditing) return;
     
-    // Only scroll if thread length has increased
+    // Only scroll if thread length has actually increased
     if (thread.length > prevThreadLengthRef.current) {
       upperScrollRef.current.scrollTo({
         top: upperScrollRef.current.scrollHeight,
@@ -118,10 +117,9 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       });
     }
     
-    // Update the ref with current length
+    // Update stored length for next comparison
     prevThreadLengthRef.current = thread.length;
   }, [thread.length, isEditing]);
-  */
 
   // Auto-trigger followups based on thread state
   useEffect(() => {
