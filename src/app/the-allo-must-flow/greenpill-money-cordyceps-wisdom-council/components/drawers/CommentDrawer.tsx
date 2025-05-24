@@ -109,23 +109,37 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     const assistantCount = thread.filter(m => m.role === 'assistant').length;
 
     // Don't trigger if we're already thinking or if we have enough assistant messages
-    if (isThinking || assistantCount >= 2) return;
+    if (isThinking || assistantCount >= 3) return;
 
     let next: { role: string; text: string; ts: number } | null = null;
     if (userCount >= 1 && assistantCount === 0) {
       next = simulatedResponses.followup1;
     } else if (userCount >= 2 && assistantCount === 1) {
       next = simulatedResponses.followup2;
+    } else if (userCount >= 3 && assistantCount === 2) {
+      // First send followup3
+      next = simulatedResponses.followup3;
     }
 
     if (next) {
       setIsThinking(true);
       setTimeout(async () => {
         try {
+          // Send the followup message
           await updateDoc(msgRef!, { 
             thread: arrayUnion(next!),
             lastUpdated: serverTimestamp()
           });
+
+          // If this was the third followup, also send the final submission
+          if (userCount >= 3 && assistantCount === 2) {
+            const userMessages = thread.filter(m => m.role === 'user');
+            const finalSubmission = userMessages.map(m => m.text).join('\n\n');
+            await updateDoc(msgRef!, {
+              finalSubmission: finalSubmission,
+              lastUpdated: serverTimestamp()
+            });
+          }
         } catch (error) {
           console.error("Error adding followup:", error);
         } finally {
@@ -194,6 +208,16 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     // TODO: Implement edit functionality
   };
 
+  // Get the final submission by combining all user messages
+  const getFinalSubmission = () => {
+    const userMessages = thread.filter(m => m.role === 'user');
+    return userMessages.map(m => m.text).join('\n\n');
+  };
+
+  // Check if we're in final state (3 user messages and 3 assistant messages)
+  const isFinalState = thread.filter(m => m.role === 'user').length >= 3 && 
+                      thread.filter(m => m.role === 'assistant').length >= 3;
+
   return (
     <div className={`fixed inset-0 z-40 flex items-start justify-center transition-transform duration-300 ease-in-out transform ${drawerState === 'open' ? 'translate-y-0' : 'translate-y-[100vh]'}`}>
       {/* Overlay */}
@@ -234,30 +258,41 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
         {/* Lower pane */}
         <div className="absolute top-[48%] left-[10%] w-[80%] h-[40%] bg-white/90 text-black p-4 rounded flex flex-col">
-          <textarea
-            className="flex-1 w-full p-2 border rounded resize-none"
-            placeholder="Type your response..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            disabled={submitting}
-          />
-          <div className="flex justify-between mt-2">
-            <button
-              className="px-4 py-2 border rounded disabled:opacity-50"
-              onClick={handleSubmit}
-              disabled={!input.trim() || submitting}
-            >
-              {submitting ? "Submitting..." : "Submit"}
-            </button>
-            {thread.filter(m => m.role === 'assistant').length >= 2 && (
-              <button
-                className="px-4 py-2 border rounded"
-                onClick={handleEdit}
-              >
-                Edit Final
-              </button>
-            )}
-          </div>
+          {!isFinalState ? (
+            <>
+              <textarea
+                className="flex-1 w-full p-2 border rounded resize-none"
+                placeholder="Type your response..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                disabled={submitting}
+              />
+              <div className="flex justify-between mt-2">
+                <button
+                  className="px-4 py-2 border rounded disabled:opacity-50"
+                  onClick={handleSubmit}
+                  disabled={!input.trim() || submitting}
+                >
+                  {submitting ? "Submitting..." : "Submit"}
+                </button>
+                {thread.filter(m => m.role === 'assistant').length >= 2 && (
+                  <button
+                    className="px-4 py-2 border rounded"
+                    onClick={handleEdit}
+                  >
+                    Edit Final
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 w-full p-4 overflow-y-auto">
+              <h3 className="font-bold mb-2">Your Final Submission:</h3>
+              <div className="whitespace-pre-wrap">
+                {getFinalSubmission()}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
