@@ -9,9 +9,23 @@ import {
   updateDoc,
   setDoc,
   serverTimestamp,
-  arrayUnion
+  arrayUnion,
+  DocumentReference
 } from 'firebase/firestore';
 import { db, auth } from '../../../../../firebaseClient';
+
+// Helper function for adding submission versions
+const addSubmissionVersion = async (
+  msgRef: DocumentReference,
+  text: string
+) => {
+  const tsKey = new Date().toISOString();
+  await updateDoc(msgRef, {
+    [`submissionVersions.${tsKey}`]: text, // dot-notation merge
+    latestSubmission: text,
+    lastUpdated: serverTimestamp(),
+  });
+};
 
 interface CommentDrawerProps {
   drawerState: 'open' | 'closed';
@@ -78,9 +92,9 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     const unsub = onSnapshot(msgRef, (snap) => {
       const data = snap.data() as any;
       setThread(data?.thread ?? []);
-      // Set the edited submission to match the final submission when it changes
-      if (data?.finalSubmission) {
-        setEditedSubmission(data.finalSubmission);
+      // Set the edited submission to match the latest submission when it changes
+      if (data?.latestSubmission && !isEditing) {
+        setEditedSubmission(data.latestSubmission);
       }
       setIsLoadingThread(false);
     }, (error) => {
@@ -92,6 +106,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   }, [msgRef]);
 
   // Auto-scroll only when new content arrives in the upper pane
+  /*
   useEffect(() => {
     if (!upperScrollRef.current || isEditing) return;
     
@@ -106,6 +121,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     // Update the ref with current length
     prevThreadLengthRef.current = thread.length;
   }, [thread.length, isEditing]);
+  */
 
   // Auto-trigger followups based on thread state
   useEffect(() => {
@@ -206,10 +222,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       if (isThirdMessage) {
         const userMessages = [...thread.filter(m => m.role === 'user'), { role: "user", text: input.trim(), ts: Date.now() }];
         const finalSubmission = userMessages.map(m => m.text).join('\n\n');
-        await updateDoc(msgRef!, {
-          finalSubmission: finalSubmission,
-          lastUpdated: serverTimestamp()
-        });
+        await addSubmissionVersion(msgRef!, finalSubmission);
       }
 
       setInput("");
@@ -226,15 +239,12 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
   const handleSaveEdit = async () => {
     if (!msgRef) return;
-    
+    setSubmitting(true);
     try {
-      await updateDoc(msgRef!, {
-        finalSubmission: editedSubmission,
-        lastUpdated: serverTimestamp()
-      });
+      await addSubmissionVersion(msgRef, editedSubmission);
       setIsEditing(false);
-    } catch (error) {
-      console.error("Error saving edit:", error);
+    } finally {
+      setSubmitting(false);
     }
   };
 
