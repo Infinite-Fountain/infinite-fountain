@@ -109,16 +109,13 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     const assistantCount = thread.filter(m => m.role === 'assistant').length;
 
     // Don't trigger if we're already thinking or if we have enough assistant messages
-    if (isThinking || assistantCount >= 3) return;
+    if (isThinking || assistantCount >= 2) return;
 
     let next: { role: string; text: string; ts: number } | null = null;
     if (userCount >= 1 && assistantCount === 0) {
       next = simulatedResponses.followup1;
     } else if (userCount >= 2 && assistantCount === 1) {
       next = simulatedResponses.followup2;
-    } else if (userCount >= 3 && assistantCount === 2) {
-      // First send followup3
-      next = simulatedResponses.followup3;
     }
 
     if (next) {
@@ -131,8 +128,8 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
             lastUpdated: serverTimestamp()
           });
 
-          // If this was the third followup, also send the final submission
-          if (userCount >= 3 && assistantCount === 2) {
+          // If this was the second followup, send the final submission
+          if (userCount >= 3 && assistantCount === 1) {
             const userMessages = thread.filter(m => m.role === 'user');
             const finalSubmission = userMessages.map(m => m.text).join('\n\n');
             await updateDoc(msgRef!, {
@@ -173,6 +170,10 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     setSubmitting(true);
 
     try {
+      // Check if this is the third user message
+      const userCount = thread.filter(m => m.role === 'user').length;
+      const isThirdMessage = userCount === 2; // 0-based index, so 2 means third message
+
       // Append user message
       await updateDoc(msgRef!, {
         thread: arrayUnion({
@@ -195,6 +196,16 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
         }
       });
 
+      // If this was the third message, send the final submission
+      if (isThirdMessage) {
+        const userMessages = [...thread.filter(m => m.role === 'user'), { role: "user", text: input.trim(), ts: Date.now() }];
+        const finalSubmission = userMessages.map(m => m.text).join('\n\n');
+        await updateDoc(msgRef!, {
+          finalSubmission: finalSubmission,
+          lastUpdated: serverTimestamp()
+        });
+      }
+
       setInput("");
     } catch (error) {
       console.error("Error submitting message:", error);
@@ -214,9 +225,20 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     return userMessages.map(m => m.text).join('\n\n');
   };
 
-  // Check if we're in final state (3 user messages and 3 assistant messages)
+  // Check if we're in final state (3 user messages and 2 assistant messages)
   const isFinalState = thread.filter(m => m.role === 'user').length >= 3 && 
-                      thread.filter(m => m.role === 'assistant').length >= 3;
+                      thread.filter(m => m.role === 'assistant').length >= 2;
+
+  // Get the display thread that includes followup3 in the UI but not in Firebase
+  const getDisplayThread = () => {
+    const userCount = thread.filter(m => m.role === 'user').length;
+    const assistantCount = thread.filter(m => m.role === 'assistant').length;
+    
+    if (userCount >= 3 && assistantCount === 2) {
+      return [...thread, simulatedResponses.followup3];
+    }
+    return thread;
+  };
 
   return (
     <div className={`fixed inset-0 z-40 flex items-start justify-center transition-transform duration-300 ease-in-out transform ${drawerState === 'open' ? 'translate-y-0' : 'translate-y-[100vh]'}`}>
@@ -242,7 +264,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
             <div className="text-gray-500">Loading conversation...</div>
           ) : (
             <>
-              {thread.map((msg, i) => (
+              {getDisplayThread().map((msg, i) => (
                 <div key={i} className="mb-2">
                   <strong>{msg.role}:</strong> {msg.text}
                 </div>
@@ -267,7 +289,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
                 onChange={(e) => setInput(e.target.value)}
                 disabled={submitting}
               />
-              <div className="flex justify-between mt-2">
+              <div className="flex justify-end mt-2">
                 <button
                   className="px-4 py-2 border rounded disabled:opacity-50"
                   onClick={handleSubmit}
@@ -275,19 +297,19 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
                 >
                   {submitting ? "Submitting..." : "Submit"}
                 </button>
-                {thread.filter(m => m.role === 'assistant').length >= 2 && (
-                  <button
-                    className="px-4 py-2 border rounded"
-                    onClick={handleEdit}
-                  >
-                    Edit Final
-                  </button>
-                )}
               </div>
             </>
           ) : (
             <div className="flex-1 w-full p-4 overflow-y-auto">
-              <h3 className="font-bold mb-2">Your Final Submission:</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-bold">Your Final Submission:</h3>
+                <button
+                  className="px-4 py-2 border rounded"
+                  onClick={handleEdit}
+                >
+                  Edit Final
+                </button>
+              </div>
               <div className="whitespace-pre-wrap">
                 {getFinalSubmission()}
               </div>
