@@ -42,6 +42,7 @@ import DonationFlowDrawer from './components/drawers/DonationFlowDrawer';
 import VoteDrawer from './components/drawers/VoteDrawer';
 
 import CommentDrawer from './components/drawers/CommentDrawer';
+import { usePreloadComments } from './components/drawers/CommentDrawer';
 
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
@@ -953,6 +954,9 @@ export default function Page() {
   }, [currentAnimationIndex]);
   /************************************/
 
+  // Add preloading hook
+  const preloadedData = usePreloadComments(currentAnimationIndex, votingConfig);
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Desktop View */}
@@ -1776,6 +1780,7 @@ export default function Page() {
         drawerState={commentDrawerState}
         handleCloseCommentDrawer={() => setCommentDrawerState('closed')}
         currentAnimationIndex={currentAnimationIndex}
+        preloadedData={preloadedData}
       />
     </div>
   );

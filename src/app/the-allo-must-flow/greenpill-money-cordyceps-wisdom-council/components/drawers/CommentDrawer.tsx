@@ -14,6 +14,72 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from '../../../../../firebaseClient';
 
+// Add new hook for preloading comments
+export const usePreloadComments = (currentAnimationIndex: number, votingConfig: any) => {
+  const [preloadedData, setPreloadedData] = useState<{
+    initialPrompt: string;
+    thread: any[];
+    latestSubmission?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!votingConfig?.votingButtonVisible) {
+      setPreloadedData(null);
+      return;
+    }
+
+    const indexRef = doc(
+      db,
+      "ideation",
+      "allo-flow-greenpill-money-council",
+      "indexes",
+      currentAnimationIndex.toString()
+    );
+
+    const msgRef = auth.currentUser
+      ? doc(
+          db,
+          "ideation",
+          "allo-flow-greenpill-money-council",
+          "indexes",
+          currentAnimationIndex.toString(),
+          "messages",
+          auth.currentUser.uid
+        )
+      : null;
+
+    // Subscribe to prompt changes
+    const unsubPrompt = onSnapshot(indexRef, (snap) => {
+      const data = snap.data() as any;
+      setPreloadedData(prev => ({
+        initialPrompt: data?.initialPrompt ?? "",
+        thread: prev?.thread ?? [],
+        latestSubmission: prev?.latestSubmission
+      }));
+    });
+
+    // Subscribe to thread changes if user is logged in
+    let unsubThread = () => {};
+    if (msgRef) {
+      unsubThread = onSnapshot(msgRef, (snap) => {
+        const data = snap.data() as any;
+        setPreloadedData(prev => ({
+          initialPrompt: prev?.initialPrompt ?? "",
+          thread: data?.thread ?? [],
+          latestSubmission: data?.latestSubmission
+        }));
+      });
+    }
+
+    return () => {
+      unsubPrompt();
+      unsubThread();
+    };
+  }, [currentAnimationIndex, votingConfig?.votingButtonVisible]);
+
+  return preloadedData;
+};
+
 // Helper function for adding submission versions
 const addSubmissionVersion = async (
   msgRef: DocumentReference,
@@ -31,12 +97,18 @@ interface CommentDrawerProps {
   drawerState: 'open' | 'closed';
   handleCloseCommentDrawer: () => void;
   currentAnimationIndex: number;
+  preloadedData: {
+    initialPrompt: string;
+    thread: any[];
+    latestSubmission?: string;
+  } | null;
 }
 
 const CommentDrawer: React.FC<CommentDrawerProps> = ({ 
   drawerState, 
   handleCloseCommentDrawer,
-  currentAnimationIndex 
+  currentAnimationIndex,
+  preloadedData
 }) => {
   const [initialPrompt, setInitialPrompt] = useState("");
   const [thread, setThread] = useState<any[]>([]);
@@ -49,15 +121,6 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   const upperScrollRef = useRef<HTMLDivElement>(null);
   const lowerScrollRef = useRef<HTMLDivElement>(null);
   const prevThreadLengthRef = useRef(0);
-
-  // Build index document reference using currentAnimationIndex
-  const indexRef = doc(
-    db,
-    "ideation",
-    "allo-flow-greenpill-money-council",
-    "indexes",
-    currentAnimationIndex.toString()
-  );
 
   // Build message document reference
   const msgRef = auth.currentUser
@@ -72,38 +135,24 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       )
     : null;
 
-  // Subscribe to prompt changes
+  // Use preloaded data when available
   useEffect(() => {
-    const unsub = onSnapshot(indexRef, (snap) => {
-      const data = snap.data() as any;
-      setInitialPrompt(data?.initialPrompt ?? "");
-    });
-    return () => unsub();
-  }, [indexRef]);
-
-  // Subscribe to thread changes
-  useEffect(() => {
-    if (!msgRef) {
+    if (preloadedData) {
+      setInitialPrompt(preloadedData.initialPrompt);
+      setThread(preloadedData.thread);
       setIsLoadingThread(false);
-      return;
-    }
 
-    setIsLoadingThread(true);
-    const unsub = onSnapshot(msgRef, (snap) => {
-      const data = snap.data() as any;
-      setThread(data?.thread ?? []);
-      // Set the edited submission to match the latest submission when it changes
-      if (data?.latestSubmission && !isEditing) {
-        setEditedSubmission(data.latestSubmission);
+      // Use latestSubmission if available, otherwise construct from user messages
+      if (preloadedData.latestSubmission && !isEditing) {
+        setEditedSubmission(preloadedData.latestSubmission);
+      } else if (!isEditing) {
+        const userMessages = preloadedData.thread.filter((m: any) => m.role === 'user');
+        if (userMessages.length > 0) {
+          setEditedSubmission(userMessages.map((m: any) => m.text).join('\n\n'));
+        }
       }
-      setIsLoadingThread(false);
-    }, (error) => {
-      console.error("Error loading thread:", error);
-      setIsLoadingThread(false);
-    });
-
-    return () => unsub();
-  }, [msgRef]);
+    }
+  }, [preloadedData, isEditing]);
 
   // Auto-scroll only when new content arrives in the upper pane
   useEffect(() => {
