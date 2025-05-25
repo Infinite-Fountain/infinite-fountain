@@ -741,6 +741,10 @@ export default function Page() {
         openDrawer('vote');
         break;
       case 'comment':
+        if (!address) {
+          alert('Log in to participate');
+          return;
+        }
         openDrawer('comment');
         break;
       // any unknown value → button stays visible but inert
