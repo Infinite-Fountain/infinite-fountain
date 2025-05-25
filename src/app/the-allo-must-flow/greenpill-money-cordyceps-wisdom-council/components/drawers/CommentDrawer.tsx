@@ -182,17 +182,18 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
     let next: { role: string; text: string; ts: number } | null = null;
     
-    // For first user message, use our assistant-first API
+    // For first user message, use our assistant-first-response API
     if (userCount === 1 && assistantCount === 0) {
       setIsThinking(true);
       const userMessage = thread.find(m => m.role === 'user');
       if (userMessage) {
-        fetch('/the-allo-must-flow/greenpill-money-cordyceps-wisdom-council/api/assistant-first', {
+        fetch('/the-allo-must-flow/greenpill-money-cordyceps-wisdom-council/api/assistant-first-response', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             prompt: userMessage.text,
-            initialPrompt: initialPrompt 
+            initialPrompt: initialPrompt,
+            idx: currentAnimationIndex
           })
         })
         .then(res => res.json())
