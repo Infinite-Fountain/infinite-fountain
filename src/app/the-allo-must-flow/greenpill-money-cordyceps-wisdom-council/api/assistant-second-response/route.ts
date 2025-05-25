@@ -32,10 +32,8 @@ export async function POST(req: Request) {
 
     // Get the response from OpenAI
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
-      messages: messages,
-      temperature: 0.7,
-      max_tokens: 500,
+      model: "o4-mini",
+      messages: messages
     });
 
     const reply = completion.choices[0].message.content;
