@@ -1,9 +1,18 @@
 'use client';
 import { useAccount } from 'wagmi';
 import WalletWrapper from './WalletWrapper';
+import { useWalletAuth } from '../hooks/useWalletAuth';
+import { useEffect } from 'react';
 
 export default function LoginButton() {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
+  const { setShouldAuthenticate } = useWalletAuth();
+
+  useEffect(() => {
+    if (isConnected && address) {
+      setShouldAuthenticate(true);
+    }
+  }, [isConnected, address, setShouldAuthenticate]);
 
   return (
     <WalletWrapper
