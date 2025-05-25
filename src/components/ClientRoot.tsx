@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useWalletAuth } from "../hooks/useWalletAuth";
 import { WagmiConfig } from "wagmi";
 import { useWagmiConfig } from "../wagmi";
+import { useEffect } from "react";
 
 const OnchainProviders = dynamic(
   () => import("./OnchainProviders"),
@@ -12,7 +13,16 @@ const OnchainProviders = dynamic(
 
 // Separate component to use the hook inside WagmiConfig
 function WalletAuthWrapper({ children }: { children: React.ReactNode }) {
-  useWalletAuth();  // Now this will have access to Wagmi context
+  const { setShouldAuthenticate } = useWalletAuth();  // Get the authentication control
+  
+  // Only attempt authentication when explicitly requested
+  useEffect(() => {
+    // You can add logic here to determine when to authenticate
+    // For example, you might want to authenticate when a user clicks a login button
+    // For now, we'll leave it disabled by default
+    // setShouldAuthenticate(true);
+  }, []);
+
   return <>{children}</>;
 }
 
