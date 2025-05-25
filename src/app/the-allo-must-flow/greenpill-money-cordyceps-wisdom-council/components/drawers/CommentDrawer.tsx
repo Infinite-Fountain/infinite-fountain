@@ -223,32 +223,49 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     
     // For subsequent messages, use simulated responses
     if (userCount >= 2 && assistantCount === 1) {
-      next = simulatedResponses.followup2;
-    }
-
-    if (next) {
       setIsThinking(true);
-      setTimeout(async () => {
-        try {
-          await updateDoc(msgRef!, { 
-            thread: arrayUnion(next!),
+      fetch('/the-allo-must-flow/greenpill-money-cordyceps-wisdom-council/api/assistant-second-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          thread: thread,
+          initialPrompt: initialPrompt,
+          idx: currentAnimationIndex
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          console.error('Assistant API error:', data.error);
+          return;
+        }
+        return updateDoc(msgRef!, {
+          thread: arrayUnion({
+            role: "assistant",
+            text: data.reply,
+            ts: Date.now()
+          }),
+          lastUpdated: serverTimestamp()
+        });
+      })
+      .then(() => {
+        // Check if this was the third user message and handle final submission
+        if (userCount >= 3 && assistantCount === 1) {
+          const userMessages = thread.filter(m => m.role === 'user');
+          const finalSubmission = userMessages.map(m => m.text).join('\n\n');
+          return updateDoc(msgRef!, {
+            finalSubmission: finalSubmission,
             lastUpdated: serverTimestamp()
           });
-
-          if (userCount >= 3 && assistantCount === 1) {
-            const userMessages = thread.filter(m => m.role === 'user');
-            const finalSubmission = userMessages.map(m => m.text).join('\n\n');
-            await updateDoc(msgRef!, {
-              finalSubmission: finalSubmission,
-              lastUpdated: serverTimestamp()
-            });
-          }
-        } catch (error) {
-          console.error("Error adding followup:", error);
-        } finally {
-          setIsThinking(false);
         }
-      }, 2000);
+      })
+      .catch(error => {
+        console.error("Error calling assistant API:", error);
+      })
+      .finally(() => {
+        setIsThinking(false);
+      });
+      return;
     }
   }, [thread, msgRef, isThinking]);
 
