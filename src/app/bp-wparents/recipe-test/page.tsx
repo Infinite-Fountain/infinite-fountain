@@ -7,6 +7,8 @@ import Image from 'next/image';
 import abi from './abi.json'; // Import ABI from the JSON file
 import '../.././global.css';
 import CommentDrawer from './components/drawers/CommentDrawer';
+import { auth } from '../../../firebaseClient';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 import BottomMenu from './animations/bottom-menu.json'; // NEW: Import bottom-menu animation
 
@@ -283,8 +285,14 @@ export default function Page() {
   window.addEventListener('resize', adjustGreenContainerPosition);
 
   // Handler for Google login button
-  function handleGoogleLogin() {
-    alert('testing');
+  async function handleGoogleLogin() {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      // Optionally, you can handle user info or redirect here
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+    }
   }
 
   return (
