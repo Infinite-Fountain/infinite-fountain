@@ -3,9 +3,10 @@ import Lottie from 'lottie-react';
 
 // Define the props interface
 interface PrimarySecondaryDrawerProps {
-  drawerState: 'closed' | 'primary-open' | 'secondary-open';
+  drawerState: 'closed' | 'primary-open' | 'secondary-open' | 'comment-open';
   handleClosePrimaryDrawer: () => void;
   handleCloseSecondaryDrawer: () => void;
+  handleCloseCommentDrawer: () => void;
   primaryAnimationData: any;
   secondaryAnimationData: any;
   loading: boolean;
@@ -20,6 +21,7 @@ const PrimarySecondaryDrawer: React.FC<PrimarySecondaryDrawerProps> = ({
   drawerState,
   handleClosePrimaryDrawer,
   handleCloseSecondaryDrawer,
+  handleCloseCommentDrawer,
   primaryAnimationData,
   secondaryAnimationData,
   loading,

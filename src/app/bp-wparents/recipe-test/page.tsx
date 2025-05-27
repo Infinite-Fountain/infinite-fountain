@@ -8,7 +8,7 @@ import LoginButton from '../../../components/LoginButton';
 import SignupButton from '../../../components/SignupButton';
 import abi from './abi.json'; // Import ABI from the JSON file
 import '../.././global.css';
-
+import CommentDrawer from './components/drawers/CommentDrawer';
 
 import BottomMenu from './animations/bottom-menu.json'; // NEW: Import bottom-menu animation
 
@@ -122,7 +122,7 @@ const CONTRACT_ADDRESS = '0xfe3Fc6cb04bA5958b0577a0c6528269964e7C8bF'; // Your c
 const activeStepCount = 7;  // ← step 0 included, adjust per recipe
 
 // Define which steps will have the comment drawer feature
-const commentDrawerSteps = [7, 9];  // ← steps that will have comment drawer functionality
+const commentDrawerSteps = [6, 9];  // ← steps that will have comment drawer functionality
 
 // Derive visible steps based on activeStepCount
 const visibleSteps = steps.slice(0, activeStepCount);
@@ -150,7 +150,14 @@ export default function Page() {
   const [currentStep, setCurrentStep] = useState<number>(0); // Default to step0
 
   // State to manage drawer states
-  const [drawerState, setDrawerState] = useState<'closed' | 'primary' | 'secondary'>('closed');
+  const [drawerState, setDrawerState] = useState<'closed' | 'primary' | 'secondary' | 'comment'>('closed');
+
+  // State for comment drawer data
+  const [commentDrawerData, setCommentDrawerData] = useState<{
+    initialPrompt: string;
+    thread: any[];
+    latestSubmission?: string;
+  } | null>(null);
 
   // Placeholders for lazy-loaded data
   const [videoData, setVideoData] = useState<any>(null);
@@ -338,7 +345,7 @@ export default function Page() {
           <button
             onClick={() => { setDrawerState('closed'); setCurrentStep(4); }}
             className="recipe-steps-button"
-            style={{ left: '11%', bottom: '18.5%' }}
+            style={{ left: '71%', bottom: '18.5%' }}
             aria-label="Go to Step 4"
           />
         )}
@@ -354,7 +361,7 @@ export default function Page() {
           <button
             onClick={() => { setDrawerState('closed'); setCurrentStep(6); }}
             className="recipe-steps-button"
-            style={{ left: '71%', bottom: '18.5%' }}
+            style={{ left: '11%', bottom: '18.5%' }}
             aria-label="Go to Step 6"
           />
         )}
@@ -397,6 +404,22 @@ export default function Page() {
               zIndex: 30, // Ensure button is above overlay
             }}
             aria-label="Open Primary Drawer"
+          />
+        )}
+        {/* Comment drawer button for mobile */}
+        {commentDrawerSteps.includes(currentStep) && (
+          <button
+            onClick={() => setDrawerState('comment')}
+            style={{
+              backgroundColor: 'transparent',
+              width: '25%',
+              height: '12%',
+              position: 'absolute',
+              left: '73%',
+              bottom: '85%',
+              zIndex: 30, // Ensure button is above overlay
+            }}
+            aria-label="Open Comment Drawer"
           />
         )}
       </div>
@@ -452,7 +475,7 @@ export default function Page() {
           <button
             onClick={() => { setDrawerState('closed'); setCurrentStep(4); }}
             className="recipe-steps-button"
-            style={{ left: '11%', bottom: '18.5%' }}
+            style={{ left: '71%', bottom: '18.5%' }}
             aria-label="Go to Step 4"
           />
         )}
@@ -468,7 +491,7 @@ export default function Page() {
           <button
             onClick={() => { setDrawerState('closed'); setCurrentStep(6); }}
             className="recipe-steps-button"
-            style={{ left: '71%', bottom: '18.5%' }}
+            style={{ left: '11%', bottom: '18.5%' }}
             aria-label="Go to Step 6"
           />
         )}
@@ -513,16 +536,34 @@ export default function Page() {
             aria-label="Open Primary Drawer"
           />
         )}
+        {/* Comment drawer button for desktop */}
+        {commentDrawerSteps.includes(currentStep) && (
+          <button
+            onClick={() => setDrawerState('comment')}
+            style={{
+              backgroundColor: 'transparent',
+              width: '25%',
+              height: '12%',
+              position: 'absolute',
+              left: '73%',
+              bottom: '85%',
+              zIndex: 30, // Ensure button is above overlay
+            }}
+            aria-label="Open Comment Drawer"
+          />
+        )}
       </div>
 
       {/* B-3 · Pass data into the drawer component */}
       <PrimarySecondaryDrawer
         drawerState={
           drawerState === 'primary' ? 'primary-open' :
-          drawerState === 'secondary' ? 'secondary-open' : 'closed'
+          drawerState === 'secondary' ? 'secondary-open' :
+          drawerState === 'comment' ? 'comment-open' : 'closed'
         }
         handleClosePrimaryDrawer={() => setDrawerState('closed')}
         handleCloseSecondaryDrawer={() => setDrawerState('closed')}
+        handleCloseCommentDrawer={() => setDrawerState('closed')}
         primaryAnimationData={primaryDrawerData}
         secondaryAnimationData={secondaryDrawerData}
         loading={false}
@@ -531,6 +572,14 @@ export default function Page() {
         top10={[]}
         top10UserInfos={[]}
         calculateCompletionPercentage={() => '0%'}
+      />
+
+      {/* Comment Drawer */}
+      <CommentDrawer
+        drawerState={drawerState === 'comment' ? 'open' : 'closed'}
+        handleCloseCommentDrawer={() => setDrawerState('closed')}
+        currentAnimationIndex={currentStep}
+        preloadedData={commentDrawerData}
       />
     </div>
   );

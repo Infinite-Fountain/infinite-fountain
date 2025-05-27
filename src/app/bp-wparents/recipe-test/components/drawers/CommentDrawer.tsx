@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Lottie from 'lottie-react';
-import CommentAnimation from '../../../../animations/comment-drawer.json';
+import CommentAnimation from '../../animations/background.json';
 import {
   doc,
   onSnapshot,
@@ -409,7 +409,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
         </div>
 
         {/* Lower pane */}
-        <div className="absolute top-[48%] left-[10%] w-[80%] h-[40%] bg-white/90 text-black p-4 rounded flex flex-col">
+        <div className="absolute top-[48%] left-[10%] w-[80%] h-[40%] bg-white/90 text-black p-4 rounded flex flex-col z-10">
           {!isFinalState ? (
             <>
               <textarea
