@@ -4,8 +4,6 @@ import { useAccount } from 'wagmi';
 import { ethers } from 'ethers'; // Import ethers
 import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 import Image from 'next/image';
-import LoginButton from '../../../components/LoginButton';
-import SignupButton from '../../../components/SignupButton';
 import abi from './abi.json'; // Import ABI from the JSON file
 import '../.././global.css';
 import CommentDrawer from './components/drawers/CommentDrawer';
@@ -284,13 +282,32 @@ export default function Page() {
   // Adjust the position on window resize
   window.addEventListener('resize', adjustGreenContainerPosition);
 
+  // Handler for Google login button
+  function handleGoogleLogin() {
+    alert('testing');
+  }
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Mobile Green Container (Login/User Wallet) - in normal flow to push yellow down */}
       <div className="green-container md:hidden">
         <div className="flex justify-end items-center" style={{ padding: '5px' }}>
-          <SignupButton />
-          {!address && <LoginButton />}
+          <button
+            onClick={handleGoogleLogin}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: '#fff',
+              border: 'none',
+              borderRadius: '24px',
+              boxShadow: '0 1px 2px rgba(60,64,67,.3)',
+              padding: '0 16px',
+              height: '48px',
+              cursor: 'pointer',
+            }}
+          >
+            <Image src="/signin-google.png" alt="Sign in with Google" width={160} height={48} />
+          </button>
         </div>
       </div>
 
@@ -552,6 +569,26 @@ export default function Page() {
             aria-label="Open Comment Drawer"
           />
         )}
+      </div>
+
+      {/* Desktop Red Container (Login/User Wallet) - in normal flow to push yellow down */}
+      <div className="red-container hidden md:flex justify-end items-center" style={{ padding: '5px' }}>
+        <button
+          onClick={handleGoogleLogin}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            background: '#fff',
+            border: 'none',
+            borderRadius: '24px',
+            boxShadow: '0 1px 2px rgba(60,64,67,.3)',
+            padding: '0 16px',
+            height: '48px',
+            cursor: 'pointer',
+          }}
+        >
+          <Image src="/signin-google.png" alt="Sign in with Google" width={160} height={48} />
+        </button>
       </div>
 
       {/* B-3 · Pass data into the drawer component */}
