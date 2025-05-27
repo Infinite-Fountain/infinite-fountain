@@ -119,7 +119,10 @@ const ALCHEMY_API_URL = process.env.NEXT_PUBLIC_ALCHEMY_API_URL;
 const CONTRACT_ADDRESS = '0xfe3Fc6cb04bA5958b0577a0c6528269964e7C8bF'; // Your contract address
 
 // Define how many steps to expose in this recipe
-const activeStepCount = 4;  // ← step 0 included, adjust per recipe
+const activeStepCount = 7;  // ← step 0 included, adjust per recipe
+
+// Define which steps will have the comment drawer feature
+const commentDrawerSteps = [7, 9];  // ← steps that will have comment drawer functionality
 
 // Derive visible steps based on activeStepCount
 const visibleSteps = steps.slice(0, activeStepCount);
