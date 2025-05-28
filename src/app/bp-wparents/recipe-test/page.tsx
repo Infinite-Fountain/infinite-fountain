@@ -220,6 +220,38 @@ export default function Page() {
     return () => { canceled = true; };
   }, [drawerState, currentStep, visibleSteps]);
 
+  // Add effect to preload comment drawer data
+  useEffect(() => {
+    if (commentDrawerSteps.includes(currentStep)) {
+      // Preload the assistant-first-response data
+      fetch('/bp-wparents/recipe-test/api/assistant-first-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idx: currentStep })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          console.error('Assistant API error:', data.error);
+          return;
+        }
+        // Check if we have reply in the response
+        if (data.reply) {
+          setCommentDrawerData({
+            initialPrompt: data.reply,
+            thread: [],
+            latestSubmission: undefined
+          });
+        }
+      })
+      .catch(error => {
+        console.error("Error preloading assistant data:", error);
+      });
+    } else {
+      setCommentDrawerData(null);
+    }
+  }, [currentStep]);
+
   // Render background Lottie at z-index 0
   const renderBackground = () => (
     <Lottie

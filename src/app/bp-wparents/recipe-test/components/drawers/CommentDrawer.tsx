@@ -15,7 +15,7 @@ import {
 import { db, auth } from '../../../../../firebaseClient';
 
 // Add new hook for preloading comments
-export const usePreloadComments = (currentAnimationIndex: number, votingConfig: any) => {
+export const usePreloadComments = (currentAnimationIndex: number) => {
   const [preloadedData, setPreloadedData] = useState<{
     initialPrompt: string;
     thread: any[];
@@ -23,15 +23,10 @@ export const usePreloadComments = (currentAnimationIndex: number, votingConfig: 
   } | null>(null);
 
   useEffect(() => {
-    if (!votingConfig?.votingButtonVisible) {
-      setPreloadedData(null);
-      return;
-    }
-
     const indexRef = doc(
       db,
       "ideation",
-      "allo-flow-greenpill-money-council",
+      "koz-recipe-assistant",
       "indexes",
       currentAnimationIndex.toString()
     );
@@ -40,7 +35,7 @@ export const usePreloadComments = (currentAnimationIndex: number, votingConfig: 
       ? doc(
           db,
           "ideation",
-          "allo-flow-greenpill-money-council",
+          "koz-recipe-assistant",
           "indexes",
           currentAnimationIndex.toString(),
           "messages",
@@ -75,7 +70,7 @@ export const usePreloadComments = (currentAnimationIndex: number, votingConfig: 
       unsubPrompt();
       unsubThread();
     };
-  }, [currentAnimationIndex, votingConfig?.votingButtonVisible]);
+  }, [currentAnimationIndex]);
 
   return preloadedData;
 };
@@ -127,7 +122,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     ? doc(
         db,
         "ideation",
-        "allo-flow-greenpill-money-council",
+        "koz-recipe-assistant",
         "indexes",
         currentAnimationIndex.toString(),
         "messages",
@@ -187,7 +182,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       setIsThinking(true);
       const userMessage = thread.find(m => m.role === 'user');
       if (userMessage) {
-        fetch('/the-allo-must-flow/greenpill-money-cordyceps-wisdom-council/api/assistant-first-response', {
+        fetch('/bp-wparents/recipe-test/api/assistant-first-response', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -221,10 +216,10 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       return;
     }
     
-    // For subsequent messages, use simulated responses
+    // For subsequent messages
     if (userCount >= 2 && assistantCount === 1) {
       setIsThinking(true);
-      fetch('/the-allo-must-flow/greenpill-money-cordyceps-wisdom-council/api/assistant-second-response', {
+      fetch('/bp-wparents/recipe-test/api/assistant-second-response', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -267,7 +262,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       });
       return;
     }
-  }, [thread, msgRef, isThinking]);
+  }, [thread, msgRef, isThinking, currentAnimationIndex]);
 
   // Simulating chatgpt for now (remove this later or replace with actual chatgpt)
   const simulatedResponses = {
