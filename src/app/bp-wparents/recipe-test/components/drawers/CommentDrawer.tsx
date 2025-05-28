@@ -133,6 +133,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   // Use preloaded data when available
   useEffect(() => {
     if (preloadedData) {
+      console.log('Setting initialPrompt from preloadedData:', preloadedData.initialPrompt);
       setInitialPrompt(preloadedData.initialPrompt);
       setThread(preloadedData.thread);
       setIsLoadingThread(false);
@@ -167,7 +168,10 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
   // Auto-trigger followups based on thread state
   useEffect(() => {
-    if (!msgRef) return;
+    if (!msgRef || !initialPrompt) {
+      console.log('Waiting for initialPrompt to load...');
+      return;
+    }
     
     const userCount = thread.filter(m => m.role === 'user').length;
     const assistantCount = thread.filter(m => m.role === 'assistant').length;
@@ -182,6 +186,11 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       setIsThinking(true);
       const userMessage = thread.find(m => m.role === 'user');
       if (userMessage) {
+        console.log('Sending user message to API:', {
+          prompt: userMessage.text,
+          initialPrompt,
+          idx: currentAnimationIndex
+        });
         fetch('/bp-wparents/recipe-test/api/assistant-first-response', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -191,12 +200,18 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
             idx: currentAnimationIndex
           })
         })
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
         .then(data => {
           if (data.error) {
             console.error('Assistant API error:', data.error);
             return;
           }
+          console.log('Received API response:', data);
           return updateDoc(msgRef!, {
             thread: arrayUnion({
               role: "assistant",
@@ -292,20 +307,55 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       const userCount = thread.filter(m => m.role === 'user').length;
       const isThirdMessage = userCount === 2; // 0-based index, so 2 means third message
 
-      // Append user message
+      // First, send the message to our API
+      console.log('Sending message to API:', {
+        prompt: input.trim(),
+        initialPrompt,
+        idx: currentAnimationIndex
+      });
+
+      const response = await fetch('/bp-wparents/recipe-test/api/assistant-first-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          prompt: input.trim(),
+          initialPrompt,
+          idx: currentAnimationIndex
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.error) {
+        console.error('Assistant API error:', data.error);
+        return;
+      }
+
+      // Add both user message and assistant response to Firebase
       await updateDoc(msgRef!, {
-        thread: arrayUnion({
-          role: "user",
-          text: input.trim(),
-          ts: Date.now(),
-        }),
+        thread: arrayUnion(
+          {
+            role: "user",
+            text: input.trim(),
+            ts: Date.now(),
+          },
+          {
+            role: "assistant",
+            text: data.reply,
+            ts: Date.now(),
+          }
+        ),
         lastUpdated: serverTimestamp()
       }).catch(async (err) => {
-        // If doc didn't exist yet, create it with the first thread entry
+        // If doc didn't exist yet, create it with both messages
         if (err.code === "not-found") {
           await setDoc(msgRef!, {
             thread: [
-              { role: "user", text: input.trim(), ts: Date.now() }
+              { role: "user", text: input.trim(), ts: Date.now() },
+              { role: "assistant", text: data.reply, ts: Date.now() }
             ],
             lastUpdated: serverTimestamp()
           });
