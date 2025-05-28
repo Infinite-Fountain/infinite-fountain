@@ -295,27 +295,45 @@ export default function Page() {
     }
   }
 
+  // Helper to get user email prefix
+  const userEmailPrefix = auth.currentUser?.email ? auth.currentUser.email.split('@')[0] : null;
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Mobile Green Container (Login/User Wallet) - in normal flow to push yellow down */}
       <div className="green-container md:hidden">
         <div className="flex justify-end items-center" style={{ padding: '5px' }}>
-          <button
-            onClick={handleGoogleLogin}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
+          {userEmailPrefix ? (
+            <span style={{
+              color: '#111',
+              fontWeight: 500,
+              fontSize: 18,
               background: '#fff',
-              border: 'none',
               borderRadius: '24px',
-              boxShadow: '0 1px 2px rgba(60,64,67,.3)',
-              padding: '0 16px',
-              height: '48px',
-              cursor: 'pointer',
-            }}
-          >
-            <Image src="/signin-google.png" alt="Sign in with Google" width={160} height={48} />
-          </button>
+              padding: '8px 20px',
+              boxShadow: '0 1px 2px rgba(60,64,67,.15)',
+              display: 'inline-block',
+              minWidth: '80px',
+              textAlign: 'center',
+            }}>{userEmailPrefix}</span>
+          ) : (
+            <button
+              onClick={handleGoogleLogin}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                background: '#fff',
+                border: 'none',
+                borderRadius: '24px',
+                boxShadow: '0 1px 2px rgba(60,64,67,.3)',
+                padding: '0 16px',
+                height: '48px',
+                cursor: 'pointer',
+              }}
+            >
+              <Image src="/signin-google.png" alt="Sign in with Google" width={160} height={48} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -434,7 +452,13 @@ export default function Page() {
         {/* Comment drawer button for mobile */}
         {commentDrawerSteps.includes(currentStep) && (
           <button
-            onClick={() => setDrawerState('comment')}
+            onClick={() => {
+              if (!auth.currentUser) {
+                alert('please login first');
+                return;
+              }
+              setDrawerState('comment');
+            }}
             style={{
               backgroundColor: 'transparent',
               width: '25%',
@@ -564,7 +588,13 @@ export default function Page() {
         {/* Comment drawer button for desktop */}
         {commentDrawerSteps.includes(currentStep) && (
           <button
-            onClick={() => setDrawerState('comment')}
+            onClick={() => {
+              if (!auth.currentUser) {
+                alert('please login first');
+                return;
+              }
+              setDrawerState('comment');
+            }}
             style={{
               backgroundColor: 'transparent',
               width: '25%',
@@ -581,22 +611,37 @@ export default function Page() {
 
       {/* Desktop Red Container (Login/User Wallet) - in normal flow to push yellow down */}
       <div className="red-container hidden md:flex justify-end items-center" style={{ padding: '5px' }}>
-        <button
-          onClick={handleGoogleLogin}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
+        {userEmailPrefix ? (
+          <span style={{
+            color: '#111',
+            fontWeight: 500,
+            fontSize: 18,
             background: '#fff',
-            border: 'none',
             borderRadius: '24px',
-            boxShadow: '0 1px 2px rgba(60,64,67,.3)',
-            padding: '0 16px',
-            height: '48px',
-            cursor: 'pointer',
-          }}
-        >
-          <Image src="/signin-google.png" alt="Sign in with Google" width={160} height={48} />
-        </button>
+            padding: '8px 20px',
+            boxShadow: '0 1px 2px rgba(60,64,67,.15)',
+            display: 'inline-block',
+            minWidth: '80px',
+            textAlign: 'center',
+          }}>{userEmailPrefix}</span>
+        ) : (
+          <button
+            onClick={handleGoogleLogin}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: '#fff',
+              border: 'none',
+              borderRadius: '24px',
+              boxShadow: '0 1px 2px rgba(60,64,67,.3)',
+              padding: '0 16px',
+              height: '48px',
+              cursor: 'pointer',
+            }}
+          >
+            <Image src="/signin-google.png" alt="Sign in with Google" width={160} height={48} />
+          </button>
+        )}
       </div>
 
       {/* B-3 · Pass data into the drawer component */}
