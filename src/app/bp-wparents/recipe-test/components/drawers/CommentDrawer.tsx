@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Lottie from 'lottie-react';
 import CommentAnimation from '../../animations/background.json';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   doc,
   onSnapshot,
@@ -471,7 +473,47 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
                 {thread.map((msg, i) => (
                   <div key={i} className={`p-3 rounded ${msg.role === 'assistant' ? 'bg-blue-50' : 'bg-gray-50'}`}>
                     <strong className="block mb-1">{msg.role === 'assistant' ? 'Assistant' : 'You'}:</strong>
-                    <div className="whitespace-pre-wrap">{msg.text}</div>
+                    <div className="prose prose-sm max-w-none">
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          table: props => (
+                            <div className="overflow-x-auto">
+                              <table className="min-w-full border-collapse border border-gray-300" {...props} />
+                            </div>
+                          ),
+                          th: props => (
+                            <th className="border border-gray-300 bg-gray-100 px-4 py-2 text-left" {...props} />
+                          ),
+                          td: props => (
+                            <td className="border border-gray-300 px-4 py-2" {...props} />
+                          ),
+                          tr: props => (
+                            <tr className="hover:bg-gray-50" {...props} />
+                          ),
+                          p: props => (
+                            <p className="mb-4" {...props} />
+                          ),
+                          ul: props => (
+                            <ul className="list-disc pl-5 mb-4" {...props} />
+                          ),
+                          ol: props => (
+                            <ol className="list-decimal pl-5 mb-4" {...props} />
+                          ),
+                          li: props => (
+                            <li className="mb-1" {...props} />
+                          ),
+                          code: props => (
+                            <code className="bg-gray-100 px-1 py-0.5 rounded" {...props} />
+                          ),
+                          pre: props => (
+                            <pre className="bg-gray-100 p-2 rounded mb-4 overflow-x-auto" {...props} />
+                          ),
+                        }}
+                      >
+                        {msg.text}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 ))}
               </div>
