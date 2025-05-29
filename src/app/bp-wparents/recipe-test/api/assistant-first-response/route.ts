@@ -84,7 +84,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ 
         reply: response,
         timestamp: Date.now(),
-        step: index
+        step: index,
+        status: 'success'
       });
     }
     
@@ -94,7 +95,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ 
         reply: initialPrompt,
         timestamp: Date.now(),
-        step: index
+        step: index,
+        status: 'success'
       });
     }
     
@@ -122,7 +124,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ 
       reply: content,
       timestamp: Date.now(),
-      step: index
+      step: index,
+      status: 'success'
     });
   } catch (error) {
     console.error("Error in assistant-first-response:", error);

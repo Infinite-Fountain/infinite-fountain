@@ -131,6 +131,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   const [isLoadingThread, setIsLoadingThread] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedSubmission, setEditedSubmission] = useState("");
+  const [lastUserMessage, setLastUserMessage] = useState<string | null>(null);
   const upperScrollRef = useRef<HTMLDivElement>(null);
   const lowerScrollRef = useRef<HTMLDivElement>(null);
 
@@ -162,13 +163,15 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       console.log('Received thread update from Firebase:', data);
       
       if (data?.thread) {
-        // Sort thread by timestamp (oldest first)
-        const sortedThread = [...data.thread].sort((a, b) => a.ts - b.ts);
-        console.log('Setting sorted thread (oldest first):', sortedThread);
-        setThread(sortedThread);
-      } else {
-        console.log('No thread data found, setting empty thread');
-        setThread([]);
+        // Get the latest message (should be the assistant's response)
+        const latestMessage = data.thread[data.thread.length - 1];
+        console.log('Latest message from Firebase:', latestMessage);
+        
+        // Only add the message if it's not already in our thread
+        if (latestMessage && (!thread.length || thread[thread.length - 1].ts !== latestMessage.ts)) {
+          console.log('Adding new message to thread:', latestMessage);
+          setThread(prev => [...prev, latestMessage]);
+        }
       }
       
       setIsLoadingThread(false);
@@ -194,7 +197,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       unsubThread();
       unsubPrompt();
     };
-  }, [currentAnimationIndex, msgRef]);
+  }, [currentAnimationIndex, msgRef, thread]);
 
   // Auto-scroll only when new messages are added
   useEffect(() => {
@@ -309,6 +312,16 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   const handleSubmit = async () => {
     if (!auth.currentUser || !input.trim()) return;
     setSubmitting(true);
+    setIsThinking(true);
+    
+    // Add user message to thread immediately
+    const userMessage = {
+      role: "user",
+      text: input.trim(),
+      ts: Date.now(),
+    };
+    setThread(prev => [...prev, userMessage]);
+    setLastUserMessage(input.trim());
 
     try {
       // Check if this is the third user message
@@ -346,11 +359,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
       // Add both user message and assistant response to Firebase
       const newMessages = [
-        {
-          role: "user",
-          text: input.trim(),
-          ts: Date.now(),
-        },
+        userMessage,
         {
           role: "assistant",
           text: data.reply,
@@ -383,7 +392,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
       // If this was the third message, send the final submission
       if (isThirdMessage) {
-        const userMessages = [...thread.filter(m => m.role === 'user'), { role: "user", text: input.trim(), ts: Date.now() }];
+        const userMessages = [...thread.filter(m => m.role === 'user'), userMessage];
         const finalSubmission = userMessages.map(m => m.text).join('\n\n');
         await addSubmissionVersion(msgRef!, finalSubmission);
       }
@@ -393,6 +402,8 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       console.error("Error submitting message:", error);
     } finally {
       setSubmitting(false);
+      setIsThinking(false);
+      setLastUserMessage(null);
     }
   };
 
@@ -448,28 +459,39 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
           {isLoadingThread ? (
             <div className="text-gray-500">Loading conversation...</div>
           ) : (
-            <>
-              {initialPrompt && (
-                <div className="mb-4">
-                  <strong>Initial Prompt:</strong> {initialPrompt}
-                </div>
-              )}
-              {thread && thread.length > 0 ? (
-                thread.map((msg, i) => (
-                  <div key={i} className={`mb-4 ${msg.role === 'assistant' ? 'bg-blue-50' : 'bg-gray-50'} p-3 rounded`}>
+            <div className="flex flex-col gap-4">
+              {/* Initial Prompt - Always shown */}
+              <div className="mb-4 p-3 rounded bg-gray-100">
+                <strong className="block mb-1">Initial Prompt:</strong>
+                <div className="whitespace-pre-wrap">{initialPrompt}</div>
+              </div>
+
+              {/* Thread Messages */}
+              <div className="flex flex-col gap-4">
+                {thread.map((msg, i) => (
+                  <div key={i} className={`p-3 rounded ${msg.role === 'assistant' ? 'bg-blue-50' : 'bg-gray-50'}`}>
                     <strong className="block mb-1">{msg.role === 'assistant' ? 'Assistant' : 'You'}:</strong>
                     <div className="whitespace-pre-wrap">{msg.text}</div>
                   </div>
-                ))
-              ) : (
-                <div className="text-gray-500">No messages yet. Start the conversation!</div>
-              )}
-              {isThinking && (
-                <div className="mb-4 text-gray-500 animate-pulse">
-                  Assistant is thinking...
+                ))}
+              </div>
+
+              {/* Current User Message */}
+              {lastUserMessage && (
+                <div className="p-3 rounded bg-gray-50">
+                  <strong className="block mb-1">You:</strong>
+                  <div className="whitespace-pre-wrap">{lastUserMessage}</div>
                 </div>
               )}
-            </>
+
+              {/* Thinking State */}
+              {isThinking && (
+                <div className="p-3 rounded bg-blue-50 animate-pulse">
+                  <strong className="block mb-1">Assistant:</strong>
+                  <div className="text-gray-500">Preparing answer...</div>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
