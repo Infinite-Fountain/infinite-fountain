@@ -119,6 +119,15 @@ interface CommentDrawerProps {
   } | null;
 }
 
+// Add thinking messages mapping
+const THINKING_MESSAGES: Record<number, string[]> = {
+  6: [
+    "Analyzing your preferences...",
+    "Searching the database...",
+    "Preparing your personalized recommendations..."
+  ]
+};
+
 const CommentDrawer: React.FC<CommentDrawerProps> = ({ 
   drawerState, 
   handleCloseCommentDrawer,
@@ -136,6 +145,8 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   const [lastUserMessage, setLastUserMessage] = useState<string | null>(null);
   const upperScrollRef = useRef<HTMLDivElement>(null);
   const lowerScrollRef = useRef<HTMLDivElement>(null);
+  const [thinkingMessageIndex, setThinkingMessageIndex] = useState(0);
+  const thinkingTimerRef = useRef<NodeJS.Timeout>();
 
   // Track previous thread length for auto-scroll
   const prevThreadLengthRef = useRef(0);
@@ -292,24 +303,32 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     }
   }, [thread, msgRef, isThinking, currentAnimationIndex, initialPrompt]);
 
-  // Simulating chatgpt for now (remove this later or replace with actual chatgpt)
-  const simulatedResponses = {
-    followup1: {
-      role: "assistant",
-      text: "This is a simulated ChatGPT response 1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.",
-      ts: Date.now()
-    },
-    followup2: {
-      role: "assistant",
-      text: "This is a simulated ChatGPT response 2. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.",
-      ts: Date.now()
-    },
-    followup3: {
-      role: "assistant",
-      text: "Bellow is your final response and it is already saved. You can edit it by clicking the 'Edit' button.",
-      ts: Date.now()
+  // Add effect to cycle through thinking messages
+  useEffect(() => {
+    if (isThinking) {
+      const messages = THINKING_MESSAGES[currentAnimationIndex] || ["Thinking...", "Processing...", "Preparing answer..."];
+      
+      // Clear any existing timer
+      if (thinkingTimerRef.current) {
+        clearInterval(thinkingTimerRef.current);
+      }
+
+      // Reset message index
+      setThinkingMessageIndex(0);
+
+      // Set up new timer to cycle messages every 3 seconds
+      thinkingTimerRef.current = setInterval(() => {
+        setThinkingMessageIndex(prev => (prev + 1) % messages.length);
+      }, 3000);
+
+      // Cleanup on unmount or when thinking stops
+      return () => {
+        if (thinkingTimerRef.current) {
+          clearInterval(thinkingTimerRef.current);
+        }
+      };
     }
-  };
+  }, [isThinking, currentAnimationIndex]);
 
   const handleSubmit = async () => {
     if (!auth.currentUser || !input.trim()) return;
@@ -539,7 +558,9 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
               {isThinking && (
                 <div className="p-3 rounded bg-blue-50 animate-pulse">
                   <strong className="block mb-1">Assistant:</strong>
-                  <div className="text-gray-500">Preparing answer...</div>
+                  <div className="text-gray-500">
+                    {THINKING_MESSAGES[currentAnimationIndex]?.[thinkingMessageIndex] || "Preparing answer..."}
+                  </div>
                 </div>
               )}
             </div>
