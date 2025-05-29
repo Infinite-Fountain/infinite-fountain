@@ -23,6 +23,8 @@ export const usePreloadComments = (currentAnimationIndex: number) => {
   } | null>(null);
 
   useEffect(() => {
+    console.log('Setting up Firebase subscriptions for index:', currentAnimationIndex);
+    
     const indexRef = doc(
       db,
       "ideation",
@@ -46,6 +48,7 @@ export const usePreloadComments = (currentAnimationIndex: number) => {
     // Subscribe to prompt changes
     const unsubPrompt = onSnapshot(indexRef, (snap) => {
       const data = snap.data() as any;
+      console.log('Received prompt data:', data);
       setPreloadedData(prev => ({
         initialPrompt: data?.initialPrompt ?? "",
         thread: prev?.thread ?? [],
@@ -56,17 +59,32 @@ export const usePreloadComments = (currentAnimationIndex: number) => {
     // Subscribe to thread changes if user is logged in
     let unsubThread = () => {};
     if (msgRef) {
+      console.log('Setting up thread subscription for user:', auth.currentUser?.uid);
       unsubThread = onSnapshot(msgRef, (snap) => {
         const data = snap.data() as any;
-        setPreloadedData(prev => ({
-          initialPrompt: prev?.initialPrompt ?? "",
-          thread: data?.thread ?? [],
-          latestSubmission: data?.latestSubmission
-        }));
+        console.log('Received thread data:', data);
+        if (data?.thread) {
+          // Sort thread by timestamp to ensure correct order
+          const sortedThread = [...data.thread].sort((a, b) => a.ts - b.ts);
+          console.log('Sorted thread:', sortedThread);
+          setPreloadedData(prev => ({
+            initialPrompt: prev?.initialPrompt ?? "",
+            thread: sortedThread,
+            latestSubmission: data?.latestSubmission
+          }));
+        } else {
+          console.log('No thread data found in document');
+          setPreloadedData(prev => ({
+            initialPrompt: prev?.initialPrompt ?? "",
+            thread: [],
+            latestSubmission: data?.latestSubmission
+          }));
+        }
       });
     }
 
     return () => {
+      console.log('Cleaning up Firebase subscriptions');
       unsubPrompt();
       unsubThread();
     };
@@ -76,13 +94,13 @@ export const usePreloadComments = (currentAnimationIndex: number) => {
 };
 
 // Helper function for adding submission versions
-const addSubmissionVersion = async (
+const addSubmissionVersion: (msgRef: DocumentReference, text: string) => Promise<void> = async (
   msgRef: DocumentReference,
   text: string
 ) => {
   const tsKey = new Date().toISOString();
   await updateDoc(msgRef, {
-    [`submissionVersions.${tsKey}`]: text, // dot-notation merge
+    [`submissionVersions.${tsKey}`]: text,
     latestSubmission: text,
     lastUpdated: serverTimestamp(),
   });
@@ -115,6 +133,8 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   const [editedSubmission, setEditedSubmission] = useState("");
   const upperScrollRef = useRef<HTMLDivElement>(null);
   const lowerScrollRef = useRef<HTMLDivElement>(null);
+
+  // Track previous thread length for auto-scroll
   const prevThreadLengthRef = useRef(0);
 
   // Build message document reference
@@ -130,41 +150,76 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       )
     : null;
 
-  // Use preloaded data when available
+  // Subscribe to Firebase updates
   useEffect(() => {
-    if (preloadedData) {
-      console.log('Setting initialPrompt from preloadedData:', preloadedData.initialPrompt);
-      setInitialPrompt(preloadedData.initialPrompt);
-      setThread(preloadedData.thread);
-      setIsLoadingThread(false);
+    if (!msgRef) return;
 
-      // Use latestSubmission if available, otherwise construct from user messages
-      if (preloadedData.latestSubmission && !isEditing) {
-        setEditedSubmission(preloadedData.latestSubmission);
-      } else if (!isEditing) {
-        const userMessages = preloadedData.thread.filter((m: any) => m.role === 'user');
-        if (userMessages.length > 0) {
-          setEditedSubmission(userMessages.map((m: any) => m.text).join('\n\n'));
-        }
-      }
-    }
-  }, [preloadedData, isEditing]);
-
-  // Auto-scroll only when new content arrives in the upper pane
-  useEffect(() => {
-    if (!upperScrollRef.current || isEditing) return;
+    console.log('Setting up Firebase subscription for thread updates');
     
-    // Only scroll if thread length has actually increased
+    // Subscribe to thread changes
+    const unsubThread = onSnapshot(msgRef, (snap) => {
+      const data = snap.data() as any;
+      console.log('Received thread update from Firebase:', data);
+      
+      if (data?.thread) {
+        // Sort thread by timestamp (oldest first)
+        const sortedThread = [...data.thread].sort((a, b) => a.ts - b.ts);
+        console.log('Setting sorted thread (oldest first):', sortedThread);
+        setThread(sortedThread);
+      } else {
+        console.log('No thread data found, setting empty thread');
+        setThread([]);
+      }
+      
+      setIsLoadingThread(false);
+    });
+
+    // Subscribe to initial prompt changes
+    const indexRef = doc(
+      db,
+      "ideation",
+      "koz-recipe-assistant",
+      "indexes",
+      currentAnimationIndex.toString()
+    );
+
+    const unsubPrompt = onSnapshot(indexRef, (snap) => {
+      const data = snap.data() as any;
+      console.log('Received initial prompt update:', data);
+      setInitialPrompt(data?.initialPrompt || "");
+    });
+
+    return () => {
+      console.log('Cleaning up Firebase subscriptions');
+      unsubThread();
+      unsubPrompt();
+    };
+  }, [currentAnimationIndex, msgRef]);
+
+  // Auto-scroll only when new messages are added
+  useEffect(() => {
+    if (!upperScrollRef.current) return;
+    
+    // Only scroll if thread length has increased
     if (thread.length > prevThreadLengthRef.current) {
-      upperScrollRef.current.scrollTo({
-        top: upperScrollRef.current.scrollHeight,
-        behavior: "smooth",
+      console.log('New messages added, scrolling to bottom:', {
+        previousLength: prevThreadLengthRef.current,
+        newLength: thread.length,
+        lastMessage: thread[thread.length - 1]
       });
+      
+      // Small delay to ensure content is rendered
+      setTimeout(() => {
+        upperScrollRef.current?.scrollTo({
+          top: upperScrollRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }, 100);
     }
     
     // Update stored length for next comparison
     prevThreadLengthRef.current = thread.length;
-  }, [thread.length, isEditing]);
+  }, [thread]);
 
   // Auto-trigger followups based on thread state
   useEffect(() => {
@@ -176,11 +231,11 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     const userCount = thread.filter(m => m.role === 'user').length;
     const assistantCount = thread.filter(m => m.role === 'assistant').length;
 
-    // Don't trigger if we're already thinking or if we have enough assistant messages
-    if (isThinking || assistantCount >= 2) return;
+    console.log('Thread state:', { userCount, assistantCount, thread });
 
-    let next: { role: string; text: string; ts: number } | null = null;
-    
+    // Don't trigger if we're already thinking or if we have enough assistant messages
+    if (isThinking || assistantCount >= 1) return;
+
     // For first user message, use our assistant-first-response API
     if (userCount === 1 && assistantCount === 0) {
       setIsThinking(true);
@@ -196,7 +251,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             prompt: userMessage.text,
-            initialPrompt: initialPrompt,
+            initialPrompt,
             idx: currentAnimationIndex
           })
         })
@@ -230,54 +285,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       }
       return;
     }
-    
-    // For subsequent messages
-    if (userCount >= 2 && assistantCount === 1) {
-      setIsThinking(true);
-      fetch('/bp-wparents/recipe-test/api/assistant-second-response', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          thread: thread,
-          initialPrompt: initialPrompt,
-          idx: currentAnimationIndex
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) {
-          console.error('Assistant API error:', data.error);
-          return;
-        }
-        return updateDoc(msgRef!, {
-          thread: arrayUnion({
-            role: "assistant",
-            text: data.reply,
-            ts: Date.now()
-          }),
-          lastUpdated: serverTimestamp()
-        });
-      })
-      .then(() => {
-        // Check if this was the third user message and handle final submission
-        if (userCount >= 3 && assistantCount === 1) {
-          const userMessages = thread.filter(m => m.role === 'user');
-          const finalSubmission = userMessages.map(m => m.text).join('\n\n');
-          return updateDoc(msgRef!, {
-            finalSubmission: finalSubmission,
-            lastUpdated: serverTimestamp()
-          });
-        }
-      })
-      .catch(error => {
-        console.error("Error calling assistant API:", error);
-      })
-      .finally(() => {
-        setIsThinking(false);
-      });
-      return;
-    }
-  }, [thread, msgRef, isThinking, currentAnimationIndex]);
+  }, [thread, msgRef, isThinking, currentAnimationIndex, initialPrompt]);
 
   // Simulating chatgpt for now (remove this later or replace with actual chatgpt)
   const simulatedResponses = {
@@ -334,35 +342,44 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
         return;
       }
 
+      console.log('Received API response:', data);
+
       // Add both user message and assistant response to Firebase
-      await updateDoc(msgRef!, {
-        thread: arrayUnion(
-          {
-            role: "user",
-            text: input.trim(),
-            ts: Date.now(),
-          },
-          {
-            role: "assistant",
-            text: data.reply,
-            ts: Date.now(),
-          }
-        ),
-        lastUpdated: serverTimestamp()
-      }).catch(async (err) => {
-        // If doc didn't exist yet, create it with both messages
+      const newMessages = [
+        {
+          role: "user",
+          text: input.trim(),
+          ts: Date.now(),
+        },
+        {
+          role: "assistant",
+          text: data.reply,
+          ts: data.timestamp || Date.now(),
+          step: data.step
+        }
+      ];
+
+      console.log('Adding messages to Firebase:', newMessages);
+
+      // First try to update the existing document
+      try {
+        await updateDoc(msgRef!, {
+          thread: arrayUnion(...newMessages),
+          lastUpdated: serverTimestamp()
+        });
+        console.log('Successfully updated existing document');
+      } catch (err: any) {
+        // If document doesn't exist, create it
         if (err.code === "not-found") {
+          console.log('Creating new message document');
           await setDoc(msgRef!, {
-            thread: [
-              { role: "user", text: input.trim(), ts: Date.now() },
-              { role: "assistant", text: data.reply, ts: Date.now() }
-            ],
+            thread: newMessages,
             lastUpdated: serverTimestamp()
           });
         } else {
           throw err;
         }
-      });
+      }
 
       // If this was the third message, send the final submission
       if (isThirdMessage) {
@@ -406,12 +423,6 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
   // Get the display thread that includes followup3 in the UI but not in Firebase
   const getDisplayThread = () => {
-    const userCount = thread.filter(m => m.role === 'user').length;
-    const assistantCount = thread.filter(m => m.role === 'assistant').length;
-    
-    if (userCount >= 3 && assistantCount === 2) {
-      return [...thread, simulatedResponses.followup3];
-    }
     return thread;
   };
 
@@ -434,19 +445,28 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
           className="absolute top-[5%] left-[10%] w-[80%] h-[40%] bg-white/90 text-black p-4 rounded overflow-y-auto"
           ref={upperScrollRef}
         >
-          {initialPrompt && <p className="mb-4">{initialPrompt}</p>}
           {isLoadingThread ? (
             <div className="text-gray-500">Loading conversation...</div>
           ) : (
             <>
-              {getDisplayThread().map((msg, i) => (
-                <div key={i} className="mb-2">
-                  <strong>{msg.role}:</strong> {msg.text}
+              {initialPrompt && (
+                <div className="mb-4">
+                  <strong>Initial Prompt:</strong> {initialPrompt}
                 </div>
-              ))}
+              )}
+              {thread && thread.length > 0 ? (
+                thread.map((msg, i) => (
+                  <div key={i} className={`mb-4 ${msg.role === 'assistant' ? 'bg-blue-50' : 'bg-gray-50'} p-3 rounded`}>
+                    <strong className="block mb-1">{msg.role === 'assistant' ? 'Assistant' : 'You'}:</strong>
+                    <div className="whitespace-pre-wrap">{msg.text}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-gray-500">No messages yet. Start the conversation!</div>
+              )}
               {isThinking && (
-                <div className="mb-2 text-gray-500 animate-pulse">
-                  thinking...
+                <div className="mb-4 text-gray-500 animate-pulse">
+                  Assistant is thinking...
                 </div>
               )}
             </>
