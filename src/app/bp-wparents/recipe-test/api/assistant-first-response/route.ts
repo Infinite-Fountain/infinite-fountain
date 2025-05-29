@@ -103,7 +103,7 @@ export async function POST(req: Request) {
           },
           { role: "user", content: prompt }
         ],
-        model: "gpt-4-turbo-preview",
+        model: "o4-mini",
       });
 
       const response = completion.choices[0]?.message?.content || 'No response generated';

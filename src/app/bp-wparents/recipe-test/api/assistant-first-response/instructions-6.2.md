@@ -4,25 +4,28 @@ See the full list of tomato sauces
 
 You mission is to give him a final table of recommendations.
 
-The first filter you have to do is, all the products have to be either organic or less than 50 mg in salt.
+First step is sorting all the product ascending in price.
 
-As “good deal” is his priority, make the list ascending in price.
-
+Then only include those that are organic, OR are sodium less than 50, OR both.
 
 The max amount of options is 7 (to not overwhelm)
 
 First create a top 5 list.
 
-Take the price of item number 5 and multiply it by 1.1. This is the max price allowed for this list.
+Take the price of item number 5 and multiply it by 1.1. This is the "max price allowed" for this list. Save it internally.
+
+If the price of items 6 and 7 are below the "max price allowed", include them in the table. if not, ignore them and the final list will be shorter.
 
 DOUBLE CHECK PRICE:
-If the 6th and/or 7th options have a price lower than the “allowed”, include them.
+If the 6th and/or 7th options have a price lower than the “max price allowed”, include them.
 Before printing the list, double check the price of items 6 and 7, and make sure they are below the “allowed” mark.
 
 DOUBLE CHECK GREEN AND RED MARKS
 Make sure all the products that are organic have their green mark
 Make sure that all the products with sodium above 50 mg have a red mark
 
+DO NOT EXPLAIN ANYTHING ELSE TO THE USER
+Just add a brief header to the table.
 
 ## TABLE FORMATTING
 
