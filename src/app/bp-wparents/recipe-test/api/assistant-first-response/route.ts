@@ -95,27 +95,37 @@ export async function POST(req: Request) {
       
       // Step 3: Process user's answer and generate response using OpenAI
       console.log('Generating OpenAI response...');
-      const completion = await openai.chat.completions.create({
-        messages: [
-          { 
-            role: "system", 
-            content: `${instructions}\n\nProduct Data: ${JSON.stringify(products)}\n\nInitial prompt: ${initialPrompt}` 
-          },
-          { role: "user", content: prompt }
-        ],
-        model: "o4-mini",
-      });
+      try {
+        const completion = await openai.chat.completions.create({
+          messages: [
+            { 
+              role: "system", 
+              content: `${instructions}\n\nProduct Data: ${JSON.stringify(products)}\n\nInitial prompt: ${initialPrompt}` 
+            },
+            { role: "user", content: prompt }
+          ],
+          model: "o4-mini",
+        });
 
-      const response = completion.choices[0]?.message?.content || 'No response generated';
-      console.log('Generated response:', response);
-      
-      // Step 4: Return the response to be added to the thread
-      return NextResponse.json({ 
-        reply: response,
-        timestamp: Date.now(),
-        step: index,
-        status: 'success'
-      });
+        const response = completion.choices[0]?.message?.content || 'No response generated';
+        console.log('Generated response:', response);
+        
+        // Step 4: Return the response to be added to the thread
+        return NextResponse.json({ 
+          reply: response,
+          timestamp: Date.now(),
+          step: index,
+          status: 'success'
+        });
+      } catch (error) {
+        console.error('OpenAI API error:', error);
+        // Return a more specific error message
+        return NextResponse.json({ 
+          error: "Error generating response", 
+          details: error instanceof Error ? error.message : 'Unknown error',
+          status: 'error'
+        }, { status: 500 });
+      }
     }
     
     // If no prompt is provided, this is the initial load

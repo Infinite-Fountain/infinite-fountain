@@ -348,13 +348,19 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
       if (data.error) {
         console.error('Assistant API error:', data.error);
-        return;
+        throw new Error(data.error);
       }
 
       console.log('Received API response:', data);
@@ -388,6 +394,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
             lastUpdated: serverTimestamp()
           });
         } else {
+          console.error('Firebase error:', err);
           throw err;
         }
       }
@@ -401,7 +408,9 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
       setInput("");
     } catch (error) {
-      console.error("Error submitting message:", error);
+      console.error("Error in handleSubmit:", error);
+      // Show error to user (you might want to add a UI element for this)
+      alert("There was an error processing your message. Please try again.");
     } finally {
       setSubmitting(false);
       setIsThinking(false);
