@@ -53,14 +53,43 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Product data file not found" }, { status: 404 });
       }
       
-      // Step 2: Read the instructions
-      const instructionsPath = path.join(process.cwd(), 'src/app/bp-wparents/recipe-test/api/assistant-first-response', `instructions-${index}.md`);
+      // Step 2: Read the appropriate instructions based on the user's answer
       let instructions = "";
-      if (fs.existsSync(instructionsPath)) {
-        instructions = fs.readFileSync(instructionsPath, 'utf8');
-        console.log('Loaded instructions for step:', index);
+      let instructionPath = "";
+      
+      // For index 6, check the user's numeric answer
+      if (index === 6) {
+        // Extract the first number from the user's answer
+        const match = prompt.match(/\d+/);
+        const userChoice = match ? match[0] : '3'; // Default to 3 if no number found
+        
+        console.log('User choice:', userChoice);
+        
+        // Map the numeric choice to the appropriate instruction file
+        switch (userChoice) {
+          case '1':
+            instructionPath = path.join(process.cwd(), 'src/app/bp-wparents/recipe-test/api/assistant-first-response', 'instructions-6.1.md');
+            break;
+          case '2':
+            instructionPath = path.join(process.cwd(), 'src/app/bp-wparents/recipe-test/api/assistant-first-response', 'instructions-6.2.md');
+            break;
+          case '3':
+          default:
+            instructionPath = path.join(process.cwd(), 'src/app/bp-wparents/recipe-test/api/assistant-first-response', 'instructions-6.3.md');
+            break;
+        }
       } else {
-        console.error('Instructions file not found:', instructionsPath);
+        // For other indices, use the standard instruction file
+        instructionPath = path.join(process.cwd(), 'src/app/bp-wparents/recipe-test/api/assistant-first-response', `instructions-${index}.md`);
+      }
+      
+      console.log('Looking for instructions at:', instructionPath);
+      
+      if (fs.existsSync(instructionPath)) {
+        instructions = fs.readFileSync(instructionPath, 'utf8');
+        console.log('Loaded instructions from:', instructionPath);
+      } else {
+        console.error('Instructions file not found:', instructionPath);
         return NextResponse.json({ error: "Instructions file not found" }, { status: 404 });
       }
       
