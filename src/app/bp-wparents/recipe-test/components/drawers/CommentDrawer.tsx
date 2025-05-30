@@ -119,12 +119,24 @@ interface CommentDrawerProps {
   } | null;
 }
 
-// Add thinking messages mapping
-const THINKING_MESSAGES: Record<number, string[]> = {
+// Add thinking messages mapping with durations
+type ThinkingMessage = { message: string; duration: number };
+type ThinkingMessages = {
+  [key: number]: ThinkingMessage[];
+  default: ThinkingMessage[];
+};
+
+const THINKING_MESSAGES: ThinkingMessages = {
   6: [
-    "Analyzing your preferences...",
-    "Searching the database...",
-    "Preparing your personalized recommendations..."
+    { message: "Analyzing your preferences...", duration: 3000 },
+    { message: "Searching the database...", duration: 3000 },
+    { message: "Preparing your personalized recommendations...", duration: 0 } // 0 means stay until response
+  ],
+  // Add other indices here with their specific messages and durations
+  default: [
+    { message: "Thinking...", duration: 3000 },
+    { message: "Processing...", duration: 3000 },
+    { message: "Preparing answer...", duration: 0 }
   ]
 };
 
@@ -306,25 +318,40 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   // Add effect to cycle through thinking messages
   useEffect(() => {
     if (isThinking) {
-      const messages = THINKING_MESSAGES[currentAnimationIndex] || ["Thinking...", "Processing...", "Preparing answer..."];
+      const messages = THINKING_MESSAGES[currentAnimationIndex] || THINKING_MESSAGES.default;
       
       // Clear any existing timer
       if (thinkingTimerRef.current) {
-        clearInterval(thinkingTimerRef.current);
+        clearTimeout(thinkingTimerRef.current);
       }
 
       // Reset message index
       setThinkingMessageIndex(0);
 
-      // Set up new timer to cycle messages every 3 seconds
-      thinkingTimerRef.current = setInterval(() => {
-        setThinkingMessageIndex(prev => (prev + 1) % messages.length);
-      }, 3000);
+      // Set up timers for each message
+      let currentIndex = 0;
+      
+      const showNextMessage = () => {
+        if (currentIndex < messages.length - 1) {
+          currentIndex++;
+          setThinkingMessageIndex(currentIndex);
+          
+          // Only set up next timer if the current message has a duration
+          if (messages[currentIndex].duration > 0) {
+            thinkingTimerRef.current = setTimeout(showNextMessage, messages[currentIndex].duration);
+          }
+        }
+      };
+
+      // Start with first message
+      if (messages[0].duration > 0) {
+        thinkingTimerRef.current = setTimeout(showNextMessage, messages[0].duration);
+      }
 
       // Cleanup on unmount or when thinking stops
       return () => {
         if (thinkingTimerRef.current) {
-          clearInterval(thinkingTimerRef.current);
+          clearTimeout(thinkingTimerRef.current);
         }
       };
     }
@@ -559,7 +586,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
                 <div className="p-3 rounded bg-blue-50 animate-pulse">
                   <strong className="block mb-1">Assistant:</strong>
                   <div className="text-gray-500">
-                    {THINKING_MESSAGES[currentAnimationIndex]?.[thinkingMessageIndex] || "Preparing answer..."}
+                    {THINKING_MESSAGES[currentAnimationIndex]?.[thinkingMessageIndex]?.message || "Preparing answer..."}
                   </div>
                 </div>
               )}
