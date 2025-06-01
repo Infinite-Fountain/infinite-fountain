@@ -614,12 +614,6 @@ export default function Page() {
 
         {/* Red Container (right side) */}
         <div className="red-container">
-          {/* Login Buttons */}
-          <div className="flex justify-center">
-            <SignupButton />
-            {!address && <LoginButton />}
-          </div>
-
           {/* Dashboard and Navigation Buttons Group */}
           <div className="vote-nav-group">
             {/* Vote Button */}
@@ -663,14 +657,6 @@ export default function Page() {
       <div className="block md:hidden">
         {/* Green Container */}
         <div className="green-container relative">
-          {/* Login Buttons */}
-          <div
-            className="absolute top-0 right-0 flex items-center"
-            style={{ paddingTop: '5px', paddingRight: '5px' }}
-          >
-            <SignupButton />
-            {!address && <LoginButton />}
-          </div>
         </div>
 
         {/* Yellow Container */}
