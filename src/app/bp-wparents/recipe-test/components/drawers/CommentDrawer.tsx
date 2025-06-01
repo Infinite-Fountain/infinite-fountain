@@ -62,6 +62,11 @@ export const usePreloadComments = (currentAnimationIndex: number) => {
           }));
         }
       }, 100);
+    }, (error) => {
+      // Silently handle any Firebase errors
+      if (error.code === 'permission-denied') {
+        // Handle permission errors if needed
+      }
     });
 
     unsubscribeFunctions.push(unsubPrompt);
@@ -95,6 +100,11 @@ export const usePreloadComments = (currentAnimationIndex: number) => {
             }
           }, 100);
         }
+      }, (error) => {
+        // Silently handle any Firebase errors
+        if (error.code === 'permission-denied') {
+          // Handle permission errors if needed
+        }
       });
 
       unsubscribeFunctions.push(unsubThread);
@@ -103,8 +113,9 @@ export const usePreloadComments = (currentAnimationIndex: number) => {
     return () => {
       isSubscribed = false;
       clearTimeout(updateTimeout);
-      // Add a small delay before unsubscribing to prevent rapid reconnections
-      setTimeout(() => {
+      
+      // Use a more graceful cleanup approach
+      const cleanup = () => {
         unsubscribeFunctions.forEach(unsub => {
           try {
             unsub();
@@ -113,7 +124,14 @@ export const usePreloadComments = (currentAnimationIndex: number) => {
           }
         });
         unsubscribeFunctions = [];
-      }, 100);
+      };
+
+      // Try to cleanup immediately, but don't worry if it fails
+      try {
+        cleanup();
+      } catch (error) {
+        // Ignore cleanup errors
+      }
     };
   }, [currentAnimationIndex]);
 
@@ -233,6 +251,11 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       }
       
       setIsLoadingThread(false);
+    }, (error) => {
+      // Silently handle any Firebase errors
+      if (error.code === 'permission-denied') {
+        // Handle permission errors if needed
+      }
     });
 
     unsubscribeFunctions.push(unsubThread);
@@ -251,6 +274,11 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       
       const data = snap.data() as any;
       setInitialPrompt(data?.initialPrompt || "");
+    }, (error) => {
+      // Silently handle any Firebase errors
+      if (error.code === 'permission-denied') {
+        // Handle permission errors if needed
+      }
     });
 
     unsubscribeFunctions.push(unsubPrompt);
@@ -258,8 +286,9 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     return () => {
       isSubscribed = false;
       clearTimeout(threadUpdateTimeout);
-      // Add a small delay before unsubscribing to prevent rapid reconnections
-      setTimeout(() => {
+      
+      // Use a more graceful cleanup approach
+      const cleanup = () => {
         unsubscribeFunctions.forEach(unsub => {
           try {
             unsub();
@@ -268,7 +297,14 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
           }
         });
         unsubscribeFunctions = [];
-      }, 100);
+      };
+
+      // Try to cleanup immediately, but don't worry if it fails
+      try {
+        cleanup();
+      } catch (error) {
+        // Ignore cleanup errors
+      }
     };
   }, [currentAnimationIndex, msgRef, thread]);
 
