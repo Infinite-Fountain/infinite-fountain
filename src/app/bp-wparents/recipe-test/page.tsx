@@ -363,7 +363,13 @@ export default function Page() {
                 cursor: 'pointer',
               }}
             >
-              <Image src="/signin-google.png" alt="Sign in with Google" width={160} height={48} />
+              <Image 
+                src="/signin-google.png" 
+                alt="Sign in with Google" 
+                width={160} 
+                height={48} 
+                style={{ width: 'auto', height: '48px' }}
+              />
             </button>
           )}
         </div>
@@ -671,7 +677,13 @@ export default function Page() {
               cursor: 'pointer',
             }}
           >
-            <Image src="/signin-google.png" alt="Sign in with Google" width={160} height={48} />
+            <Image 
+              src="/signin-google.png" 
+              alt="Sign in with Google" 
+              width={160} 
+              height={48} 
+              style={{ width: 'auto', height: '48px' }}
+            />
           </button>
         )}
       </div>
