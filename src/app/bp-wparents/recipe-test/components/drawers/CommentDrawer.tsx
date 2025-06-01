@@ -21,12 +21,9 @@ export const usePreloadComments = (currentAnimationIndex: number) => {
   const [preloadedData, setPreloadedData] = useState<{
     initialPrompt: string;
     thread: any[];
-    latestSubmission?: string;
   } | null>(null);
 
   useEffect(() => {
-    console.log('Setting up Firebase subscriptions for index:', currentAnimationIndex);
-    
     const indexRef = doc(
       db,
       "ideation",
@@ -47,48 +44,76 @@ export const usePreloadComments = (currentAnimationIndex: number) => {
         )
       : null;
 
+    let isSubscribed = true;
+    let unsubscribeFunctions: (() => void)[] = [];
+    let updateTimeout: NodeJS.Timeout;
+
     // Subscribe to prompt changes
     const unsubPrompt = onSnapshot(indexRef, (snap) => {
+      if (!isSubscribed) return;
+      
       const data = snap.data() as any;
-      console.log('Received prompt data:', data);
-      setPreloadedData(prev => ({
-        initialPrompt: data?.initialPrompt ?? "",
-        thread: prev?.thread ?? [],
-        latestSubmission: prev?.latestSubmission
-      }));
+      clearTimeout(updateTimeout);
+      updateTimeout = setTimeout(() => {
+        if (isSubscribed) {
+          setPreloadedData(prev => ({
+            initialPrompt: data?.initialPrompt ?? "",
+            thread: prev?.thread ?? []
+          }));
+        }
+      }, 100);
     });
 
+    unsubscribeFunctions.push(unsubPrompt);
+
     // Subscribe to thread changes if user is logged in
-    let unsubThread = () => {};
     if (msgRef) {
-      console.log('Setting up thread subscription for user:', auth.currentUser?.uid);
-      unsubThread = onSnapshot(msgRef, (snap) => {
+      const unsubThread = onSnapshot(msgRef, (snap) => {
+        if (!isSubscribed) return;
+        
         const data = snap.data() as any;
-        console.log('Received thread data:', data);
         if (data?.thread) {
           // Sort thread by timestamp to ensure correct order
           const sortedThread = [...data.thread].sort((a, b) => a.ts - b.ts);
-          console.log('Sorted thread:', sortedThread);
-          setPreloadedData(prev => ({
-            initialPrompt: prev?.initialPrompt ?? "",
-            thread: sortedThread,
-            latestSubmission: data?.latestSubmission
-          }));
+          clearTimeout(updateTimeout);
+          updateTimeout = setTimeout(() => {
+            if (isSubscribed) {
+              setPreloadedData(prev => ({
+                initialPrompt: prev?.initialPrompt ?? "",
+                thread: sortedThread
+              }));
+            }
+          }, 100);
         } else {
-          console.log('No thread data found in document');
-          setPreloadedData(prev => ({
-            initialPrompt: prev?.initialPrompt ?? "",
-            thread: [],
-            latestSubmission: data?.latestSubmission
-          }));
+          clearTimeout(updateTimeout);
+          updateTimeout = setTimeout(() => {
+            if (isSubscribed) {
+              setPreloadedData(prev => ({
+                initialPrompt: prev?.initialPrompt ?? "",
+                thread: []
+              }));
+            }
+          }, 100);
         }
       });
+
+      unsubscribeFunctions.push(unsubThread);
     }
 
     return () => {
-      console.log('Cleaning up Firebase subscriptions');
-      unsubPrompt();
-      unsubThread();
+      isSubscribed = false;
+      clearTimeout(updateTimeout);
+      // Add a small delay before unsubscribing to prevent rapid reconnections
+      setTimeout(() => {
+        unsubscribeFunctions.forEach(unsub => {
+          try {
+            unsub();
+          } catch (error) {
+            // Ignore unsubscribe errors
+          }
+        });
+        unsubscribeFunctions = [];
+      }, 100);
     };
   }, [currentAnimationIndex]);
 
@@ -103,7 +128,6 @@ const addSubmissionVersion: (msgRef: DocumentReference, text: string) => Promise
   const tsKey = new Date().toISOString();
   await updateDoc(msgRef, {
     [`submissionVersions.${tsKey}`]: text,
-    latestSubmission: text,
     lastUpdated: serverTimestamp(),
   });
 };
@@ -115,7 +139,6 @@ interface CommentDrawerProps {
   preloadedData: {
     initialPrompt: string;
     thread: any[];
-    latestSubmission?: string;
   } | null;
 }
 
@@ -179,28 +202,40 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   // Subscribe to Firebase updates
   useEffect(() => {
     if (!msgRef) return;
-
-    console.log('Setting up Firebase subscription for thread updates');
+    
+    let isSubscribed = true;
+    let unsubscribeFunctions: (() => void)[] = [];
+    
+    // Debounce the thread updates to prevent rapid reconnections
+    let threadUpdateTimeout: NodeJS.Timeout;
     
     // Subscribe to thread changes
     const unsubThread = onSnapshot(msgRef, (snap) => {
+      if (!isSubscribed) return;
+      
       const data = snap.data() as any;
-      console.log('Received thread update from Firebase:', data);
       
       if (data?.thread) {
         // Get the latest message (should be the assistant's response)
         const latestMessage = data.thread[data.thread.length - 1];
-        console.log('Latest message from Firebase:', latestMessage);
         
         // Only add the message if it's not already in our thread
         if (latestMessage && (!thread.length || thread[thread.length - 1].ts !== latestMessage.ts)) {
-          console.log('Adding new message to thread:', latestMessage);
-          setThread(prev => [...prev, latestMessage]);
+          // Clear any pending updates
+          clearTimeout(threadUpdateTimeout);
+          // Debounce the thread update
+          threadUpdateTimeout = setTimeout(() => {
+            if (isSubscribed) {
+              setThread(prev => [...prev, latestMessage]);
+            }
+          }, 100);
         }
       }
       
       setIsLoadingThread(false);
     });
+
+    unsubscribeFunctions.push(unsubThread);
 
     // Subscribe to initial prompt changes
     const indexRef = doc(
@@ -212,15 +247,28 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     );
 
     const unsubPrompt = onSnapshot(indexRef, (snap) => {
+      if (!isSubscribed) return;
+      
       const data = snap.data() as any;
-      console.log('Received initial prompt update:', data);
       setInitialPrompt(data?.initialPrompt || "");
     });
 
+    unsubscribeFunctions.push(unsubPrompt);
+
     return () => {
-      console.log('Cleaning up Firebase subscriptions');
-      unsubThread();
-      unsubPrompt();
+      isSubscribed = false;
+      clearTimeout(threadUpdateTimeout);
+      // Add a small delay before unsubscribing to prevent rapid reconnections
+      setTimeout(() => {
+        unsubscribeFunctions.forEach(unsub => {
+          try {
+            unsub();
+          } catch (error) {
+            // Ignore unsubscribe errors
+          }
+        });
+        unsubscribeFunctions = [];
+      }, 100);
     };
   }, [currentAnimationIndex, msgRef, thread]);
 
@@ -230,12 +278,6 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
     
     // Only scroll if thread length has increased
     if (thread.length > prevThreadLengthRef.current) {
-      console.log('New messages added, scrolling to bottom:', {
-        previousLength: prevThreadLengthRef.current,
-        newLength: thread.length,
-        lastMessage: thread[thread.length - 1]
-      });
-      
       // Small delay to ensure content is rendered
       setTimeout(() => {
         upperScrollRef.current?.scrollTo({
@@ -251,15 +293,10 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
   // Auto-trigger followups based on thread state
   useEffect(() => {
-    if (!msgRef || !initialPrompt) {
-      console.log('Waiting for initialPrompt to load...');
-      return;
-    }
+    if (!msgRef || !initialPrompt) return;
     
     const userCount = thread.filter(m => m.role === 'user').length;
     const assistantCount = thread.filter(m => m.role === 'assistant').length;
-
-    console.log('Thread state:', { userCount, assistantCount, thread });
 
     // Don't trigger if we're already thinking or if we have enough assistant messages
     if (isThinking || assistantCount >= 1) return;
@@ -269,11 +306,6 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       setIsThinking(true);
       const userMessage = thread.find(m => m.role === 'user');
       if (userMessage) {
-        console.log('Sending user message to API:', {
-          prompt: userMessage.text,
-          initialPrompt,
-          idx: currentAnimationIndex
-        });
         fetch('/bp-wparents/recipe-test/api/assistant-first-response', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -290,11 +322,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
           return res.json();
         })
         .then(data => {
-          if (data.error) {
-            console.error('Assistant API error:', data.error);
-            return;
-          }
-          console.log('Received API response:', data);
+          if (data.error) return;
           return updateDoc(msgRef!, {
             thread: arrayUnion({
               role: "assistant",
@@ -305,7 +333,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
           });
         })
         .catch(error => {
-          console.error("Error calling assistant API:", error);
+          // Handle error silently
         })
         .finally(() => {
           setIsThinking(false);
@@ -379,13 +407,6 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       const userCount = thread.filter(m => m.role === 'user').length;
       const isThirdMessage = userCount === 2; // 0-based index, so 2 means third message
 
-      // First, send the message to our API
-      console.log('Sending message to API:', {
-        prompt: input.trim(),
-        initialPrompt,
-        idx: currentAnimationIndex
-      });
-
       const response = await fetch('/bp-wparents/recipe-test/api/assistant-first-response', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -398,21 +419,13 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('API Error:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData
-        });
         throw new Error(`API error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
       if (data.error) {
-        console.error('Assistant API error:', data.error);
         throw new Error(data.error);
       }
-
-      console.log('Received API response:', data);
 
       // Add both user message and assistant response to Firebase
       const newMessages = [
@@ -425,25 +438,20 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
         }
       ];
 
-      console.log('Adding messages to Firebase:', newMessages);
-
       // First try to update the existing document
       try {
         await updateDoc(msgRef!, {
           thread: arrayUnion(...newMessages),
           lastUpdated: serverTimestamp()
         });
-        console.log('Successfully updated existing document');
       } catch (err: any) {
         // If document doesn't exist, create it
         if (err.code === "not-found") {
-          console.log('Creating new message document');
           await setDoc(msgRef!, {
             thread: newMessages,
             lastUpdated: serverTimestamp()
           });
         } else {
-          console.error('Firebase error:', err);
           throw err;
         }
       }
@@ -457,7 +465,6 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
       setInput("");
     } catch (error) {
-      console.error("Error in handleSubmit:", error);
       // Show error to user (you might want to add a UI element for this)
       alert("There was an error processing your message. Please try again.");
     } finally {
@@ -496,6 +503,16 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
   const getDisplayThread = () => {
     return thread;
   };
+
+  // Add cleanup on component unmount
+  useEffect(() => {
+    return () => {
+      // Clear any pending timeouts
+      if (thinkingTimerRef.current) {
+        clearTimeout(thinkingTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className={`fixed inset-0 z-40 flex items-start justify-center transition-transform duration-300 ease-in-out transform ${drawerState === 'open' ? 'translate-y-0' : 'translate-y-[100vh]'}`}>

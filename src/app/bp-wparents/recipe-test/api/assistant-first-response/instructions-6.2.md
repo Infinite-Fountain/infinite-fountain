@@ -6,6 +6,8 @@ Produce a final Markdown table of at most 7 tomato-sauce recommendations that me
 1. **Organic**  
 2. **Low‐sodium** (< 50 mg per serving)
 
+**Important:** Do all the computation first, and send the final table once you have completed all the below steps. Do **not** include any reasoning, intermediate steps, or explanations in your output. Only return the final table (with a brief header if desired).
+
 ---
 
 ## STEP 1 Filter Out Unqualified Products
@@ -32,19 +34,20 @@ Produce a final Markdown table of at most 7 tomato-sauce recommendations that me
 ---
 
 ## STEP 3 Final Confirmation & Markup
-1. **Double-check prices** of items #6 and #7: ensure any you intend to include really do satisfy  
+1. **Do not output** any internal checks or reasoning.
+2. **Double-check prices** of items #6 and #7: ensure any you intend to include really do satisfy  
    ```
    price ≤ MaxPriceAllowed
    ```  
-2. **Organic Column:**  
+3. **Organic Column:**  
    - Mark ✅ (green) if `organic = true`.  
    - Mark ❌ (red) if `organic = false`.  
-3. **Sodium Column:**  
+4. **Sodium Column:**  
    - Display the numeric sodium value (e.g., `45`).  
    - If sodium ≤ 50 mg, append (✅).  
    - If sodium > 50 mg, append (❌).  
 
-> Do **not** add any extra explanations or footnotes. Just include a brief header and then the final table.
+**Do not** include any reasoning, step-by-step notes, or explanations—only the final table.  
 
 ---
 
@@ -77,3 +80,4 @@ When presenting the filtered options, use a Markdown table with exactly these co
 
 > *(In this example, items beyond #3 would only be included if their price ≤ (1.29 × 1.10).)*
 
+*(Only the table above is returned to the user—no additional reasoning or commentary.)*
