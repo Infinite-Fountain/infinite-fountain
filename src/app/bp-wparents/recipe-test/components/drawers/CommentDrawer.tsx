@@ -128,8 +128,8 @@ type ThinkingMessages = {
 
 const THINKING_MESSAGES: ThinkingMessages = {
   6: [
-    { message: "Analyzing your preferences...", duration: 3000 },
-    { message: "Searching the database...", duration: 3000 },
+    { message: "Analyzing your preferences...", duration: 8000 },
+    { message: "Searching the database...", duration: 8000 },
     { message: "Preparing your personalized recommendations...", duration: 0 } // 0 means stay until response
   ],
   // Add other indices here with their specific messages and durations
@@ -343,7 +343,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
         }
       };
 
-      // Start with first message
+      // Start with first message and set timer for next message
       if (messages[0].duration > 0) {
         thinkingTimerRef.current = setTimeout(showNextMessage, messages[0].duration);
       }
@@ -354,6 +354,9 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
           clearTimeout(thinkingTimerRef.current);
         }
       };
+    } else {
+      // Reset thinking message index when thinking stops
+      setThinkingMessageIndex(0);
     }
   }, [isThinking, currentAnimationIndex]);
 

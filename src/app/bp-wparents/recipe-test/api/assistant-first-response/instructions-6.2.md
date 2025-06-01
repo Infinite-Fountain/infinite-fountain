@@ -1,97 +1,79 @@
-Instructions if user answered with number 2 = “I’d like a good deal but with at least one perk—either organic or lower sodium.”
-
-See the full list of tomato sauces
-
-You mission is to give him a final table of recommendations.
-
-First step is sorting all the product ascending in price.
-
-Then only include those that are organic, OR are sodium less than 50, OR both.
-
-The max amount of options is 7 (to not overwhelm)
-
-First create a top 5 list.
-
-Take the price of item number 5 and multiply it by 1.1. This is the "max price allowed" for this list. Save it internally.
-
-If the price of items 6 and 7 are below the "max price allowed", include them in the table. if not, ignore them and the final list will be shorter.
-
-DOUBLE CHECK PRICE:
-If the 6th and/or 7th options have a price lower than the “max price allowed”, include them.
-Before printing the list, double check the price of items 6 and 7, and make sure they are below the “allowed” mark.
-
-DOUBLE CHECK GREEN AND RED MARKS
-Make sure all the products that are organic have their green mark
-Make sure that all the products with sodium above 50 mg have a red mark
-
-DO NOT EXPLAIN ANYTHING ELSE TO THE USER
-Just add a brief header to the table.
-
-## TABLE FORMATTING
-
-When presenting filtered tomato-sauce options, the bot should output a Markdown table with:
-Columns
+# Tomato Sauce Recommendation Instructions
 
 
-Brand / Product
+## Overall Goal
+Produce a final Markdown table of at most 7 tomato-sauce recommendations that meet **either** of these criteria:
+1. **Organic**  
+2. **Low‐sodium** (< 50 mg per serving)
 
+---
 
-Price ($/15 oz)
+## STEP 1 Filter Out Unqualified Products
+1. **Sort** the entire list of tomato-sauce products in **ascending order** by price.  
+2. **Exclude** any product that is **neither** organic **nor** low‐sodium (< 50 mg).  
+   - In other words, keep only those that are **organic**, or have **sodium < 50 mg**, or both.  
+   - Drop every product for which both conditions fail.  
 
+---
 
-Organic
+## STEP 2 Trim to “Top 7” (Maximum)
+1. From the filtered list (sorted by price), take the **first 5** items.  
+2. Let `Price₅` = price of the 5th-cheapest item. Compute:  
+   ```
+   MaxPriceAllowed = Price₅ × 1.10
+   ```  
+3. Check products #6 and #7 (if they exist):  
+   - If a product’s price ≤ `MaxPriceAllowed`, **include** it.  
+   - Otherwise, **exclude** it.  
+4. Result: 5 required items, plus 0–2 extra (if #6/#7 are within `MaxPriceAllowed`).  
 
+> **Note:** If there are fewer than 5 items after filtering, just use whatever remains.
 
-Sodium (mg/serving)
+---
 
+## STEP 3 Final Confirmation & Markup
+1. **Double-check prices** of items #6 and #7: ensure any you intend to include really do satisfy  
+   ```
+   price ≤ MaxPriceAllowed
+   ```  
+2. **Organic Column:**  
+   - Mark ✅ (green) if `organic = true`.  
+   - Mark ❌ (red) if `organic = false`.  
+3. **Sodium Column:**  
+   - Display the numeric sodium value (e.g., `45`).  
+   - If sodium ≤ 50 mg, append (✅).  
+   - If sodium > 50 mg, append (❌).  
 
-Organic Column
+> Do **not** add any extra explanations or footnotes. Just include a brief header and then the final table.
 
+---
 
-✅ (green check) if organic: true
+## TABLE FORMAT
+When presenting the filtered options, use a Markdown table with exactly these columns (in this order):
 
+| Brand / Product               | Price ($ / 15 oz) | Organic | Sodium (mg / serving) |
+|-------------------------------|--------------------|---------|-----------------------|
+| _Example Brand A_             | 0.99               | ✅ / ❌  | 45 (✅) / ❌           |
 
-❌ (red cross) if organic: false
+- **Row Ordering:** Always sorted by price (lowest → highest).  
+- **Column Details:**  
+  - **Brand / Product:** Full product name.  
+  - **Price ($ / 15 oz):** Price in US dollars, normalized to a 15-oz can.  
+  - **Organic:**  
+    - ✅ if the product is organic, ❌ if not.  
+  - **Sodium (mg / serving):**  
+    - First show the number (e.g., `45`).  
+    - Then show **(✅)** if ≤ 50 mg, **(❌)** if > 50 mg.  
 
+---
 
-Sodium Column
+## EXAMPLE TABLE
 
+| Brand / Product                     | Price ($ / 15 oz) | Organic | Sodium (mg / serving) |
+|-------------------------------------|--------------------|---------|-----------------------|
+| Simply Nature Organic Tomato Sauce  | 0.79               | ✅       | 45 (✅)               |
+| Kroger Tomato Sauce – No Salt       | 0.99               | ❌       | 10 (✅)               |
+| Great Value Organic Tomato Sauce    | 1.29               | ✅       | 50 (✅)               |
 
-Display the numeric sodium value (e.g. 220)
+> *(In this example, items beyond #3 would only be included if their price ≤ (1.29 × 1.10).)*
 
-
-Append (✅) in green if it meets the user’s “low-sodium” cutoff (e.g. ≤ 220 mg)
-
-
-Append (❌) in red if it exceeds the cutoff
-
-
-Row Ordering
-
-
-Sort rows by price ascending by default
-
-
-(Optionally allow alternate sort orders if requested)
-
-
-
-Example
-Brand / Product
-Price ($/15 oz)
-Organic
-Sodium (mg/serving)
-Simply Nature Organic Tomato Sauce
-0.79
-✅
-250 (❌)
-Kroger Tomato Sauce – No Salt
-1.00
-❌
-10 (✅)
-Great Value Organic Tomato Sauce
-1.58
-✅
-220 (✅)
-
-Whenever the app or API requests a table of options, use this structure so users instantly see which products meet their organic and sodium criteria.

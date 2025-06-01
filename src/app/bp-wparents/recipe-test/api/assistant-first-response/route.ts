@@ -104,7 +104,7 @@ export async function POST(req: Request) {
             },
             { role: "user", content: prompt }
           ],
-          model: "o4-mini",
+          model: "gpt-4.1-mini",
         });
 
         const response = completion.choices[0]?.message?.content || 'No response generated';
