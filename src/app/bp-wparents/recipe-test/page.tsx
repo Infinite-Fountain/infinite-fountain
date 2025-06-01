@@ -159,6 +159,9 @@ export default function Page() {
     latestSubmission?: string;
   } | null>(null);
 
+  // Add state for user
+  const [user, setUser] = useState<any>(null);
+
   // Placeholders for lazy-loaded data
   const [videoData, setVideoData] = useState<any>(null);
   const [ovlData, setOvlData] = useState<any>(null);
@@ -252,6 +255,16 @@ export default function Page() {
     }
   }, [currentStep]);
 
+  // Add effect to listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
   // Render background Lottie at z-index 0
   const renderBackground = () => (
     <Lottie
@@ -327,8 +340,8 @@ export default function Page() {
     }
   }
 
-  // Helper to get user email prefix
-  const userEmailPrefix = auth.currentUser?.email ? auth.currentUser.email.split('@')[0] : null;
+  // Helper to get user email prefix - update to use user state
+  const userEmailPrefix = user?.email ? user.email.split('@')[0] : null;
 
   return (
     <div className="min-h-screen bg-black flex flex-col relative">

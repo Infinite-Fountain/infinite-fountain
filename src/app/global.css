@@ -70,7 +70,7 @@ a {
     /* Updated Flexbox Layout for Red Container */
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Changed from space-between to flex-start */
+    justify-content: space-between; /* Distribute space between top and bottom */
     align-items: center; /* Center horizontally */
     padding: 10px; /* General padding */
   }
