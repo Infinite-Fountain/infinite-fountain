@@ -556,7 +556,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
       <div className={`absolute inset-0 bg-black opacity-50 transition-opacity duration-300 ease-in-out ${drawerState === 'open' ? 'opacity-50' : 'opacity-0 pointer-events-none'}`} onClick={handleCloseCommentDrawer}></div>
 
       {/* Drawer Content */}
-      <div className="relative bg-transparent rounded-lg w-11/12 md:w-[600px] md:h-[600px] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="relative bg-transparent rounded-lg w-11/12 md:w-[600px] h-[80vh] md:h-[600px] overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {/* Background Lottie */}
         <Lottie 
           animationData={CommentAnimation} 
@@ -566,7 +566,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
 
         {/* Upper pane */}
         <div
-          className="absolute top-[5%] left-[10%] w-[80%] h-[40%] bg-white/90 text-black p-4 rounded overflow-y-auto"
+          className="absolute top-[5%] left-[10%] w-[80%] h-[40%] bg-white/90 text-black p-4 rounded overflow-y-auto text-xs md:text-base"
           ref={upperScrollRef}
         >
           {isLoadingThread ? (
@@ -575,16 +575,16 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
             <div className="flex flex-col gap-4">
               {/* Initial Prompt - Always shown */}
               <div className="mb-4 p-3 rounded bg-gray-100">
-                <strong className="block mb-1">Initial Prompt:</strong>
-                <div className="whitespace-pre-wrap">{initialPrompt}</div>
+                <strong className="block mb-1 text-xs md:text-base">Initial Prompt:</strong>
+                <div className="whitespace-pre-wrap text-xs md:text-base">{initialPrompt}</div>
               </div>
 
               {/* Thread Messages */}
               <div className="flex flex-col gap-4">
                 {thread.map((msg, i) => (
                   <div key={i} className={`p-3 rounded ${msg.role === 'assistant' ? 'bg-blue-50' : 'bg-gray-50'}`}>
-                    <strong className="block mb-1">{msg.role === 'assistant' ? 'Assistant' : 'You'}:</strong>
-                    <div className="prose prose-sm max-w-none">
+                    <strong className="block mb-1 text-xs md:text-base">{msg.role === 'assistant' ? 'Assistant' : 'You'}:</strong>
+                    <div className="prose prose-sm md:prose-base max-w-none">
                       <ReactMarkdown 
                         remarkPlugins={[remarkGfm]}
                         components={{
@@ -651,11 +651,11 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
         </div>
 
         {/* Lower pane */}
-        <div className="absolute top-[48%] left-[10%] w-[80%] h-[40%] bg-white/90 text-black p-4 rounded flex flex-col z-10">
+        <div className="absolute top-[48%] left-[10%] w-[80%] h-[40%] bg-white/90 text-black p-4 rounded flex flex-col z-10 text-xs md:text-base">
           {!isFinalState ? (
             <>
               <textarea
-                className="flex-1 w-full p-2 border rounded resize-none"
+                className="flex-1 w-full p-2 border rounded resize-none text-xs md:text-base"
                 placeholder="Type your response..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -663,7 +663,7 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
               />
               <div className="flex justify-end mt-2">
                 <button
-                  className="px-4 py-2 border rounded disabled:opacity-50"
+                  className="px-4 py-2 border rounded disabled:opacity-50 text-xs md:text-base"
                   onClick={handleSubmit}
                   disabled={!input.trim() || submitting}
                 >
@@ -674,9 +674,9 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
           ) : (
             <div className="flex-1 w-full p-4 overflow-y-auto" ref={lowerScrollRef}>
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold">Your Final Submission:</h3>
+                <h3 className="font-bold text-xs md:text-base">Your Final Submission:</h3>
                 <button
-                  className="px-4 py-2 border rounded"
+                  className="px-4 py-2 border rounded text-xs md:text-base"
                   onClick={isEditing ? handleSaveEdit : handleEdit}
                 >
                   {isEditing ? "Save Edit" : "Edit Final"}
@@ -684,13 +684,13 @@ const CommentDrawer: React.FC<CommentDrawerProps> = ({
               </div>
               {isEditing ? (
                 <textarea
-                  className="w-full h-full p-2 border rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full h-full p-2 border rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs md:text-base"
                   value={editedSubmission}
                   onChange={(e) => setEditedSubmission(e.target.value)}
                   autoFocus
                 />
               ) : (
-                <div className="whitespace-pre-wrap">
+                <div className="whitespace-pre-wrap text-xs md:text-base">
                   {editedSubmission}
                 </div>
               )}
