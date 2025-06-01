@@ -1,53 +1,70 @@
-# Tomato Sauce Recommendation Instructions
+## INTERNAL PROCESSING ONLY
 
-
-## Overall Goal
-Produce a final Markdown table of at most 7 tomato-sauce recommendations that meet **either** of these criteria:
-1. **Organic**  
-2. **Low‐sodium** (< 50 mg per serving)
-
-**Important:** Do all the computation first, and send the final table once you have completed all the below steps. Do **not** include any reasoning, intermediate steps, or explanations in your output. Only return the final table (with a brief header if desired).
+- Treat all text until `<!--TAKE_OUTPUT_NOW-->` as **internal notes only**—never show it to the user.  
+- Perform every step silently; do **not** print anything until `<!--TAKE_OUTPUT_NOW-->`.  
+- **Absolutely no tables, lists, or headers** may appear before that token.
 
 ---
 
-## STEP 1 Filter Out Unqualified Products
-1. **Sort** the entire list of tomato-sauce products in **ascending order** by price.  
-2. **Exclude** any product that is **neither** organic **nor** low‐sodium (< 50 mg).  
-   - In other words, keep only those that are **organic**, or have **sodium < 50 mg**, or both.  
-   - Drop every product for which both conditions fail.  
+## STEP 0 Define Helper Functions (Internal Only)
+- **LowSodiumCutoff = 50 mg**.  
+- `is_low_sodium(product) = product.sodium < LowSodiumCutoff`  
+- `is_organic(product) = product.organic == true`  
+- `qualifies(product) = is_organic(product) OR is_low_sodium(product)`
 
 ---
 
-## STEP 2 Trim to “Top 7” (Maximum)
-1. From the filtered list (sorted by price), take the **first 5** items.  
-2. Let `Price₅` = price of the 5th-cheapest item. Compute:  
+## STEP 1 Build the Candidate List
+1. **Sort** the full list of tomato‑sauce products by **ascending price**.  
+2. **Filter** using `qualifies(product)`; exclude every product where `qualifies(product) == false`.  
+   - *Equivalently:* remove any product that is **not organic** **AND** has **sodium ≥ 50 mg**.  
+3. Store this filtered‑and‑sorted list as **`CandidateList`** (this list should already satisfy the rules).  
+4. **Internal Validation #1**  
+   - If **any** item in `CandidateList` has `(organic == false AND sodium ≥ 50)`, you must **re‑filter** until none remain.  
+
+---
+
+## STEP 2 Trim to Top 7
+1. Take the **first 5** items from `CandidateList`.  
+2. Let `Price₅` = price of the 5th item. Compute  
    ```
-   MaxPriceAllowed = Price₅ × 1.10
+   MaxPriceAllowed = Price₅ × 1.10
    ```  
-3. Check products #6 and #7 (if they exist):  
-   - If a product’s price ≤ `MaxPriceAllowed`, **include** it.  
-   - Otherwise, **exclude** it.  
-4. Result: 5 required items, plus 0–2 extra (if #6/#7 are within `MaxPriceAllowed`).  
-
-> **Note:** If there are fewer than 5 items after filtering, just use whatever remains.
+3. Inspect items #6 and #7 (if they exist):  
+   - Include an item if `price ≤ MaxPriceAllowed`.  
+   - Otherwise, drop it.  
+4. Name this final list **`FinalList`** (5–7 items).
 
 ---
 
-## STEP 3 Final Confirmation & Markup
-1. **Do not output** any internal checks or reasoning.
-2. **Double-check prices** of items #6 and #7: ensure any you intend to include really do satisfy  
-   ```
-   price ≤ MaxPriceAllowed
-   ```  
-3. **Organic Column:**  
-   - Mark ✅ (green) if `organic = true`.  
-   - Mark ❌ (red) if `organic = false`.  
-4. **Sodium Column:**  
-   - Display the numeric sodium value (e.g., `45`).  
-   - If sodium ≤ 50 mg, append (✅).  
-   - If sodium > 50 mg, append (❌).  
+## STEP 3 Internal Validation #2 (Bullet‑Proof Check)
+Before outputting anything, loop through `FinalList` and assert:  
+```
+FOR each item IN FinalList:
+    IF (item.organic == false AND item.sodium ≥ 50):
+        RESTART entire process – you have violated the filter
+```  
+Continue until **all** rows satisfy the rule.
 
-**Do not** include any reasoning, step-by-step notes, or explanations—only the final table.  
+---
+
+## STEP 4 Prepare the Markdown Table
+- Use exactly these columns in order: **Brand / Product · Price ($ / 15 oz) · Organic · Sodium (mg / serving)**  
+- **Organic column:** ✅ if `organic == true`, ❌ if `false`.  
+- **Sodium column:** show the numeric value, then (✅) if `< 50`, else (❌).  
+- Sort rows by **price ascending** (already true in `FinalList`).  
+- **Do not** include any reasoning.
+
+## STEP 5 Output
+1. Wait until everything above is complete.  
+2. **Immediately** after that token, output—in this exact order:  
+
+   1. Header:  
+      ```
+      Here is a list of all products that are either organic OR low‑sodium, sorted by price.
+      ```  
+   2. Markdown table.
+
 
 ---
 
@@ -81,3 +98,8 @@ When presenting the filtered options, use a Markdown table with exactly these co
 > *(In this example, items beyond #3 would only be included if their price ≤ (1.29 × 1.10).)*
 
 *(Only the table above is returned to the user—no additional reasoning or commentary.)*
+
+
+<!--TAKE_OUTPUT_NOW-->
+
+<!-- Nothing above this token will be shown to the user. The model must print the three tables here and stop. -->

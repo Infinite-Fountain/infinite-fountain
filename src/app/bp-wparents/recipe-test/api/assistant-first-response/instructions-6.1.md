@@ -1,99 +1,79 @@
 ## INTERNAL PROCESSING ONLY
 
-- From here on, treat every instruction (until you see `<!--TAKE_OUTPUT_NOW-->`) as **internal notes only**—do **not** output any of them.
-- Do **all** sorting, filtering, and list building in your “head.” Do **not** print any tables, lists, or headers before `<!--TAKE_OUTPUT_NOW-->`.
-- Any text you see until `<!--TAKE_OUTPUT_NOW-->` must be suppressed from the user. Only once you reach that marker are you allowed to print.
+- Treat every instruction until you see `<!--TAKE_OUTPUT_NOW-->` as **internal notes only**—do **not** output them.
+- Perform **all** sorting, filtering, and list building in your “head.” Do **not** print any tables, lists, or headers before `<!--TAKE_OUTPUT_NOW-->`.
+- Suppress all content up to and including this point from the user.
 
 ---
 
-## STEP 1 Lookup for products that match both features
+## STEP 1 Identify Products That Match Both Features
 1. **Sort** the full list of tomato-sauce products in **ascending order** by price.  
-2. **Filter** to keep only those products that satisfy **both**:
-   - **Organic = true**, **AND**
-   - **Sodium < 50 mg** per serving.  
-3. Internally name this filtered-and-sorted list **“Both Match.”**
-4. **Do not** output the “Both Match” table or any tables at this point—remain silent until STEP 2 and STEP 3 are done.
+2. **Filter** to keep only those products where:  
+   - **Organic = true**, **AND**  
+   - **Sodium < 50 mg** per serving.  
+3. Internally name this filtered‑and‑sorted list **“Both Match.”**  
+4. **Do not** output anything yet—proceed to STEP 2.
 
 ---
 
-## STEP 2 Determine If Secondary Lists Are Needed
-1. **Always** build these two secondary lists, even if “Both Match” has ≥ 3 items:
-   - **Secondary A**: Pick exactly **3** products **not in “Both Match”**, each with `organic = true`. Sort A by ascending sodium.
-   - **Secondary B**: Pick exactly **3** products **not in “Both Match” or Secondary A**, each with `sodium < 50 mg`. Sort B by ascending price.
-2. **Do not** output anything yet—keep both lists in memory.
+## STEP 2 Build Secondary Lists (Always Required)
+Create two additional lists, regardless of how many items are in “Both Match”:
+
+- **Secondary A**  
+  - Exactly **3** products **not in “Both Match.”**  
+  - Each must have `organic = true`.  
+  - Sort by **ascending sodium**.
+
+- **Secondary B**  
+  - Exactly **3** products **not in “Both Match” or Secondary A.**  
+  - Each must have `sodium < 50 mg`.  
+  - Sort by **ascending price**.
+
+Keep both lists internal; do **not** output yet.
 
 ---
 
-## STEP 3 Final Confirmation & Table Formatting
-1. Now that you have “Both Match,” Secondary A, and Secondary B fully built, you may prepare your Markdown tables.
-2. **Do not** print anything until you see `<!--TAKE_OUTPUT_NOW-->`.
-3. When you are ready to output, you must begin your response with:
+## STEP 3 Final Confirmation & Table Formatting
+1. Ensure you now have three lists: “Both Match,” Secondary A, Secondary B.  
+2. **Do not** print anything until you see `<!--TAKE_OUTPUT_NOW-->`.  
+3. When ready, start your response with **exactly**:
 
-   ```
-   <!--TAKE_OUTPUT_NOW-->
-   ```
 
-4. **Immediately** after that line, print exactly:
-   - A header for “Both Match”:
-     ```
-     Recommended: All products that are both organic AND low‐sodium.
-     ```
-   - The Markdown table for “Both Match” (sorted by price).
-   - If “Both Match” has fewer than 3 items, also print:
-     1. The header:
-        ```
-        Backup A: Top 3 organic products (if fewer than 3 ‘Both Match’).
-        ```
-     2. The Markdown table for Secondary A (sorted by sodium).
-     3. The header:
-        ```
-        Backup B: Top 3 low‐sodium products (if fewer than 3 ‘Both Match’).
-        ```
-     4. The Markdown table for Secondary B (sorted by price).
+4. **Immediately** after that token, output—in this exact order:  
 
-5. After printing those tables, do **not** add any further text, reasoning, or commentary.
+   1. Header:  
+      ```
+      Recommended: All products that are both organic AND low‑sodium.
+      ```  
+   2. Markdown table for **Both Match** (sorted by price).  
+   3. Header:  
+      ```
+      In case the first list is too short, I am giving you also:
+      *Top 3 organic products (but with higher salt)*
+      ```  
+   4. Markdown table for **Secondary A** (sorted by sodium).  
+   5. Header:  
+      ```
+      Aslo, I am giving you:
+      *Top 3 low salt products (but not organic)*
+      ```  
+   6. Markdown table for **Secondary B** (sorted by price).
 
----
-
-## EXAMPLE (if “Both Match” ≥ 3)
-```
-Recommended: All products that are both organic AND low‐sodium.
-
-| Brand / Product                  | Price ($ / 15 oz) | Organic | Sodium (mg / serving) |
-|----------------------------------|--------------------|---------|-----------------------|
-| Trader Joe’s Organic Tomato Sauce | 1.49               | ✅       | 20 (✅)               |
-| Kroger Organic No‐Salt Tomato Sauce | 1.75             | ✅       | 10 (✅)               |
-| Simply Truth Organic No‐Salt       | 1.95             | ✅       | 15 (✅)               |
-```
-
-*(Only the table and its header are returned—no additional text.)*
+5. After printing the three tables, output **nothing else**—no reasoning, commentary, or extra lines.
 
 ---
 
-## EXAMPLE (if “Both Match” < 3)
-```
-Recommended: All products that are both organic AND low‐sodium.
+### Table Template (use for all three tables)
 
-| Brand / Product                  | Price ($ / 15 oz) | Organic | Sodium (mg / serving) |
-|----------------------------------|--------------------|---------|-----------------------|
-| Trader Joe’s Organic Tomato Sauce | 1.49               | ✅       | 20 (✅)               |
-| Simply Trim Organic No‐Salt       | 2.10               | ✅       | 15 (✅)               |
+| Brand / Product | Price ($ / 15 oz) | Organic | Sodium (mg / serving) |
+|-----------------|-------------------|---------|-----------------------|
+| _Example_       | 1.23              | ✅/❌   | 45 (✅) / 220 (❌)     |
 
-Backup A: Top 3 organic products (if fewer than 3 “Both Match”).
+- **Organic column:** ✅ if `organic = true`, ❌ if `organic = false`.  
+- **Sodium column:** show the numeric value, then (✅) if ≤ 50 mg, else (❌).
 
-| Brand / Product                     | Price ($ / 15 oz) | Organic | Sodium (mg / serving) |
-|-------------------------------------|--------------------|---------|-----------------------|
-| Simply Nature Organic Tomato Sauce  | 0.79               | ✅       | 250 (❌)              |
-| Great Value Organic Tomato Sauce    | 1.58               | ✅       | 220 (❌)              |
-| 365 Organic Tomato Sauce            | 1.69               | ✅       | 320 (❌)              |
+---
 
-Backup B: Top 3 low‐sodium products (if fewer than 3 “Both Match”).
+<!--TAKE_OUTPUT_NOW-->
 
-| Brand / Product                   | Price ($ / 15 oz) | Organic | Sodium (mg / serving) |
-|-----------------------------------|--------------------|---------|-----------------------|
-| Kroger Tomato Sauce – No Salt     | 1.00               | ❌       | 10 (✅)               |
-| Hunt’s Tomato Sauce – No Salt     | 2.09               | ❌       | 15 (✅)               |
-| Publix Tomato Sauce – No Salt     | 2.53               | ❌       | 10 (✅)               |
-```
-
-*(Only the headers and tables above are returned—no additional text.)*
+<!-- Nothing above this token will be shown to the user. The model must print the three tables here and stop. -->
