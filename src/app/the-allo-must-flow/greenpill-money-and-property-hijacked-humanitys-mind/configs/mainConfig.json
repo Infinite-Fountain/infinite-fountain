@@ -5,5 +5,6 @@
   "voteButton3Active": false,
   "voteButton4Active": false,
   "dashboardButtonActive": false,
-  "donateButtonActive": false
+  "donateButtonActive": false,
+  "tokenGated": false
 }

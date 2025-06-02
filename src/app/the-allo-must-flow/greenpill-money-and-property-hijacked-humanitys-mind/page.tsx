@@ -99,20 +99,19 @@ const loadVotingConfig = async (index: number) => {
 import { narrationSources } from './audioConfig';
 import MuteButton from './components/MuteButton';
 import TranscriptButton from './components/TranscriptButton';
-import { TOKEN_GATED } from './config';
 
 // Custom hook for token gating
 function useTokenGate() {
   const { address } = useAccount();
-  const [isChecking, setIsChecking] = useState(TOKEN_GATED);
-  const [isVerified, setIsVerified] = useState(!TOKEN_GATED);
+  const [isChecking, setIsChecking] = useState(mainConfig.tokenGated);
+  const [isVerified, setIsVerified] = useState(!mainConfig.tokenGated);
   const [gateError, setGateError] = useState<string | null>(null);
 
   // Initialize mainnet provider
   const mainnetProvider = new ethers.providers.JsonRpcProvider(ALCHEMY_MAINNET_API_URL);
 
   useEffect(() => {
-    if (!TOKEN_GATED || !address) {
+    if (!mainConfig.tokenGated || !address) {
       setIsVerified(true);
       setIsChecking(false);
       return;
@@ -190,7 +189,7 @@ export default function Page() {
   const navigationIndex = [2, 4, 5, 6, 7, 9, 10, 11, 12, 13];
 
   // State to manage current animation index
-  const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
+  const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(mainConfig.tokenGated ? 0 : 2);
 
   // State to trigger animation playback
   const [animationData, setAnimationData] = useState<any>(null);
@@ -372,7 +371,7 @@ export default function Page() {
 
   // Effect to handle token gating and animation state
   useEffect(() => {
-    if (!TOKEN_GATED) return;
+    if (!mainConfig.tokenGated) return;
 
     if (isChecking) {
       // Still checking token status - stay on Gate1
@@ -396,7 +395,7 @@ export default function Page() {
         setAnimationData(animations[0]);
       }
     }
-  }, [TOKEN_GATED, isChecking, isVerified, currentAnimationIndex]);
+  }, [mainConfig.tokenGated, isChecking, isVerified, currentAnimationIndex]);
 
   // --- Existing useEffect: Animation and smart contract data fetch ---
   useEffect(() => {
