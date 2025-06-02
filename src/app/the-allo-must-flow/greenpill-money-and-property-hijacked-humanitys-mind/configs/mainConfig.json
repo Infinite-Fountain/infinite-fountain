@@ -3,5 +3,7 @@
   "voteButton1Active": false,
   "voteButton2Active": false,
   "voteButton3Active": false,
-  "voteButton4Active": false
+  "voteButton4Active": false,
+  "dashboardButtonActive": false,
+  "donateButtonActive": false
 }

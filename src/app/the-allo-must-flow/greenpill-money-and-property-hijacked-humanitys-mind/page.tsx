@@ -548,6 +548,7 @@ export default function Page() {
 
   // --- Existing handlers for opening and closing drawers ---
   const handleDashboardButtonClick = () => {
+    if (!mainConfig.dashboardButtonActive) return;
     setDrawerState('primary-open');
   };
 
@@ -959,6 +960,12 @@ export default function Page() {
   }, [currentAnimationIndex]);
   /************************************/
 
+  // Add a button to open the donationChartDrawer
+  const handleDonationChartButtonClick = () => {
+    if (!mainConfig.donateButtonActive) return;
+    setDonationChartDrawerState('open');
+  };
+
   return (
     <div className="min-h-screen bg-black flex flex-col relative">
       {/* Desktop View */}
@@ -1005,7 +1012,7 @@ export default function Page() {
           {/* Dashboard Button desktop */}
           <button
             onClick={handleDashboardButtonClick}
-            className="dashboardButton"
+            className={`dashboardButton ${!mainConfig.dashboardButtonActive ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               position: 'absolute',
               left: '2%',
@@ -1018,7 +1025,7 @@ export default function Page() {
               border: 'none',
               padding: 0,
               margin: 0,
-              cursor: 'pointer'
+              cursor: mainConfig.dashboardButtonActive ? 'pointer' : 'not-allowed'
             }}
             aria-label="Dashboard Button"
           />
@@ -1086,8 +1093,8 @@ export default function Page() {
 
           {/* Add a button to open the donationChartDrawer */}
           <button
-            onClick={() => setDonationChartDrawerState('open')}
-            className="donationChartButton"
+            onClick={handleDonationChartButtonClick}
+            className={`donationChartButton ${!mainConfig.donateButtonActive ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               position: 'absolute',
               left: '80%',
@@ -1100,7 +1107,7 @@ export default function Page() {
               border: 'none',
               padding: 0,
               margin: 0,
-              cursor: 'pointer'
+              cursor: mainConfig.donateButtonActive ? 'pointer' : 'not-allowed'
             }}
             aria-label="Donation Chart Button"
           />
@@ -1293,7 +1300,7 @@ export default function Page() {
           {/* Dashboard Button mobile*/}
           <button
             onClick={handleDashboardButtonClick}
-            className="dashboardButton"
+            className={`dashboardButton ${!mainConfig.dashboardButtonActive ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               position: 'absolute',
               left: '2%',
@@ -1306,7 +1313,7 @@ export default function Page() {
               border: 'none',
               padding: 0,
               margin: 0,
-              cursor: 'pointer'
+              cursor: mainConfig.dashboardButtonActive ? 'pointer' : 'not-allowed'
             }}
             aria-label="Dashboard Button"
           />
