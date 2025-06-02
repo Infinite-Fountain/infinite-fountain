@@ -566,7 +566,7 @@ export default function Page() {
   // Add new handler for table of contents drawer
   const handleTableOfContentsClick = () => {
     // Only allow table of contents to open if in main content section (index 1 or above)
-    if (currentAnimationIndex < 1) return;
+    if (currentAnimationIndex < 1 || !mainConfig.tableContentsActive) return;
     setDrawerState('table-of-contents-open');
   };
 
@@ -1254,7 +1254,7 @@ export default function Page() {
               </div>
 
               <button
-                className="table-of-contents-button px-8 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg"
+                className={`table-of-contents-button px-8 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition shadow-lg ${!mainConfig.tableContentsActive ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={handleTableOfContentsClick}
                 aria-label="Table of Contents"
               >
@@ -1418,7 +1418,7 @@ export default function Page() {
               style={{ paddingRight: '5px' }}
             >
               <button
-                className="table-of-contents-button px-4 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
+                className={`table-of-contents-button px-4 py-1 bg-gray-700 text-white rounded hover:bg-gray-600 transition ${!mainConfig.tableContentsActive ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={handleTableOfContentsClick}
                 aria-label="Table of Contents"
               >
