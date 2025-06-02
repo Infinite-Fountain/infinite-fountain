@@ -82,6 +82,8 @@ interface Config {
 
 // Import JSON configuration with type assertion
 import config from './configs/MainVoteConfig.json';
+// Import mainConfig
+import mainConfig from './configs/mainConfig.json';
 
 // Function to dynamically load the voting config based on the current animation index
 const loadVotingConfig = async (index: number) => {
@@ -641,18 +643,22 @@ export default function Page() {
 
   // Add handlers for each vote button
   const handleVote1ButtonClick = async () => {
+    if (!mainConfig.voteButton1Active) return;
     await handleVoteButtonClick('vote_button_1');
   };
 
   const handleVote2ButtonClick = async () => {
+    if (!mainConfig.voteButton2Active) return;
     await handleVoteButtonClick('vote_button_2');
   };
 
   const handleVote3ButtonClick = async () => {
+    if (!mainConfig.voteButton3Active) return;
     await handleVoteButtonClick('vote_button_3');
   };
 
   const handleVote4ButtonClick = async () => {
+    if (!mainConfig.voteButton4Active) return;
     await handleVoteButtonClick('vote_button_4');
   };
 
@@ -1102,7 +1108,7 @@ export default function Page() {
           {/* Add buttons for voting */}
           <button
             onClick={handleVote1ButtonClick}
-            className="vote1button"
+            className={`vote1button ${!mainConfig.voteButton1Active ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               position: 'absolute',
               left: '22%',
@@ -1115,14 +1121,14 @@ export default function Page() {
               border: 'none',
               padding: 0,
               margin: 0,
-              cursor: 'pointer'
+              cursor: mainConfig.voteButton1Active ? 'pointer' : 'not-allowed'
             }}
             aria-label="Vote 1 Button"
           />
 
           <button
             onClick={handleVote2ButtonClick}
-            className="vote2button"
+            className={`vote2button ${!mainConfig.voteButton2Active ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               position: 'absolute',
               left: '36%',
@@ -1135,14 +1141,14 @@ export default function Page() {
               border: 'none',
               padding: 0,
               margin: 0,
-              cursor: 'pointer'
+              cursor: mainConfig.voteButton2Active ? 'pointer' : 'not-allowed'
             }}
             aria-label="Vote 2 Button"
           />
 
           <button
             onClick={handleVote3ButtonClick}
-            className="vote3button"
+            className={`vote3button ${!mainConfig.voteButton3Active ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               position: 'absolute',
               left: '50%',
@@ -1155,14 +1161,14 @@ export default function Page() {
               border: 'none',
               padding: 0,
               margin: 0,
-              cursor: 'pointer'
+              cursor: mainConfig.voteButton3Active ? 'pointer' : 'not-allowed'
             }}
             aria-label="Vote 3 Button"
           />
 
           <button
             onClick={handleVote4ButtonClick}
-            className="vote4button"
+            className={`vote4button ${!mainConfig.voteButton4Active ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               position: 'absolute',
               left: '65%',
@@ -1175,7 +1181,7 @@ export default function Page() {
               border: 'none',
               padding: 0,
               margin: 0,
-              cursor: 'pointer'
+              cursor: mainConfig.voteButton4Active ? 'pointer' : 'not-allowed'
             }}
             aria-label="Vote 4 Button"
           />
@@ -1185,7 +1191,7 @@ export default function Page() {
         <div className="red-container">
           {/* Login Buttons */}
           <div className="flex justify-center" style={{ paddingTop: '10px' }}>
-            {<LoginButton />}
+            {mainConfig.loginButton && <LoginButton />}
           </div>
           
           {/* Dynamic Text Container ++ change the offset value against animation index in two rows*/}
@@ -1262,7 +1268,7 @@ export default function Page() {
             className="absolute top-0 right-0 flex items-center"
             style={{ paddingTop: '5px', paddingRight: '5px' }}
           >
-            {<LoginButton />}
+            {mainConfig.loginButton && <LoginButton />}
           </div>
         </div>
 

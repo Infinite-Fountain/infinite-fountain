@@ -1,5 +1,5 @@
 {
-    "votingButtonVisible": true,
+    "votingButtonVisible": false,
     "votingButton": "abc",
     "drawerToOpen": "comment",
     "commentPrompt": "Share your ideas on how to improve this segment",
