@@ -788,8 +788,8 @@ export default function Page() {
         // List of markdown file URLs with their corresponding animation numbers
         const markdownUrls = [
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/normandy-farm/dynamicText/animation2.md',
-            animationNumber: 2
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/normandy-farm/dynamicText/index3.md',
+            animationIndex: 3
           }
         ];
         
@@ -798,7 +798,7 @@ export default function Page() {
         
         // Fetch each markdown file and store it at the correct index
         await Promise.all(
-          markdownUrls.map(async ({ url, animationNumber }) => {
+          markdownUrls.map(async ({ url, animationIndex }) => {
             try {
               const res = await fetch(url);
               
@@ -809,7 +809,7 @@ export default function Page() {
               const raw = await res.text();
               
               if (raw) {
-                texts[animationNumber] = DOMPurify.sanitize(marked.parse(raw, { async: false }));
+                texts[animationIndex] = DOMPurify.sanitize(marked.parse(raw, { async: false }));
               }
             } catch (err) {
               return null;
