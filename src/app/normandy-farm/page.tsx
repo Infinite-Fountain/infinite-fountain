@@ -1071,10 +1071,10 @@ export default function Page() {
               {isLoadingText ? (
                 <div className="text-gray-500">Loading text...</div>
               ) : (
-                animationTexts[currentAnimationIndex - 1] && (
+                animationTexts[currentAnimationIndex] && (
                   <div 
                     className="animation-text w-[95%] max-h-[95%] overflow-y-auto bg-transparent"
-                    dangerouslySetInnerHTML={{ __html: isTranscriptOpen ? animationTexts[currentAnimationIndex -1] || '' : '' }}
+                    dangerouslySetInnerHTML={{ __html: isTranscriptOpen ? animationTexts[currentAnimationIndex] || '' : '' }}
                   />
                 )
               )}
