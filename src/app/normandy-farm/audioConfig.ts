@@ -5,7 +5,7 @@ export const narrationSources: (string | null)[] = [
   null, // Gate2 - no audio
   null, // Index 2 has no audio because we need the user to click next button.
   '/audio/normandy-farm/audio3.mp3', // Animation index 3
-  '/audio/normandy-farm/audio4.mp3', // Animation index 4
+  null,
   '/audio/normandy-farm/audio5.mp3', // Animation index 5
   '/audio/normandy-farm/audio6.mp3', // Animation index 6
   '/audio/normandy-farm/audio7.mp3', // Animation index 7

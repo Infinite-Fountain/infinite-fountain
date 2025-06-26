@@ -1,0 +1,1 @@
+A farm in Normandy feeds 100 people year-round, and they are just a couple of owners and two employees (no tractors or fossil fuels), demonstrating that hand-powered farming can be both highly productive and profitable, earning an average of €44 per working hour.

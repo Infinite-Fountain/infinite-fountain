@@ -180,10 +180,10 @@ export default function Page() {
   const animations = [Gate1, Gate2, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15];
 
   // Array indicating whether each animation should loop
-  const animationLoopSettings = [true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true];
+  const animationLoopSettings = [true, true, true, true, false, true, true, true, true, true, true, true, true, true, true, true, true];
 
   // New array for controlling animation navigation
-  const navigationIndex = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+  const navigationIndex = [2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
   // State to manage current animation index
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState<number>(TOKEN_GATED ? 0 : 2);
@@ -790,6 +790,10 @@ export default function Page() {
           {
             url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/normandy-farm/dynamicText/index3.md',
             animationIndex: 3
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/normandy-farm/dynamicText/index5.md',
+            animationIndex: 5
           }
         ];
         
