@@ -1,0 +1,1 @@
+It’s so much easier to get PMF or find adoption when you’re building for a client. With Giveth, the problem has always been my users get hacked. My users are not educated in crypto. And even if they are, it’s a very dangerous place. 

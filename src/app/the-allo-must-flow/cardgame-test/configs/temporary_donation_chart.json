@@ -1,0 +1,43 @@
+{
+  "header_text": "Your 3pts vote has been registered onchain. You can also add a \"tip\" to the project to increase its matching funds even further.",
+  "y-axis": [
+    {
+        "name": "% of Maximum matching", 
+        "value 0": "0%",
+        "value 25": "25%",
+        "value 50": "50%",
+        "value 75": "75%",
+        "value 100": "100%"
+    }
+  ],
+  "bar_charts": [
+    { "name":1, "color": "grey", "label": "Two Weeks Ago", "pct": "41%", "usdc": "$1250" },
+    { "name":2, "color": "grey", "label": "Current Matching",       "pct": "45%", "usdc": "$1350" },
+    { "name":3, "color": "YellowGreen", "label": "With Your Tip",    "pct": "72%", "usdc": "$2160" }
+  ],
+  "benchmarks": {
+    "average":    { "pct": "55%", "usdc": "$1650" },
+    "leader": { "pct": "83%", "usdc": "$2490" }
+  },
+ 
+  "donate_button_text": [
+    "donate $5",
+    "donate $10",
+    "donate $15",
+    "donate $25",
+    "donate $50"
+  ],
+  "donation_pairs": [
+    { "amount": "$5", "buttonText": "donate $5", "pct": "63%", "usdc": "$1884", "default": false },
+    { "amount": "$10", "buttonText": "donate $10", "pct": "66%", "usdc": "$1985", "default": false },
+    { "amount": "$15", "buttonText": "donate $15", "pct": "68%", "usdc": "$2063", "default": true },
+    { "amount": "$25", "buttonText": "donate $25", "pct": "72%", "usdc": "$2186", "default": false },
+    { "amount": "$50", "buttonText": "donate $50", "pct": "80%", "usdc": "$2413", "default": false }
+  ],
+  
+  "amount_button_colors": {
+    "active": "YellowGreen",
+    "unactive": "grey"
+  }
+}
+  
