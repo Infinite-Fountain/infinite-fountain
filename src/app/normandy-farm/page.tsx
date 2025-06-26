@@ -794,6 +794,10 @@ export default function Page() {
           {
             url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/normandy-farm/dynamicText/index5.md',
             animationIndex: 5
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/normandy-farm/dynamicText/index6.md',
+            animationIndex: 6
           }
         ];
         
