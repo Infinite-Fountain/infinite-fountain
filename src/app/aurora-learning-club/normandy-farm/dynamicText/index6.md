@@ -1,0 +1,2 @@
+The “Bec Hellouin Farm” in French Normandy is a vision of what farming could become. 
+Not an advanced, high-tech endeavor, but instead, one that draws on techniques used before large-scale industrial farming existed. 
