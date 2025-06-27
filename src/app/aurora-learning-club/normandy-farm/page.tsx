@@ -788,16 +788,24 @@ export default function Page() {
         // List of markdown file URLs with their corresponding animation numbers
         const markdownUrls = [
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/normandy-farm/dynamicText/index3.md',
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/aurora-learning-club/normandy-farm/dynamicText/index3.md',
             animationIndex: 3
           },
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/normandy-farm/dynamicText/index5.md',
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/aurora-learning-club/normandy-farm/dynamicText/index5.md',
             animationIndex: 5
           },
           {
-            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/normandy-farm/dynamicText/index6.md',
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/aurora-learning-club/normandy-farm/dynamicText/index6.md',
             animationIndex: 6
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/aurora-learning-club/normandy-farm/dynamicText/index7.md',
+            animationIndex: 7
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/aurora-learning-club/normandy-farm/dynamicText/index8.md',
+            animationIndex: 8
           }
         ];
         
