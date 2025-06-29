@@ -1,8 +1,11 @@
 [build]
   publish = ".next"
   command = "npm run build"
-  environment = { NODE_VERSION = "20" }
 
   # Netlify Functions should live under netlify/functions,
-  # so they don’t clash with our Firebase Cloud Functions folder.
+  # so they don't clash with our Firebase Cloud Functions folder.
   functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NODE_OPTIONS = "--max_old_space_size=4096"

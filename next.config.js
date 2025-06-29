@@ -4,8 +4,8 @@ const nextConfig = {
   experimental: {
     // Enable build cache
     buildCache: true,
-    // Enable incremental cache
-    incrementalCacheHandlerPath: require.resolve('./cache-handler.js'),
+    // Enable incremental cache with correct property name
+    cacheHandler: require.resolve('./cache-handler.js'),
   },
   
   // Configure webpack for better caching
