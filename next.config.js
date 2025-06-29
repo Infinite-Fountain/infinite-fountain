@@ -18,13 +18,12 @@ const nextConfig = {
     return config;
   },
   
-  // Enable SWC minification for faster builds
-  swcMinify: true,
+  // Disable SWC minification to reduce memory usage
+  swcMinify: false,
   
-  // Configure image optimization
+  // Disable image optimization to reduce memory usage
   images: {
-    domains: [],
-    formats: ['image/webp', 'image/avif'],
+    unoptimized: true,
   },
   
   // Enable compression

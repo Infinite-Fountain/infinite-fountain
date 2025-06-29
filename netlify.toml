@@ -7,6 +7,8 @@
   functions = "netlify/functions"
 
 [build.environment]
-  NODE_VERSION = "20"
-  NODE_OPTIONS = "--max_old_space_size=3072"
-  NEXTJS_MAX_WORKERS = "2"
+  NODE_VERSION = "18"
+  NODE_OPTIONS = "--max_old_space_size=4096"
+  NEXTJS_MAX_WORKERS = "1"
+  SWC_MINIFY = "false"
+  DISABLE_IMAGE_OPTIMIZATION = "1"
