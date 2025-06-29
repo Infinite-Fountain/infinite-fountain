@@ -8,7 +8,8 @@
 
 [build.environment]
   NODE_VERSION = "18"
-  NODE_OPTIONS = "--max_old_space_size=4096"
+  NODE_OPTIONS = "--max_old_space_size=8192"
   NEXTJS_MAX_WORKERS = "1"
   SWC_MINIFY = "false"
   DISABLE_IMAGE_OPTIMIZATION = "1"
+  GENERATE_SOURCEMAP = "false"
