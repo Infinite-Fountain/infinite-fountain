@@ -1,12 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable experimental features for better caching
-  experimental: {
-    // Enable build cache
-    buildCache: true,
-    // Enable incremental cache with correct property name
-    cacheHandler: require.resolve('./cache-handler.js'),
-  },
+  // Configure cache handler at top level
+  cacheHandler: require.resolve('./cache-handler.js'),
   
   // Configure webpack for better caching
   webpack: (config, { dev, isServer }) => {
