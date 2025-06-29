@@ -15,6 +15,35 @@ const nextConfig = {
       };
     }
     
+    // Reduce memory usage in production builds
+    if (!dev) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            // Create smaller chunks
+            vendor: {
+              name: 'vendor',
+              chunks: 'all',
+              test: /node_modules/,
+              priority: 20,
+            },
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              priority: 10,
+              reuseExistingChunk: true,
+              enforce: true,
+            },
+          },
+        },
+      };
+    }
+    
     return config;
   },
   
@@ -28,6 +57,9 @@ const nextConfig = {
   
   // Enable compression
   compress: true,
+  
+  // Disable source maps in production to save memory
+  productionBrowserSourceMaps: false,
   
   // Configure headers for caching
   async headers() {

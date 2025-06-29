@@ -1,6 +1,6 @@
 [build]
   publish = ".next"
-  command = "npm install --force && npm run build"
+  command = "npm install --force && NODE_OPTIONS='--max_old_space_size=8192' npm run build"
 
   # Netlify Functions should live under netlify/functions,
   # so they don't clash with our Firebase Cloud Functions folder.
@@ -13,3 +13,4 @@
   SWC_MINIFY = "false"
   DISABLE_IMAGE_OPTIMIZATION = "1"
   GENERATE_SOURCEMAP = "false"
+  NEXT_TELEMETRY_DISABLED = "1"
