@@ -811,6 +811,14 @@ export default function Page() {
             url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/aurora-learning-club/normandy-farm/dynamicText/index9.md',
             animationIndex: 9
           },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/aurora-learning-club/normandy-farm/dynamicText/index10.md',
+            animationIndex: 10
+          },
+          {
+            url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/aurora-learning-club/normandy-farm/dynamicText/index11.md',
+            animationIndex: 11
+          },
         ];
         
         // Create an array of null values matching the number of animations
