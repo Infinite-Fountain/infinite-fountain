@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Configure cache handler at top level
-  cacheHandler: require.resolve('./cache-handler.js'),
+  // Configure cache handler only in production
+  ...(process.env.NODE_ENV === 'production' && {
+    cacheHandler: require.resolve('./cache-handler.js'),
+  }),
   
   // Configure webpack for better caching
   webpack: (config, { dev, isServer }) => {
