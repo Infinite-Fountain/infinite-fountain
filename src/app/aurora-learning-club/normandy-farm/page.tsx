@@ -818,7 +818,7 @@ export default function Page() {
           {
             url: 'https://raw.githubusercontent.com/Infinite-Fountain/infinite-fountain/main/src/app/aurora-learning-club/normandy-farm/dynamicText/index11.md',
             animationIndex: 11
-          },
+          }
         ];
         
         // Create an array of null values matching the number of animations
@@ -831,20 +831,22 @@ export default function Page() {
               const res = await fetch(url);
               
               if (!res.ok) {
-                return null;
+                console.warn(`Failed to fetch ${url}: ${res.status}`);
+                return;
               }
               
               const raw = await res.text();
               
               if (raw) {
                 texts[animationIndex] = DOMPurify.sanitize(marked.parse(raw, { async: false }));
+                console.log(`Successfully loaded markdown for animation index ${animationIndex}`);
               }
             } catch (err) {
-              return null;
+              console.error(`Error fetching ${url}:`, err);
             }
-            return null;
           })
         );
+        console.log('Final animationTexts array:', texts.map((text, index) => ({ index, hasText: !!text })));
         setAnimationTexts(texts);
       } catch (error) {
         console.error('Error in fetchMarkdownFiles:', error);
