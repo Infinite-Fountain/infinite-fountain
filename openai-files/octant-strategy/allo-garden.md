@@ -1,0 +1,5 @@
+allocators garden
+
+We are a community of builders and activists in the Ethereum ecosystem working on capital allocation mechanisms and their related infrastructure. 
+
+Our purpose in the Allo Garden is to build a more free and thriving future for all living beings. We do this by building and growing mechanisms that accumulate shared wealth and harness collective intelligence to address our planet's most valuable work. The scope of these mechanisms includes capital formation, capital allocation, collective decision-making, research, education, and the growth and adoption of best practices for any values-based organization. We aim to build network effects for Allo Garden members through shared capital, information, and positive sum collaborative processes, competing as 1 collective against the broken elements of traditional governance and economic systems. By removing the silos from each of our work, we can reward participation and go further together.
