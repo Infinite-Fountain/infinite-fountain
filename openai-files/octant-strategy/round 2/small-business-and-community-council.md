@@ -4,7 +4,7 @@
 
 ## Intro
 Impact Guilds turn local changemakers into **Coach-operators** of a **Small Business + Community Council (SB+CC)**.  
-Each SB sells **valuable products/services** (workshops, audits, guides, kits) and runs **regular meetups** that document and fund **SDG-aligned quick wins**.  
+Each SB+CC sells **valuable products/services** (workshops, audits, guides, kits) and runs **regular meetups** that document and fund **SDG-aligned quick wins**.  
 
 Residents get a free monthly **Pocket of votes** (gasless QV). **Receipts unlock bonus votes** (1 vote per 1 USD spent with the SB), aligning commerce with community priorities—without feeling like “crypto.”  
 Google login, card/PayPal on-ramp to USDC, and clear dashboards keep it normie-friendly.  
@@ -27,7 +27,7 @@ An **AI copilot** assists with prompts, moderation, and recap reels.
 
 5. **Pocket + Receipts → Votes**  
    - **Free Pocket:** every resident gets a monthly allocation of votes (gasless QV).  
-   - **Bonus Votes:** 1 vote per 1 USD spent on SB products/services; votes accrue in the app and attribute back to the origin handle.
+   - **Bonus Votes:** 1 vote per 1 USD spent on SB+CC products/services; votes accrue in the app and attribute back to the origin handle.
 
 6. **Pools & Payouts**  
    The SB+CC manages a community pool funded by sales, sponsors, local partners, and platform matching. Top-voted content and quick wins receive **USDC micro-grants**; creators and Squad leads are paid on proof.
