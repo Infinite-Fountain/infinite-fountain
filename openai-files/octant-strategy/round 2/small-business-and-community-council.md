@@ -52,16 +52,6 @@ An **AI copilot** assists with prompts, moderation, and recap reels.
 - **Sponsors/Partners:** Seed pools, co-host events, and receive transparent impact reports and showcase rights.  
 - **Global Council:** Signal, co-fund, and amplify the best outputs across handles.
 
----
-
-## Incentives & Budgets
-- **Micro-P&L per SB/Handle:** Open books dashboard shows revenue (sales, sponsors), QV inflows, creator payouts, and cost-per-outcome.  
-- **USDC Micro-grants:** Content bounties + “Do” bounties sized by handle maturity; paid on proof.  
-- **Gasless QV + Attribution:** Votes reset monthly; attribution by handle and by receipt.  
-- **Handle Growth Pool:** Network-level bonus splits by traffic → voters → payouts attributed to each handle (UTM/referrer on every post).  
-- **Visibility Rewards:** Leaderboards + Hall of Wins; top work syndicated in **Gamechangers Magazine**.  
-- **Coach Compensation:** Base stipend + performance kicker (revenue, outcomes, retention).  
-- **Sponsor-and-Earn (optional):** Backers fund pools and receive a return tied to their share × handle performance (clearly disclosed; off by default in early pilots).
 
 ---
 
@@ -70,15 +60,19 @@ An **AI copilot** assists with prompts, moderation, and recap reels.
 - **Voting:** Gas-sponsored QV; free Pocket + receipt-bonus votes (1 USD = 1 vote); per-handle attribution; anti-abuse guardrails.  
 - **Handles & Routing:** DAO-owned topic handles map to app subdomains/folders; canonical links route all Web2 posts back to the app.  
 - **Transparency:** On-chain proofs for pools and payouts; handle-level dashboards with OKRs, P&L, funded wins, and outcomes.  
-- **Governance:** DAO multisig owns handles; scoped posting keys; seasonal elections/rotation; incident off-boarding.  
-- **AI Copilot:** Prompt packs per handle (scripts, myth-busting, explainer scaffolds), recap reels, moderation assist, routing to pools.  
-- **Analytics:** UTM/ref capture on every post; cohort reports; “growth pool” calculation; retention by handle.  
+- **AI Copilot:** 
 - **Web2 Connectors:** Native publishing to Shorts/Reels/TikTok/X/FB with link-back previews; comment ingestion for feedback loops.
 
 ---
 
-## App Characteristics
-- **ETH fully hidden:** Google login; no wallet setup; gasless voting; payouts automated.  
-- **DAO-owned channel network:** Public Handle Registry lists topics, stewards, KPIs; squads apply to join one handle.  
-- **Live evaluation:** Grant leaders, Ethereum users, and allocators follow handles, vote, and comment; feedback is public and shapes roadmaps.  
-- **Editorial quality & safety:** Lightweight standards; monthly steward peer review; transparent enforcement via DAO proposals.
+<APP CHARACTERISTICS:>
+
+The app also has voting functionality, to vote and give feedback, and to administer a "community pool" to reward all the fanzine creators and promoters.
+
+The app has all the web3 functionality fully hidden:
+-login with google
+-no eth buying or anything
+-voting and sharing resources is gasless (sponsored)
+-there is an a.i. allocation co-pilot managing the funds
+
+The app also has an a.i. moderator and capital allocation co-pilot. This tool moderates co-creation sessions, allocation decisions, governance.
