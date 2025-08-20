@@ -6,6 +6,12 @@ We're collaborating with the Ethereum Foundation's Strategic Funding Coordinatio
 
 It's time to make Ethereum's narrative stronger. It's time for creatives to shine.
 
+## Creative scope and vibezz
+
+use your marketing skills to market Ethereum to a wider audience.
+not just any creator, more like: 
+"bro i can feel the passion in their work" 
+
 ## Mission
 
 This epoch, we're funding the journalists, storytellers, content creators, and researchers who've helped make Ethereum legible, credible, and engaging to audiences.
