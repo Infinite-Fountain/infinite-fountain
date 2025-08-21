@@ -1,0 +1,21 @@
+In 2025, blockchain alternatives will offer more choice, open source innovation, and community-controlled options. They will carry the torch of the open internet.
+
+The doomers have it wrong. AI is not going to end the world—but it is going to end the web as we’ve known it.
+
+AI is already upending the economic covenant of the internet that’s existed since the advent of search: A few companies (mostly Google) bring demand, and creators bring supply (and get some ad revenue or recognition from it). AI tools are already generating and summarizing content, obviating the need for users to click through to the sites of content providers, and thereby upsetting the balance.
+
+Meanwhile, an ocean of AI-powered deepfakes and bots will make us question what’s real and will degrade people’s trust in the online world. And as big tech companies—who can afford the most data and compute—continue to invest in AI, they will become even more powerful, further closing off what remains of the open internet.
+
+The march of technology is inevitable. I’m not calling attention to this to cry that the sky is falling or to hold back progress. We need to help individual users gain some control of their digital lives. Thoughtful government regulation could help, but it often slows innovation. Attempting a one-size-fits-all solution can create as many problems as it solves. And, let’s face it, users are not going to retreat from living their lives online.
+
+READ MORE
+Print cover for The WIRED World in 2025
+This story is from the WIRED World in 2025, our annual trends briefing.
+
+Major technology movements often come together—think of the rise of social, cloud, and mobile computing in the 2000s. This time is no different: AI needs blockchain-enabled computing. Why? First, blockchains enforce ownership. Blockchains can make credible commitments involving property, payouts, and power. A decentralized network of computers—not a big company, nor any other centralized intermediary—validates transactions, ensuring that the rules and records cannot be altered without consensus. Smart contracts automate and enforce these ownership rights, creating a system that ensures transparency, security, and trust, giving users full control and ownership of their digital lives. For creators, this means the ability to decide how others—including AI systems—can use their work.
+
+Another basic ownership right that blockchains can enforce is identity. If you are who you say you are, you can sign a statement, cryptographically, attesting as much. We could carry our identities around the web without relying on third parties. Onchain identities could also help separate real users from bots and imposters. In the 1990s, no one on the internet knew if you were a dog. Now, people can know for sure if you’re a dog—or a bot. In 2025, I expect to see more “proof of humanity” on the internet, thanks to recent advances in these technologies.
+
+In 2025, blockchains will be used to create tamper-resistant records of original digital content, a bulwark against deepfakes. When a video, photo, or audio recording is created, blockchains can provide and store a unique digital fingerprint. Any changes to the content alter that signature, making it easy to detect tampering. Blockchains can also store metadata and verification attestations from trusted sources, further ensuring content authenticity.
+
+Finally, in 2025, blockchains will help achieve the original ideals of the internet, fostering a more creative, open, diverse web. Right now, users depend on a few internet giants—the same ones that are investing so heavily in AI (and asking for regulation to keep smaller competitors out). Websites and apps that were once open have added paywalls, restricted or closed their APIs, removed their archives, edited past content without permission, and added intrusive banners and ads. In 2025, blockchain alternatives will offer more choice, open source innovation, and community-controlled options. They will carry the torch of the open internet. Crypto will start taking power away from big tech companies, putting it back in the hands of users.
