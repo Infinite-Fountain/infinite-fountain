@@ -47,3 +47,82 @@ Rebuilding local economies
 The UnBlocked Cash solution consists of e-voucher “tap-and-pay” cards, smartphones with a pre-installed app, and a single-payment online platform. 
 A fish vendor in Vanuatu participating in the UnBlocked Cash project
 Oxfam’s UnBlocked Cash project won the European Union 2020 Horizon Prize for Blockchain for Social Good in Aid category, which will support further scaling of the project beyond the Pacific region. It has also been selected the winner of the 2020 World Summit Awards in the Inclusion & Empowerment category. The project has been recognised from among +350 nominated projects as a technological solution with high social impact on promoting sustained, inclusive and sustainable economic growth, full and productive employment and decent work for all (SDG 8) and reducing inequalities (SDG 10).
+
+-
+
+Blockchain Technology Behind UnBlocked Cash (UBC)
+1. Ethereum-Based Tokens: Using DAI on Blockchain
+
+During the 2019 pilot in Vanuatu, Oxfam collaborated with Sempo and ConsenSys to distribute assistance using the Ethereum stablecoin DAI, “wrapped” as a Crypto-Collateralized Voucher and delivered through near‑field communication (NFC) cards designed for low-connectivity settings 
+Oxfam International
++14
+Oxfam Policy & Practice
++14
+socious.io
++14
+.
+
+These vouchers were stored as blockchain tokens, enabling secure and traceable digital payments 
+Oxfam International
+Oxfam Policy & Practice
+.
+
+2. NFC “Tap-and-Pay” Cards & Decentralized Ledger
+
+Beneficiaries received tap‑and‑pay NFC cards pre-loaded with DAI tokens. Vendors, equipped with smartphone apps, scanned QR codes on these cards. Each transaction was recorded on a decentralized blockchain ledger, providing transparency and real-time tracking 
+Oxfam Policy & Practice
++4
+The Reach Alliance
++4
+allaboutvanuatu.com
++4
+.
+
+3. Platform by Sempo & ConsenSys: Decentralized Finance Application
+
+The underlying e-payments platform was developed by Sempo (an Australian fintech) in partnership with ConsenSys Social Impact (now Emerging Impact), and is a decentralized finance (De‑Fi) application built on blockchain infrastructure 
+socious.io
++4
+Notion
++4
+The CALP Network
++4
+.
+
+All transactions—payments to households and vendor purchases—were completed “on‑chain” via this application 
+youtube.com
++8
+The CALP Network
++8
+sharing4good.org
++8
+.
+
+4. Transparent Stablecoin-Based System for Aid Delivery
+
+The system utilized stable digital currency (DAI) to enable donors to fund and monitor multi-country programs via a central platform—enhancing transparency and accountability 
+Oxfam International
+.
+
+This approach allowed efficient and dignified aid delivery, while protecting beneficiary privacy and providing real-time oversight 
+Oxfam International
+.
+
+Summary Table
+Element	Description
+Blockchain Platform	Ethereum-based, decentralized ledger via DAI tokens
+Token Type	Ethereum stablecoin DAI, used as vouchers
+Distribution Medium	NFC “tap-and-pay” cards scanned by vendor's app
+Back-end Platform	De-Fi application built by Sempo and ConsenSys
+Key Benefits	Transparency, speed, reduced cost, traceability, privacy
+TL;DR
+
+The UnBlocked Cash project leverages:
+
+DAI, an Ethereum stablecoin, issued as crypto-collateralized vouchers,
+
+Delivered via NFC tap-and-pay cards,
+
+Underpinned by a blockchain-based De-Fi payments platform created by Sempo and ConsenSys,
+
+Enabling secure, transparent, and efficient aid distribution, especially in low-connectivity and unbanked settings.
